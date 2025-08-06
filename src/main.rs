@@ -1,10 +1,17 @@
-use clap::{Args, Parser};
+use clap::Parser;
+use invoice_generator::LineItem;
 
 fn main() {
     let cli = Command::parse();
     match cli {
         Command::AddLineItem(line_item) => {
-            println!("Line item: {} - Quantity: {}, Price: ${:.2}", line_item.name, line_item.quantity, line_item.price);
+            println!(
+                "Line item: {} - Quantity: {}, Price: ${:.2}, Total: ${:.2}",
+                line_item.get_name(),
+                line_item.get_quantity(),
+                line_item.get_price(),
+                line_item.get_total()
+            );
         }
         Command::PrintReport => {
             println!("Printing report");
@@ -12,18 +19,11 @@ fn main() {
     }
 }
 
-#[derive(Args)]
-struct AddLineItem {
-    name: String,
-    quantity: f32,
-    price: f32,
-}
-
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 enum Command {
     #[command(about = "Add a line item to the report")]
-    AddLineItem(AddLineItem),
+    AddLineItem(LineItem),
     #[command(about = "Print the report")]
     PrintReport,
 }
