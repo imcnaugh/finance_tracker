@@ -1,7 +1,7 @@
 use clap::Args;
 
 #[derive(Args)]
-pub struct LineItem {
+pub struct NewLineItem {
     name: String,
     quantity: f32,
     #[arg(value_parser = price_parser)]
@@ -15,7 +15,7 @@ fn price_parser(s: &str) -> Result<isize, String> {
     Ok((float_price * 100.0) as isize)
 }
 
-impl LineItem {
+impl NewLineItem {
     pub fn get_name(&self) -> &str {
         &self.name
     }

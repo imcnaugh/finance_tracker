@@ -1,5 +1,5 @@
 use clap::Parser;
-use invoice_generator::LineItem;
+use invoice_generator::NewLineItem;
 
 fn main() {
     let cli = Command::parse();
@@ -23,7 +23,7 @@ fn main() {
 #[command(version, about, long_about = None)]
 enum Command {
     #[command(about = "Add a line item to the report")]
-    AddLineItem(LineItem),
+    AddLineItem(NewLineItem),
     #[command(about = "Print the report")]
     PrintReport,
 }
