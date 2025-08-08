@@ -8,6 +8,14 @@ pub struct NewLineItem {
 }
 
 impl NewLineItem {
+    pub(crate) fn new(name: String, quantity: f32, price: f32) -> Self {
+        Self {
+            name,
+            quantity,
+            price,
+        }
+    }
+
     pub fn get_name(&self) -> &str {
         &self.name
     }

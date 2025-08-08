@@ -22,3 +22,21 @@ impl From<NewLineItem> for LineItem {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::NewLineItem;
+
+    #[test]
+    fn test_from_new_line_item() {
+        let new_line_item = NewLineItem::new("Test Item".into(), 10.0, 100.0);
+
+        let line_item = LineItem::from(new_line_item);
+
+        assert_eq!(line_item.name, "Test Item");
+        assert_eq!(line_item.price_in_cents, 10000);
+        assert_eq!(line_item.quantity, 10.0);
+        assert_eq!(line_item.id.len(), 10);
+    }
+}
