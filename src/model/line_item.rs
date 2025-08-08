@@ -8,7 +8,23 @@ pub(crate) struct LineItem {
     quantity: f32,
 }
 
-impl LineItem {}
+impl LineItem {
+    pub(crate) fn get_id(&self) -> &str {
+        &self.id
+    }
+
+    pub(crate) fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    pub(crate) fn price_in_cents(&self) -> isize {
+        self.price_in_cents
+    }
+
+    pub(crate) fn get_quantity(&self) -> f32 {
+        self.quantity
+    }
+}
 
 impl From<NewLineItem> for LineItem {
     fn from(value: NewLineItem) -> Self {

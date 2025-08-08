@@ -1,3 +1,4 @@
+mod dao;
 pub mod line_item_service;
 pub mod model;
 mod utils;
