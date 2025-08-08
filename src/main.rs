@@ -1,5 +1,6 @@
 use clap::Parser;
-use invoice_generator::NewLineItem;
+use invoice_generator::LineItemService;
+use invoice_generator::model::NewLineItem;
 
 fn main() {
     let cli = Command::parse();
@@ -12,6 +13,10 @@ fn main() {
                 line_item.get_price(),
                 line_item.get_total()
             );
+            match LineItemService::log_new_line_item(line_item) {
+                Ok(_) => {}
+                Err(_) => eprintln!("Failed to log line item"),
+            }
         }
         Command::PrintReport => {
             println!("Printing report");
