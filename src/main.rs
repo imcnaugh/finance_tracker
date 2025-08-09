@@ -1,6 +1,6 @@
 use clap::Parser;
-use invoice_generator::LineItemService;
 use invoice_generator::model::NewLineItem;
+use invoice_generator::service::LineItemService;
 
 fn main() {
     let cli = Command::parse();

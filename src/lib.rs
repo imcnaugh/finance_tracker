@@ -1,6 +1,4 @@
 mod dao;
-pub mod line_item_service;
 pub mod model;
+pub mod service;
 mod utils;
-
-pub use line_item_service::LineItemService;
