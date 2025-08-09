@@ -5,19 +5,10 @@ use invoice_generator::model::NewLineItem;
 fn main() {
     let cli = Command::parse();
     match cli {
-        Command::AddLineItem(line_item) => {
-            println!(
-                "Line item: {} - Quantity: {}, Price: ${:.2}, Total: ${:.2}",
-                line_item.get_name(),
-                line_item.get_quantity(),
-                line_item.get_price(),
-                line_item.get_total()
-            );
-            match LineItemService::log_new_line_item(line_item) {
-                Ok(_) => {}
-                Err(_) => eprintln!("Failed to log line item"),
-            }
-        }
+        Command::AddLineItem(line_item) => match LineItemService::log_new_line_item(line_item) {
+            Ok(_) => {}
+            Err(_) => eprintln!("Failed to log line item"),
+        },
         Command::PrintReport => {
             println!("Printing report");
         }

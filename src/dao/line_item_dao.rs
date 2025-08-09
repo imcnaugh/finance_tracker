@@ -18,7 +18,7 @@ impl LineItemDao {
             .expect("Failed to bind id");
         stmt.bind((":name", line_item.get_name()))
             .expect("Failed to bind name");
-        stmt.bind((":price", line_item.price_in_cents() as i64))
+        stmt.bind((":price", line_item.get_unit_price_in_cents() as i64))
             .expect("Failed to bind price");
         stmt.bind((":quantity", line_item.get_quantity() as f64))
             .expect("Failed to bind quantity");

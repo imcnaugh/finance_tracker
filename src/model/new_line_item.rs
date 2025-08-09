@@ -4,7 +4,7 @@ use clap::Args;
 pub struct NewLineItem {
     name: String,
     quantity: f32,
-    price: f32,
+    unit_price: f32,
 }
 
 impl NewLineItem {
@@ -12,7 +12,7 @@ impl NewLineItem {
         Self {
             name,
             quantity,
-            price,
+            unit_price: price,
         }
     }
 
@@ -24,11 +24,7 @@ impl NewLineItem {
         self.quantity
     }
 
-    pub fn get_price(&self) -> f32 {
-        self.price
-    }
-
-    pub fn get_total(&self) -> f32 {
-        self.price * self.quantity
+    pub fn get_unit_price(&self) -> f32 {
+        self.unit_price
     }
 }
