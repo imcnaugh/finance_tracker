@@ -6,6 +6,8 @@ pub(crate) struct LineItem {
     name: String,
     price_in_cents: isize,
     quantity: f32,
+    status: String,
+    client_id: String,
 }
 
 impl LineItem {
