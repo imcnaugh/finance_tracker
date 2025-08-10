@@ -15,6 +15,13 @@ classDiagram
         ~new(name: String, quantity: f32, price: f32)
     }
     
+    class NewClient{
+        -String name
+        
+        ~new(name: String)
+        +get_name()
+    }
+    
     class LineItem{
         -String id
         -String name
@@ -22,7 +29,7 @@ classDiagram
         -f32 quantity
         
         ~new(id: String, name: String, unit_price_in_cents: isize, quantity: f32)
-        ~from(new_line_item: NewLineItem) LineItem
+        ~from(new_line_item: NewLineItem)
         ~get_id()
         ~get_name()
         ~get_unit_price_in_cents()
@@ -55,10 +62,11 @@ classDiagram
     class Client {
         -String id
         -String name
-        
+
+        ~from(new_client: NewClient
         ~new(id: String, name: String)
         ~get_id()
-        ~get_name()
+        ~get_name())
     }
     
     Invoice "1" o-- "0..*" LineItem

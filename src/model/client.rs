@@ -1,6 +1,18 @@
+use crate::model::new_client::NewClient;
+use crate::utils::generate_new_id;
+
 pub(crate) struct Client {
     id: String,
     name: String,
+}
+
+impl From<NewClient> for Client {
+    fn from(value: NewClient) -> Self {
+        Self {
+            id: generate_new_id(),
+            name: value.get_name().into(),
+        }
+    }
 }
 
 impl Client {
