@@ -1,4 +1,4 @@
-use crate::dao::create_sqlite_tables::create_sqlite_tables_if_not_exists;
+use crate::dao::sqlite::create_sqlite_tables::create_sqlite_tables_if_not_exists;
 use std::env;
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
