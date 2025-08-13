@@ -1,6 +1,7 @@
 use crate::model::NewLineItem;
 use crate::utils::generate_new_id;
 
+#[derive(Debug)]
 pub(crate) struct LineItem {
     id: String,
     name: String,

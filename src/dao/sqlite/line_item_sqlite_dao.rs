@@ -80,4 +80,38 @@ impl Crud<LineItem> for LineItemSqliteDao {
     }
 }
 
-impl LineItemDao for LineItemSqliteDao {}
+impl LineItemDao for LineItemSqliteDao {
+    fn get_line_items_for_invoice(
+        &self,
+        invoice_id: &str,
+    ) -> Result<Vec<LineItem>, Box<dyn Error>> {
+        let conn = get_connection();
+
+        let line_items: Vec<LineItem> = conn
+            .prepare(
+                "SELECT
+	li.id,
+	li.name,
+	li.quantity,
+	li.price
+FROM line_items li
+JOIN invoice_line_items ili ON ili.line_item_id = li.id
+WHERE ili.invoice_id = :invoice_id",
+            )
+            .expect("Failed to prepare statement")
+            .into_iter()
+            .bind((":invoice_id", invoice_id))
+            .expect("Failed to bind invoice_id")
+            .map(|row| {
+                let row = row.expect("Failed to get row");
+                let id = row.read::<&str, _>("id").into();
+                let name = row.read::<&str, _>("name").into();
+                let quantity = row.read::<f64, _>("quantity");
+                let price = row.read::<i64, _>("price");
+                LineItem::new(id, name, price as isize, quantity as f32)
+            })
+            .collect();
+
+        Ok(line_items)
+    }
+}

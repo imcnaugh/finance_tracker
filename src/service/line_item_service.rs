@@ -1,4 +1,5 @@
 use crate::dao::crud::Crud;
+use crate::dao::line_item_dao::LineItemDao;
 use crate::dao::sqlite::line_item_sqlite_dao::LineItemSqliteDao;
 use crate::model::NewLineItem;
 use crate::model::line_item::LineItem;
