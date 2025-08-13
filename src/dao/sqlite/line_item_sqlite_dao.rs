@@ -2,7 +2,6 @@ use crate::dao::crud::Crud;
 use crate::dao::line_item_dao::LineItemDao;
 use crate::dao::sqlite::sqlite_connection::get_connection;
 use crate::model::line_item::LineItem;
-use sqlite::ColumnIndex;
 use std::error::Error;
 
 pub struct LineItemSqliteDao;
@@ -50,9 +49,7 @@ impl Crud<LineItem> for LineItemSqliteDao {
             .expect("Failed to bind id");
 
         match stmt.next() {
-            None => {
-                todo!()
-            }
+            None => Err("No line item found with".into()),
             Some(row) => {
                 let row = row.expect("Failed to get row");
                 let id = row.read::<&str, _>("id").into();
@@ -70,7 +67,16 @@ impl Crud<LineItem> for LineItemSqliteDao {
     }
 
     fn delete(&self, id: &str) -> Result<(), Box<dyn Error>> {
-        todo!()
+        let conn = get_connection();
+
+        let mut stmt = conn
+            .prepare("delete from line_items where id=:id")
+            .expect("Failed to prepare statement");
+
+        stmt.bind((":id", id)).expect("Failed to bind id");
+
+        stmt.next().expect("Failed to execute statement");
+        Ok(())
     }
 }
 
