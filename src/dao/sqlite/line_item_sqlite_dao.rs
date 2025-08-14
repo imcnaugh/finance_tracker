@@ -63,7 +63,30 @@ impl Crud<LineItem> for LineItemSqliteDao {
     }
 
     fn update(&self, id: &str, item: &LineItem) -> Result<(), Box<dyn Error>> {
-        todo!()
+        let conn = get_connection();
+
+        let mut stmt = conn
+            .prepare(
+                "UPDATE line_items
+            SET price=:price,
+            quantity=:quantity,
+            name=:name
+            WHERE id=:id",
+            )
+            .expect("Failed to update statement");
+
+        stmt.bind((":id", id)).expect("Failed to bind id");
+        stmt.bind((":price", item.get_unit_price_in_cents() as i64))
+            .expect("Failed to bind price");
+        stmt.bind((":quantity", item.get_quantity() as f64))
+            .expect("Failed to bind quantity");
+        stmt.bind((":name", item.get_name()))
+            .expect("Failed to bind name");
+
+        match stmt.next() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Box::new(e)),
+        }
     }
 
     fn delete(&self, id: &str) -> Result<(), Box<dyn Error>> {
