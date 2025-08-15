@@ -2,13 +2,16 @@ use clap::Parser;
 use invoice_generator::model::NewLineItem;
 use invoice_generator::service::LineItemService;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let cli = Command::parse();
     match cli {
-        Command::AddLineItem(line_item) => match LineItemService::log_new_line_item(line_item) {
-            Ok(_) => {}
-            Err(_) => eprintln!("Failed to log line item"),
-        },
+        Command::AddLineItem(line_item) => {
+            match LineItemService::log_new_line_item(line_item).await {
+                Ok(_) => {}
+                Err(_) => eprintln!("Failed to log line item"),
+            }
+        }
         Command::PrintReport => {
             println!("Printing report");
         }
