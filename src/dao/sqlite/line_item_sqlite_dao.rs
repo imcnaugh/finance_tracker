@@ -1,7 +1,7 @@
 use crate::dao::crud::Crud;
 use crate::dao::line_item_dao::LineItemDao;
-use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::line_item::LineItem;
+use sqlx::{Executor, Sqlite};
 use std::error::Error;
 
 pub struct LineItemSqliteDao;
@@ -12,10 +12,11 @@ impl LineItemSqliteDao {
     }
 }
 
-impl Crud<LineItem> for LineItemSqliteDao {
-    async fn create(&self, item: &LineItem) -> Result<(), Box<dyn Error>> {
-        let conn = get_pooled_connection().await;
-        let mut conn = conn.acquire().await?;
+impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
+    async fn create<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Box<dyn Error>>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
         let query = sqlx::query("INSERT INTO line_item (id, description,  quantity, unit_price_in_cents, invoice_id) VALUES (?, ?, ?, ?, ?)")
             .bind(item.get_id())
             .bind(item.get_description())
@@ -23,28 +24,46 @@ impl Crud<LineItem> for LineItemSqliteDao {
             .bind(item.get_unit_price_in_cents() as i32)
             .bind(item.get_invoice_id());
 
-        query.execute(&mut *conn).await?;
+        query.execute(executor).await?;
         Ok(())
     }
 
-    async fn read(&self, id: &str) -> Result<LineItem, Box<dyn Error>> {
+    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<LineItem, Box<dyn Error>>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
         todo!()
     }
 
-    async fn update(&self, id: &str, item: &LineItem) -> Result<(), Box<dyn Error>> {
+    async fn update<'e, E>(
+        &self,
+        executor: E,
+        id: &str,
+        item: &LineItem,
+    ) -> Result<(), Box<dyn Error>>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
         todo!()
     }
 
-    async fn delete(&self, id: &str) -> Result<(), Box<dyn Error>> {
+    async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
         todo!()
     }
 }
 
-impl LineItemDao for LineItemSqliteDao {
-    async fn get_line_items_for_invoice(
+impl LineItemDao<Sqlite> for LineItemSqliteDao {
+    async fn get_line_items_for_invoice<'e, E>(
         &self,
+        executor: E,
         invoice_id: &str,
-    ) -> Result<Vec<LineItem>, Box<dyn Error>> {
+    ) -> Result<Vec<LineItem>, Box<dyn Error>>
+    where
+        E: Executor<'e>,
+    {
         todo!()
     }
 }
