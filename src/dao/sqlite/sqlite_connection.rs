@@ -20,7 +20,6 @@ pub async fn get_pooled_connection() -> &'static Pool<Sqlite> {
             fs::File::create(&db_url).expect("Failed to create database file");
         }
 
-
         let string = format!("sqlite://{}", &db_url);
         let connection_pool = SqlitePoolOptions::new()
             .max_connections(max_connections)

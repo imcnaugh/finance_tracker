@@ -7,15 +7,23 @@ pub(crate) struct LineItem {
     description: String,
     unit_price_in_cents: isize,
     quantity: f32,
+    invoice_id: String,
 }
 
 impl LineItem {
-    pub(crate) fn new(id: String, description: String, unit_price_in_cents: isize, quantity: f32) -> Self {
+    pub(crate) fn new(
+        id: String,
+        description: String,
+        unit_price_in_cents: isize,
+        quantity: f32,
+        invoice_id: String,
+    ) -> Self {
         Self {
             id,
             description,
             unit_price_in_cents,
             quantity,
+            invoice_id,
         }
     }
 
@@ -38,6 +46,10 @@ impl LineItem {
     pub(crate) fn get_total_in_cents(&self) -> isize {
         self.unit_price_in_cents * self.quantity as isize
     }
+
+    pub(crate) fn get_invoice_id(&self) -> &str {
+        &self.invoice_id
+    }
 }
 
 impl From<NewLineItem> for LineItem {
@@ -49,6 +61,7 @@ impl From<NewLineItem> for LineItem {
             description: value.get_description().into(),
             unit_price_in_cents,
             quantity: value.get_quantity(),
+            invoice_id: value.get_invoice_id().into(),
         }
     }
 }
@@ -60,7 +73,7 @@ mod tests {
 
     #[test]
     fn test_from_new_line_item() {
-        let new_line_item = NewLineItem::new("Test Item".into(), 10.0, 100.0);
+        let new_line_item = NewLineItem::new("Test Item".into(), 10.0, 100.0, "1234567890".into());
 
         let line_item = LineItem::from(new_line_item);
 
@@ -68,5 +81,6 @@ mod tests {
         assert_eq!(line_item.unit_price_in_cents, 10000);
         assert_eq!(line_item.quantity, 10.0);
         assert_eq!(line_item.id.len(), 10);
+        assert_eq!(line_item.invoice_id, "1234567890");
     }
 }

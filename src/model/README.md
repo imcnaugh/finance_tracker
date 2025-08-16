@@ -7,12 +7,14 @@ classDiagram
         -String description
         -f32 quantity
         -f32 unit_price
+        -String invoice_id
         
         +get_description()
         +get_quantity()
         +get_unit_price()
+        +get_invoice_id()
 
-        ~new(description: String, quantity: f32, price: f32)
+        ~new(description: String, quantity: f32, price: f32, invoice_id: String)
     }
     
     class NewClient{
@@ -27,13 +29,15 @@ classDiagram
         -String description
         -isize price_in_cents
         -f32 quantity
+        -String invoice_id 
         
-        ~new(id: String, description: String, unit_price_in_cents: isize, quantity: f32)
+        ~new(id: String, description: String, unit_price_in_cents: isize, quantity: f32, invoice_id: String)
         ~from(new_line_item: NewLineItem)
         ~get_id()
         ~get_description()
         ~get_unit_price_in_cents()
         ~get_quantity()
+        ~get_invoice_id()
 
         ~get_total_in_cents()
     }

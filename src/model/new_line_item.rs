@@ -5,14 +5,16 @@ pub struct NewLineItem {
     description: String,
     quantity: f32,
     unit_price: f32,
+    invoice_id: String,
 }
 
 impl NewLineItem {
-    pub(crate) fn new(description: String, quantity: f32, price: f32) -> Self {
+    pub(crate) fn new(description: String, quantity: f32, price: f32, invoice_id: String) -> Self {
         Self {
             description,
             quantity,
             unit_price: price,
+            invoice_id,
         }
     }
 
@@ -26,5 +28,9 @@ impl NewLineItem {
 
     pub fn get_unit_price(&self) -> f32 {
         self.unit_price
+    }
+
+    pub fn get_invoice_id(&self) -> &str {
+        &self.invoice_id
     }
 }
