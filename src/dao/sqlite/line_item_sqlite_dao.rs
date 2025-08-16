@@ -6,6 +6,28 @@ use std::error::Error;
 
 pub struct LineItemSqliteDao;
 
+const INSERT_QUERY: &str = r#"
+INSERT INTO line_item (
+    id,
+    description,
+    quantity,
+    unit_price_in_cents,
+    invoice_id
+) VALUES (?, ?, ?, ?, ?)
+"#;
+
+const SELECT_BY_ID_QUERY: &str = r#"
+SELECT
+    id,
+    description,
+    quantity,
+    unit_price_in_cents,
+    invoice_id,
+    created_date
+FROM line_item
+WHERE id = ?
+"#;
+
 impl LineItemSqliteDao {
     pub fn new() -> Self {
         Self {}
@@ -17,7 +39,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query("INSERT INTO line_item (id, description,  quantity, unit_price_in_cents, invoice_id) VALUES (?, ?, ?, ?, ?)")
+        let query = sqlx::query(INSERT_QUERY)
             .bind(item.get_id())
             .bind(item.get_description())
             .bind(item.get_quantity() as f64)
@@ -28,11 +50,16 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
         Ok(())
     }
 
-    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<LineItem, Box<dyn Error>>
+    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<LineItem>, Box<dyn Error>>
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        todo!()
+        let item = sqlx::query_as::<_, LineItem>(SELECT_BY_ID_QUERY)
+            .bind(id)
+            .fetch_optional(executor)
+            .await?;
+
+        Ok(item)
     }
 
     async fn update<'e, E>(

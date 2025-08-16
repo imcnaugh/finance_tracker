@@ -1,12 +1,12 @@
 use crate::model::NewLineItem;
 use crate::utils::generate_new_id;
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 pub(crate) struct LineItem {
     id: String,
     description: String,
-    unit_price_in_cents: isize,
-    quantity: f32,
+    unit_price_in_cents: i32,
+    quantity: f64,
     invoice_id: String,
 }
 
@@ -14,8 +14,8 @@ impl LineItem {
     pub(crate) fn new(
         id: String,
         description: String,
-        unit_price_in_cents: isize,
-        quantity: f32,
+        unit_price_in_cents: i32,
+        quantity: f64,
         invoice_id: String,
     ) -> Self {
         Self {
@@ -35,16 +35,16 @@ impl LineItem {
         &self.description
     }
 
-    pub(crate) fn get_unit_price_in_cents(&self) -> isize {
+    pub(crate) fn get_unit_price_in_cents(&self) -> i32 {
         self.unit_price_in_cents
     }
 
-    pub(crate) fn get_quantity(&self) -> f32 {
+    pub(crate) fn get_quantity(&self) -> f64 {
         self.quantity
     }
 
-    pub(crate) fn get_total_in_cents(&self) -> isize {
-        self.unit_price_in_cents * self.quantity as isize
+    pub(crate) fn get_total_in_cents(&self) -> i32 {
+        self.unit_price_in_cents * self.quantity as i32
     }
 
     pub(crate) fn get_invoice_id(&self) -> &str {
@@ -54,7 +54,7 @@ impl LineItem {
 
 impl From<NewLineItem> for LineItem {
     fn from(value: NewLineItem) -> Self {
-        let unit_price_in_cents = (value.get_unit_price() * 100.0) as isize;
+        let unit_price_in_cents = (value.get_unit_price() * 100.0) as i32;
 
         Self {
             id: generate_new_id(),

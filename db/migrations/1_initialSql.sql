@@ -15,8 +15,8 @@ CREATE TABLE invoice (
 CREATE TABLE line_item (
     id TEXT PRIMARY KEY,
     description TEXT NOT NULL,
-    quantity NUMERIC NOT NULL,
-    unit_price_in_cents NUMERIC NOT NULL,
+    quantity REAL NOT NULL,
+    unit_price_in_cents INTEGER NOT NULL,
     invoice_id TEXT NOT NULL,
     created_date INT NOT NULL DEFAULT (unixepoch()),
     FOREIGN KEY (invoice_id) REFERENCES invoice(id) ON DELETE CASCADE

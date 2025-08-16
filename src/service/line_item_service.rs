@@ -3,7 +3,6 @@ use crate::dao::sqlite::line_item_sqlite_dao::LineItemSqliteDao;
 use crate::dao::sqlite::sqlite_connection;
 use crate::model::NewLineItem;
 use crate::model::line_item::LineItem;
-use crate::utils::generate_new_id;
 use sqlx::Acquire;
 use std::error::Error;
 
@@ -24,6 +23,10 @@ impl LineItemService {
         dao.create(&mut *tx, &line_item)
             .await
             .expect("TODO: panic message");
+
+        let read = dao.read(&mut *tx, line_item.get_id()).await.expect("");
+        println!("{:?}", read);
+
         tx.commit().await?;
 
         Ok(())

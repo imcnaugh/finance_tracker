@@ -5,8 +5,8 @@ classDiagram
     
     class NewLineItem{
         -String description
-        -f32 quantity
-        -f32 unit_price
+        -f64 quantity
+        -f64 unit_price
         -String invoice_id
         
         +get_description()
@@ -14,7 +14,7 @@ classDiagram
         +get_unit_price()
         +get_invoice_id()
 
-        ~new(description: String, quantity: f32, price: f32, invoice_id: String)
+        ~new(description: String, quantity: f64, price: f64, invoice_id: String)
     }
     
     class NewClient{
@@ -27,11 +27,11 @@ classDiagram
     class LineItem{
         -String id
         -String description
-        -isize price_in_cents
-        -f32 quantity
+        -i32 price_in_cents
+        -f64 quantity
         -String invoice_id 
         
-        ~new(id: String, description: String, unit_price_in_cents: isize, quantity: f32, invoice_id: String)
+        ~new(id: String, description: String, unit_price_in_cents: i32, quantity: f64, invoice_id: String)
         ~from(new_line_item: NewLineItem)
         ~get_id()
         ~get_description()
