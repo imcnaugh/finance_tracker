@@ -1,5 +1,6 @@
 use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
 use std::env;
+use std::fs;
 use tokio::sync::OnceCell;
 
 static POOL: OnceCell<Pool<Sqlite>> = OnceCell::const_new();
@@ -11,6 +12,14 @@ pub async fn get_pooled_connection() -> &'static Pool<Sqlite> {
             .unwrap_or(String::from("3"))
             .parse::<u32>()
             .unwrap();
+
+        if let Some(parent) = std::path::Path::new(&db_url).parent() {
+            fs::create_dir_all(parent).expect("Failed to create database directory");
+        }
+        if !std::path::Path::new(&db_url).exists() {
+            fs::File::create(&db_url).expect("Failed to create database file");
+        }
+
 
         let string = format!("sqlite://{}", &db_url);
         let connection_pool = SqlitePoolOptions::new()

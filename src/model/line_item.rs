@@ -4,16 +4,16 @@ use crate::utils::generate_new_id;
 #[derive(Debug)]
 pub(crate) struct LineItem {
     id: String,
-    name: String,
+    description: String,
     unit_price_in_cents: isize,
     quantity: f32,
 }
 
 impl LineItem {
-    pub(crate) fn new(id: String, name: String, unit_price_in_cents: isize, quantity: f32) -> Self {
+    pub(crate) fn new(id: String, description: String, unit_price_in_cents: isize, quantity: f32) -> Self {
         Self {
             id,
-            name,
+            description,
             unit_price_in_cents,
             quantity,
         }
@@ -23,8 +23,8 @@ impl LineItem {
         &self.id
     }
 
-    pub(crate) fn get_name(&self) -> &str {
-        &self.name
+    pub(crate) fn get_description(&self) -> &str {
+        &self.description
     }
 
     pub(crate) fn get_unit_price_in_cents(&self) -> isize {
@@ -46,7 +46,7 @@ impl From<NewLineItem> for LineItem {
 
         Self {
             id: generate_new_id(),
-            name: value.get_name().into(),
+            description: value.get_description().into(),
             unit_price_in_cents,
             quantity: value.get_quantity(),
         }
@@ -64,7 +64,7 @@ mod tests {
 
         let line_item = LineItem::from(new_line_item);
 
-        assert_eq!(line_item.name, "Test Item");
+        assert_eq!(line_item.description, "Test Item");
         assert_eq!(line_item.unit_price_in_cents, 10000);
         assert_eq!(line_item.quantity, 10.0);
         assert_eq!(line_item.id.len(), 10);
