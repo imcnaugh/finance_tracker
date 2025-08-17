@@ -3,7 +3,7 @@ use crate::dao::sqlite::line_item_sqlite_dao::LineItemSqliteDao;
 use crate::dao::sqlite::sqlite_connection;
 use crate::model::NewLineItem;
 use crate::model::line_item::LineItem;
-use sqlx::Acquire;
+use sqlx::{Acquire, Connection};
 use std::error::Error;
 
 pub struct LineItemService {}
@@ -28,6 +28,7 @@ impl LineItemService {
         println!("{:?}", read);
 
         tx.commit().await?;
+        conn.close().await?;
 
         Ok(())
     }

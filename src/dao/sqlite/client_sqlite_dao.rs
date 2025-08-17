@@ -40,10 +40,12 @@ impl ClientSqliteDao {
     }
 }
 
-impl Crud<Client, Sqlite> for ClientSqliteDao {
+impl Crud<Client> for ClientSqliteDao {
+    type DB = Sqlite;
+
     async fn create<'e, E>(&self, executor: E, item: &Client) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(INSERT_SQL)
             .bind(item.get_id())
@@ -55,7 +57,7 @@ impl Crud<Client, Sqlite> for ClientSqliteDao {
 
     async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<Client>, Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let item = sqlx::query_as::<_, Client>(SELECT_BY_ID_SQL)
             .bind(id)
@@ -72,7 +74,7 @@ impl Crud<Client, Sqlite> for ClientSqliteDao {
         item: &Client,
     ) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(UPDATE_SQL).bind(item.get_name()).bind(id);
 
@@ -82,7 +84,7 @@ impl Crud<Client, Sqlite> for ClientSqliteDao {
 
     async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(DELETE_SQL).bind(id);
 
@@ -91,4 +93,4 @@ impl Crud<Client, Sqlite> for ClientSqliteDao {
     }
 }
 
-impl ClientDao<Sqlite> for ClientSqliteDao {}
+impl ClientDao for ClientSqliteDao {}

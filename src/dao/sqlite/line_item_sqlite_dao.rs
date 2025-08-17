@@ -61,10 +61,12 @@ impl LineItemSqliteDao {
     }
 }
 
-impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
+impl Crud<LineItem> for LineItemSqliteDao {
+    type DB = Sqlite;
+
     async fn create<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(INSERT_SQL)
             .bind(item.get_id())
@@ -79,7 +81,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
 
     async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<LineItem>, Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let item = sqlx::query_as::<_, LineItem>(SELECT_BY_ID_SQL)
             .bind(id)
@@ -96,7 +98,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
         item: &LineItem,
     ) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(UPDATE_SQL)
             .bind(item.get_description())
@@ -111,7 +113,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
 
     async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let query = sqlx::query(DELETE_SQL).bind(id);
 
@@ -120,14 +122,14 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
     }
 }
 
-impl LineItemDao<Sqlite> for LineItemSqliteDao {
+impl LineItemDao for LineItemSqliteDao {
     async fn get_line_items_for_invoice<'e, E>(
         &self,
         executor: E,
         invoice_id: &str,
     ) -> Result<Vec<LineItem>, Box<dyn Error>>
     where
-        E: Executor<'e, Database = Sqlite>,
+        E: Executor<'e, Database = Self::DB>,
     {
         let items = sqlx::query_as::<_, LineItem>(SELECT_LINE_ITEMS_FOR_INVOICE_SQL)
             .bind(invoice_id)

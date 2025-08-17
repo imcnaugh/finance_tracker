@@ -1,11 +1,11 @@
 use crate::dao::crud::Crud;
 use crate::model::line_item::LineItem;
-use sqlx::{Database, Executor};
+use sqlx::Executor;
 use std::error::Error;
 
 /// A trait for data access operations specific to line items in an invoice system.
 /// Extends the base CRUD operations with line-item-specific functionality.
-pub trait LineItemDao<DB: Database>: Crud<LineItem, DB> {
+pub trait LineItemDao: Crud<LineItem> {
     /// Retrieves all line items associated with a specific invoice.
     ///
     /// # Arguments
@@ -21,5 +21,5 @@ pub trait LineItemDao<DB: Database>: Crud<LineItem, DB> {
         invoice_id: &str,
     ) -> Result<Vec<LineItem>, Box<dyn Error>>
     where
-        E: Executor<'e, Database = DB>;
+        E: Executor<'e, Database = Self::DB>;
 }

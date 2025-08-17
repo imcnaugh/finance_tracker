@@ -6,7 +6,9 @@ use std::error::Error;
 /// # Type Parameters
 /// * `T` - The type of item being stored/retrieved
 /// * `DB` - The database type that implements the `Database` trait
-pub trait Crud<T, DB: Database> {
+pub trait Crud<T> {
+    type DB: Database;
+
     /// Creates a new item in the database.
     ///
     /// # Arguments
@@ -17,7 +19,7 @@ pub trait Crud<T, DB: Database> {
     /// A Result containing () if successful, or an error if the operation fails
     async fn create<'e, E>(&self, executor: E, item: &T) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = DB>;
+        E: Executor<'e, Database = Self::DB>;
 
     /// Retrieves an item from the database by its ID.
     ///
@@ -29,7 +31,7 @@ pub trait Crud<T, DB: Database> {
     /// A Result containing an Option with the item if found, or None if not found
     async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<T>, Box<dyn Error>>
     where
-        E: Executor<'e, Database = DB>;
+        E: Executor<'e, Database = Self::DB>;
 
     /// Updates an existing item in the database.
     ///
@@ -42,7 +44,7 @@ pub trait Crud<T, DB: Database> {
     /// A Result containing () if successful, or an error if the operation fails
     async fn update<'e, E>(&self, executor: E, id: &str, item: &T) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = DB>;
+        E: Executor<'e, Database = Self::DB>;
 
     /// Deletes an item from the database by its ID.
     ///
@@ -54,5 +56,5 @@ pub trait Crud<T, DB: Database> {
     /// A Result containing () if successful, or an error if the operation fails
     async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
     where
-        E: Executor<'e, Database = DB>;
+        E: Executor<'e, Database = Self::DB>;
 }
