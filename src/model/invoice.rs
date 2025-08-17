@@ -1,6 +1,7 @@
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 
+#[derive(Debug, sqlx::FromRow)]
 pub(crate) struct Invoice {
     id: String,
     client_id: String,

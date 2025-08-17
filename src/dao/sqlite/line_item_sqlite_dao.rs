@@ -6,7 +6,7 @@ use std::error::Error;
 
 pub struct LineItemSqliteDao;
 
-const INSERT_QUERY: &str = r#"
+const INSERT_SQL: &str = r#"
 INSERT INTO line_item (
     id,
     description,
@@ -16,16 +16,42 @@ INSERT INTO line_item (
 ) VALUES (?, ?, ?, ?, ?)
 "#;
 
-const SELECT_BY_ID_QUERY: &str = r#"
+const SELECT_BY_ID_SQL: &str = r#"
 SELECT
     id,
     description,
     quantity,
     unit_price_in_cents,
     invoice_id,
-    created_date
+    created_timestamp
 FROM line_item
 WHERE id = ?
+"#;
+
+const UPDATE_SQL: &str = r#"
+UPDATE line_item
+SET description = ?,
+    quantity = ?,
+    unit_price_in_cents = ?,
+    invoice_id = ?
+WHERE id = ?
+"#;
+
+const DELETE_SQL: &str = r#"
+DELETE FROM line_item
+WHERE id = ?
+"#;
+
+const SELECT_LINE_ITEMS_FOR_INVOICE_SQL: &str = r#"
+SELECT
+    id,
+    description,
+    quantity,
+    unit_price_in_cents,
+    invoice_id,
+    created_timestamp
+FROM line_item
+WHERE invoice_id = ?
 "#;
 
 impl LineItemSqliteDao {
@@ -39,7 +65,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(INSERT_QUERY)
+        let query = sqlx::query(INSERT_SQL)
             .bind(item.get_id())
             .bind(item.get_description())
             .bind(item.get_quantity() as f64)
@@ -54,7 +80,7 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let item = sqlx::query_as::<_, LineItem>(SELECT_BY_ID_QUERY)
+        let item = sqlx::query_as::<_, LineItem>(SELECT_BY_ID_SQL)
             .bind(id)
             .fetch_optional(executor)
             .await?;
@@ -71,14 +97,25 @@ impl Crud<LineItem, Sqlite> for LineItemSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        todo!()
+        let query = sqlx::query(UPDATE_SQL)
+            .bind(item.get_description())
+            .bind(item.get_quantity())
+            .bind(item.get_unit_price_in_cents())
+            .bind(item.get_invoice_id())
+            .bind(id);
+
+        query.execute(executor).await?;
+        Ok(())
     }
 
     async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        todo!()
+        let query = sqlx::query(DELETE_SQL).bind(id);
+
+        query.execute(executor).await?;
+        Ok(())
     }
 }
 
@@ -89,8 +126,13 @@ impl LineItemDao<Sqlite> for LineItemSqliteDao {
         invoice_id: &str,
     ) -> Result<Vec<LineItem>, Box<dyn Error>>
     where
-        E: Executor<'e>,
+        E: Executor<'e, Database = Sqlite>,
     {
-        todo!()
+        let items = sqlx::query_as::<_, LineItem>(SELECT_LINE_ITEMS_FOR_INVOICE_SQL)
+            .bind(invoice_id)
+            .fetch_all(executor)
+            .await?;
+
+        Ok(items)
     }
 }

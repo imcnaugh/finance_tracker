@@ -1,6 +1,7 @@
 use crate::model::new_client::NewClient;
 use crate::utils::generate_new_id;
 
+#[derive(Debug, sqlx::FromRow)]
 pub(crate) struct Client {
     id: String,
     name: String,
