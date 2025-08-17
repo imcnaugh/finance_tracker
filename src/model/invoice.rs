@@ -6,6 +6,8 @@ pub(crate) struct Invoice {
     id: String,
     client_id: String,
     status: InvoiceStatus,
+
+    #[sqlx(skip)]
     line_items: Vec<LineItem>,
 }
 

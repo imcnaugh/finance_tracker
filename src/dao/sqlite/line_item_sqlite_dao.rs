@@ -30,7 +30,8 @@ WHERE id = ?
 
 const UPDATE_SQL: &str = r#"
 UPDATE line_item
-SET description = ?,
+SET
+    description = ?,
     quantity = ?,
     unit_price_in_cents = ?,
     invoice_id = ?
