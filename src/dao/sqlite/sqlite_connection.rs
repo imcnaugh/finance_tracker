@@ -6,7 +6,7 @@ use tokio::sync::OnceCell;
 
 static POOL: OnceCell<Pool<Sqlite>> = OnceCell::const_new();
 
-pub async fn get_pooled_connection() -> PoolConnection<Sqlite> {
+pub async fn get_pooled_connection() -> Result<PoolConnection<Sqlite>, sqlx::Error> {
     let pool = POOL
         .get_or_init(|| async {
             let db_url = env::var("INVOICE_DB_PATH").expect("INVOICE_DB_PATH not set");
@@ -38,7 +38,5 @@ pub async fn get_pooled_connection() -> PoolConnection<Sqlite> {
         })
         .await;
 
-    pool.acquire()
-        .await
-        .expect("Failed to acquire connection from pool")
+    Ok(pool.acquire().await?)
 }

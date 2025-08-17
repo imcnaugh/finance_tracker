@@ -1,3 +1,7 @@
 pub struct ClientService {}
 
-impl ClientService {}
+impl ClientService {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
