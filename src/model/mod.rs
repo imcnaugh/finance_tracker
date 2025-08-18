@@ -1,7 +1,8 @@
-pub(crate) mod client;
-pub(crate) mod invoice;
-pub(crate) mod invoice_status;
-pub(crate) mod line_item;
+pub mod client;
+pub mod error;
+pub mod invoice;
+pub mod invoice_status;
+pub mod line_item;
 mod new_client;
 mod new_line_item;
 

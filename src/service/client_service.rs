@@ -1,28 +1,34 @@
-use sqlx::{Connection, Executor};
-use crate::dao::crud::Crud;
+use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
-use crate::dao::sqlite::sqlite_connection;
+use crate::model::NewClient;
 use crate::model::client::Client;
-use crate::utils::generate_new_id;
+use crate::model::error::Error;
 
-pub struct ClientService<'d> {
-    client_dao: &'d ClientSqliteDao,
+pub struct ClientService {
+    client_dao: ClientSqliteDao,
 }
 
-impl<'d> ClientService<'d> {
-    pub fn new(client_dao: &'d ClientSqliteDao) -> Self {
+impl ClientService {
+    pub fn new() -> Self {
+        let client_dao = ClientSqliteDao::new();
         Self { client_dao }
     }
 
-    pub async fn create_new_client(&self, new_client_name: &str) {
-        let new_client = Client::new(
-            generate_new_id(),
-            new_client_name.into()
-        );
+    pub async fn create_client(&self, new_client: NewClient) -> Result<Client, Error> {
+        match self.client_dao.create_client(new_client).await {
+            Ok(client) => Ok(client),
+            Err(_) => Err(Error::new(
+                "There was an unexpected error while creating the client".to_string(),
+            )),
+        }
+    }
 
-        let mut exe = sqlite_connection::get_pooled_connection().await;
-        let mut conn = exe.begin().await.expect("");
-        self.client_dao.create(&mut *conn, &new_client);
-        &conn.commit().await.expect("");
+    pub async fn get_all_clients(&self) -> Result<Vec<Client>, Error> {
+        match self.client_dao.get_all_clients().await {
+            Ok(clients) => Ok(clients),
+            Err(_) => Err(Error::new(
+                "There was an unexpected error while getting all clients".to_string(),
+            )),
+        }
     }
 }

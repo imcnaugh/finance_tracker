@@ -2,7 +2,7 @@ use crate::model::NewLineItem;
 use crate::utils::generate_new_id;
 
 #[derive(Debug, sqlx::FromRow)]
-pub(crate) struct LineItem {
+pub struct LineItem {
     id: String,
     description: String,
     unit_price_in_cents: i32,

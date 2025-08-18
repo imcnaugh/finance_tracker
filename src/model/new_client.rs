@@ -1,3 +1,6 @@
+use clap::Args;
+
+#[derive(Args)]
 pub struct NewClient {
     name: String,
 }
