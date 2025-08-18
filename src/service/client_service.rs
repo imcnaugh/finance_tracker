@@ -4,12 +4,13 @@ use crate::model::NewClient;
 use crate::model::client::Client;
 use crate::model::error::Error;
 
-pub struct ClientService<'d> {
-    client_dao: &'d ClientSqliteDao,
+pub struct ClientService {
+    client_dao: ClientSqliteDao,
 }
 
-impl<'d> ClientService<'d> {
-    pub fn new(client_dao: &'d ClientSqliteDao) -> Self {
+impl ClientService {
+    pub fn new() -> Self {
+        let client_dao = ClientSqliteDao::new();
         Self { client_dao }
     }
 

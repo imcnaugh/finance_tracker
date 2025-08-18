@@ -2,14 +2,14 @@ use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::NewClient;
 use crate::model::client::Client;
-use sqlx::{Acquire, Executor, Sqlite};
+use sqlx::{Acquire, Execute, Executor, Sqlite};
 
 pub struct ClientSqliteDao;
 
 const INSERT_SQL: &str = r#"
 INSERT INTO client (
     id,
-    name,
+    name
 ) VALUES (?, ?)
 "#;
 
