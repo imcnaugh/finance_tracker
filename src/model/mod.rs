@@ -1,4 +1,5 @@
 pub(crate) mod client;
+pub mod error;
 pub(crate) mod invoice;
 pub(crate) mod invoice_status;
 pub(crate) mod line_item;
