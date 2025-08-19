@@ -1,5 +1,5 @@
 mod client_service;
-mod line_item_service;
+mod invoice_service;
 
 pub use client_service::ClientService;
-pub use line_item_service::LineItemService;
+pub use invoice_service::InvoiceService;

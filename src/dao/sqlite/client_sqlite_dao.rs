@@ -2,7 +2,7 @@ use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::NewClient;
 use crate::model::client::Client;
-use sqlx::{Acquire, Execute, Executor, Sqlite};
+use sqlx::{Acquire, Executor, Sqlite};
 
 pub struct ClientSqliteDao;
 
