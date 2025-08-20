@@ -3,7 +3,6 @@ use crate::model::invoice_status::InvoiceStatus::DRAFT;
 use crate::model::line_item::LineItem;
 use crate::model::new_invoice::NewInvoice;
 use crate::utils::generate_new_id;
-use chrono::{DateTime, Local};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Invoice {

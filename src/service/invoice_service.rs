@@ -11,6 +11,6 @@ impl InvoiceService {
     }
 
     pub fn create_new_invoice(client_id: String) {
-        let new_invoice = Invoice::new(generate_new_id(), client_id, Vec::new());
+        // let new_invoice = Invoice::new(generate_new_id(), client_id, Vec::new());
     }
 }

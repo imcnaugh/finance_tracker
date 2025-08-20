@@ -1,5 +1,5 @@
 use crate::model::invoice_status::InvoiceStatus;
-use chrono::{DateTime, TimeDelta, Utc};
+use chrono::{DateTime, Duration, TimeDelta, Utc};
 
 pub struct InvoiceSearch {
     client_id: Option<String>,
@@ -8,7 +8,6 @@ pub struct InvoiceSearch {
 }
 
 pub struct DateRange {
-    date: DateTime<Utc>,
     duration: TimeDelta,
     start_date: DateTime<Utc>,
     end_date: DateTime<Utc>,
@@ -16,17 +15,33 @@ pub struct DateRange {
 
 impl DateRange {
     pub fn new(date: DateTime<Utc>, duration: TimeDelta) -> Self {
-        let (start_date, end_date) = if duration.num_seconds() > 0 {
+        let (start_date, end_date) = if duration > Duration::zero() {
             (date, date + duration)
         } else {
-            (date - duration, date)
+            (date + duration, date)
         };
 
         Self {
-            date,
             duration,
             start_date,
             end_date,
+        }
+    }
+
+    pub fn build(d1: DateTime<Utc>, d2: DateTime<Utc>) -> Self {
+        let duration = d2 - d1;
+        if d1 > d2 {
+            Self {
+                duration: duration.abs(),
+                start_date: d2,
+                end_date: d1,
+            }
+        } else {
+            Self {
+                duration: duration.abs(),
+                start_date: d1,
+                end_date: d2,
+            }
         }
     }
 
@@ -39,6 +54,54 @@ impl DateRange {
     }
 
     pub fn get_duration(&self) -> TimeDelta {
-        self.duration
+        self.duration.abs()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_date_range() {
+        let date = Utc::now();
+        let duration = TimeDelta::days(1);
+        let date_range = DateRange::new(date, duration);
+
+        assert_eq!(date_range.get_start_date(), date);
+        assert_eq!(date_range.get_end_date(), date + duration);
+        assert_eq!(date_range.get_duration(), duration);
+    }
+
+    #[test]
+    fn test_date_range_negative_duration() {
+        let date = Utc::now();
+        let duration = TimeDelta::days(-1);
+        let date_range = DateRange::new(date, duration);
+
+        assert_eq!(date_range.get_start_date(), date + duration);
+        assert_eq!(date_range.get_end_date(), date);
+        assert_eq!(date_range.get_duration(), duration.abs());
+    }
+
+    #[test]
+    fn test_date_range_build() {
+        let date1 = Utc::now();
+        let date2 = date1 + TimeDelta::days(1);
+        let date_range = DateRange::build(date1, date2);
+
+        assert_eq!(date_range.get_start_date(), date1);
+        assert_eq!(date_range.get_end_date(), date2);
+        assert_eq!(date_range.get_duration(), date2 - date1);
+    }
+
+    #[test]
+    fn test_date_range_build_negative_duration() {
+        let date1 = Utc::now();
+        let date2 = date1 + TimeDelta::days(-1);
+        let date_range = DateRange::build(date1, date2);
+
+        assert_eq!(date_range.get_start_date(), date2);
+        assert_eq!(date_range.get_end_date(), date1);
     }
 }
