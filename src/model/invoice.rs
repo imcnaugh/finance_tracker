@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::invoice_status::InvoiceStatus::DRAFT;
 use crate::model::line_item::LineItem;
@@ -8,10 +9,17 @@ use crate::utils::generate_new_id;
 pub struct Invoice {
     id: String,
     client_id: String,
-    status: InvoiceStatus,
+    current_status: InvoiceStatus,
 
     #[sqlx(skip)]
     line_items: Vec<LineItem>,
+    history: Vec<InvoiceHistory>,
+}
+
+#[derive(Debug, sqlx::FromRow)]
+pub struct InvoiceHistory {
+    status: InvoiceStatus,
+    timestamp: DateTime<Utc>,
 }
 
 impl Invoice {
@@ -24,7 +32,7 @@ impl Invoice {
         Self {
             id,
             client_id,
-            status,
+            current_status: status,
             line_items,
         }
     }
@@ -38,7 +46,7 @@ impl Invoice {
     }
 
     pub fn get_status(&self) -> &InvoiceStatus {
-        &self.status
+        &self.current_status
     }
 
     pub fn get_line_items(&self) -> &Vec<LineItem> {
@@ -51,7 +59,7 @@ impl From<&NewInvoice> for Invoice {
         Self {
             id: generate_new_id(),
             client_id: value.get_client_id().into(),
-            status: DRAFT,
+            current_status: DRAFT,
             line_items: Vec::new(),
         }
     }
