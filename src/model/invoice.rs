@@ -1,49 +1,40 @@
-use chrono::{DateTime, Utc};
 use crate::model::invoice_status::InvoiceStatus;
-use crate::model::invoice_status::InvoiceStatus::DRAFT;
 use crate::model::line_item::LineItem;
 use crate::model::new_invoice::NewInvoice;
 use crate::utils::generate_new_id;
+use chrono::{DateTime, TimeZone, Utc};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Invoice {
     id: String,
     client_id: String,
-    current_status: InvoiceStatus,
-
+    // Stored as Unix epoch seconds in the DB (SQLite INTEGER)
+    draft_date: i64,
+    sent_date: Option<i64>,
+    paid_date: Option<i64>,
+    cancelled_date: Option<i64>,
     #[sqlx(skip)]
     line_items: Vec<LineItem>,
-
-    #[sqlx(skip)]
-    history: Vec<InvoiceHistory>,
-}
-
-#[derive(Debug, sqlx::FromRow, Copy, Clone)]
-pub struct InvoiceHistory {
-    status: InvoiceStatus,
-    timestamp: DateTime<Utc>,
 }
 
 impl Invoice {
     pub fn new(
         id: String,
         client_id: String,
+        draft_date: DateTime<Utc>,
+        sent_date: Option<DateTime<Utc>>,
+        paid_date: Option<DateTime<Utc>>,
+        cancelled_date: Option<DateTime<Utc>>,
         line_items: Vec<LineItem>,
-        history: Vec<InvoiceHistory>,
     ) -> Self {
-        let mut history = history.clone();
-        history.sort_by(|a, b|b.timestamp.cmp(&a.timestamp));
-        let current_status = match history.clone().pop() {
-            Some(value) => value.status,
-            None => DRAFT,
-        };
-
         Self {
             id,
             client_id,
-            current_status,
+            draft_date: draft_date.timestamp(),
+            sent_date: sent_date.map(|d| d.timestamp()),
+            paid_date: paid_date.map(|d| d.timestamp()),
+            cancelled_date: cancelled_date.map(|d| d.timestamp()),
             line_items,
-            history: history.clone(),
         }
     }
 
@@ -55,8 +46,38 @@ impl Invoice {
         &self.client_id
     }
 
-    pub fn get_status(&self) -> &InvoiceStatus {
-        &self.current_status
+    pub fn get_draft_date(&self) -> DateTime<Utc> {
+        // Safe conversion from epoch seconds; fall back to epoch start if invalid
+        Utc.timestamp_opt(self.draft_date, 0)
+            .single()
+            .unwrap_or_else(|| Utc.timestamp(0, 0))
+    }
+
+    pub fn get_sent_date(&self) -> Option<DateTime<Utc>> {
+        self.sent_date
+            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    }
+
+    pub fn get_paid_date(&self) -> Option<DateTime<Utc>> {
+        self.paid_date
+            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    }
+
+    pub fn get_cancelled_date(&self) -> Option<DateTime<Utc>> {
+        self.cancelled_date
+            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    }
+
+    pub fn get_status(&self) -> InvoiceStatus {
+        if self.cancelled_date.is_some() {
+            InvoiceStatus::CANCELLED
+        } else if self.paid_date.is_some() {
+            InvoiceStatus::PAID
+        } else if self.sent_date.is_some() {
+            InvoiceStatus::SENT
+        } else {
+            InvoiceStatus::DRAFT
+        }
     }
 
     pub fn get_line_items(&self) -> &Vec<LineItem> {
@@ -69,63 +90,11 @@ impl From<&NewInvoice> for Invoice {
         Self {
             id: generate_new_id(),
             client_id: value.get_client_id().into(),
-            current_status: DRAFT,
-            line_items: Vec::new(),
-            history: vec![InvoiceHistory{
-                status: DRAFT,
-                timestamp: Utc::now(),
-            }],
+            draft_date: Utc::now().timestamp(),
+            sent_date: None,
+            paid_date: None,
+            cancelled_date: None,
+            line_items: vec![],
         }
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_new_invoice() {
-        let new_invoice = Invoice::new(
-            generate_new_id(),
-            "1234567890".into(),
-            vec![],
-            vec![],
-        );
-
-        assert_eq!(new_invoice.current_status, DRAFT);
-    }
-
-    #[test]
-    fn test_new_invoice_1_history_item() {
-        let new_invoice = Invoice::new(
-            generate_new_id(),
-            "1234567890".into(),
-            vec![],
-            vec![InvoiceHistory{
-                status: InvoiceStatus::OVERDUE,
-                timestamp: Utc::now(),
-            }],
-        );
-
-        assert_eq!(new_invoice.current_status, InvoiceStatus::OVERDUE);
-    }
-
-    #[test]
-    fn test_new_invoice_2_history_item() {
-        let new_invoice = Invoice::new(
-            generate_new_id(),
-            "1234567890".into(),
-            vec![],
-            vec![InvoiceHistory{
-                status: InvoiceStatus::OVERDUE,
-                timestamp: Utc::now(),
-            }, InvoiceHistory{
-                status: InvoiceStatus::PAID,
-                timestamp: Utc::now() - chrono::Duration::days(1),
-            }],
-        );
-
-        assert_eq!(new_invoice.current_status, InvoiceStatus::PAID);
     }
 }

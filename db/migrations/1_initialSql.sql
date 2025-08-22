@@ -7,16 +7,11 @@ CREATE TABLE client (
 CREATE TABLE invoice (
     id TEXT PRIMARY KEY,
     client_id TEXT NOT NULL,
-    status TEXT NOT NULL,
-    created_timestamp INT NOT NULL DEFAULT (unixepoch()),
+    draft_date INT NOT NULL,
+    sent_date INT,
+    paid_date INT,
+    cancelled_date INT,
     FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE
-);
-
-CREATE TABLE invoice_history (
-    invoice_id TEXT,
-    status TEXT,
-    timestamp INT NOT NULL DEFAULT (unixepoch()),
-    FOREIGN KEY (invoice_id) REFERENCES invoice(id) ON DELETE CASCADE
 );
 
 CREATE TABLE line_item (
@@ -33,5 +28,3 @@ CREATE INDEX idx_invoice_client_id ON invoice(client_id);
 CREATE INDEX idx_line_item_invoice_id ON line_item(invoice_id);
 
 CREATE INDEX idx_invoice_status ON invoice(status);
-
-CREATE INDEX idx_invoice_history_invoice_id ON invoice_history(invoice_id);

@@ -10,16 +10,21 @@ const INSERT_SQL: &str = r#"
 INSERT INTO invoice (
     id,
     client_id,
-    status
-) VALUES (?, ?, ?)
+    draft_date,
+    sent_date,
+    paid_date,
+    cancelled_date
+) VALUES (?, ?, ?, ?, ?, ?)
 "#;
 
 const SELECT_BY_ID_SQL: &str = r#"
 SELECT
     id,
     client_id,
-    status,
-    created_timestamp
+    draft_date,
+    sent_date,
+    paid_date,
+    cancelled_date
 FROM invoice
 WHERE id = ?
 "#;
@@ -28,7 +33,10 @@ const UPDATE_SQL: &str = r#"
 UPDATE invoice
 SET
     client_id = ?,
-    status = ?,
+    draft_date = ?,
+    sent_date = ?,
+    paid_date = ?,
+    cancelled_date = ?
 WHERE id = ?
 "#;
 
@@ -49,7 +57,10 @@ impl InvoiceSqliteDao {
         let query = sqlx::query(INSERT_SQL)
             .bind(item.get_id())
             .bind(item.get_client_id())
-            .bind(item.get_status());
+            .bind(item.get_draft_date().timestamp())
+            .bind(item.get_sent_date().map(|d| d.timestamp()))
+            .bind(item.get_paid_date().map(|d| d.timestamp()))
+            .bind(item.get_cancelled_date().map(|d| d.timestamp()));
 
         query.execute(executor).await?;
         Ok(())
@@ -78,7 +89,10 @@ impl InvoiceSqliteDao {
     {
         let query = sqlx::query(UPDATE_SQL)
             .bind(item.get_client_id())
-            .bind(item.get_status())
+            .bind(item.get_draft_date().timestamp())
+            .bind(item.get_sent_date().map(|d| d.timestamp()))
+            .bind(item.get_paid_date().map(|d| d.timestamp()))
+            .bind(item.get_cancelled_date().map(|d| d.timestamp()))
             .bind(id);
 
         query.execute(executor).await?;
