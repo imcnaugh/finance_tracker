@@ -1,8 +1,8 @@
 use crate::dao::invoice_dao::InvoiceDao;
+use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::NewInvoice;
 use crate::model::invoice::Invoice;
-use sqlx::{Executor, Sqlite};
-use std::error::Error;
+use sqlx::{Acquire, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
 
@@ -50,7 +50,7 @@ impl InvoiceSqliteDao {
         Self {}
     }
 
-    async fn create<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), Box<dyn Error>>
+    async fn create<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), sqlx::Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -66,7 +66,7 @@ impl InvoiceSqliteDao {
         Ok(())
     }
 
-    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<Invoice>, Box<dyn Error>>
+    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<Invoice>, sqlx::Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -78,12 +78,7 @@ impl InvoiceSqliteDao {
         Ok(item)
     }
 
-    async fn update<'e, E>(
-        &self,
-        executor: E,
-        id: &str,
-        item: &Invoice,
-    ) -> Result<(), Box<dyn Error>>
+    async fn update<'e, E>(&self, executor: E, id: &str, item: &Invoice) -> Result<(), sqlx::Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -99,7 +94,7 @@ impl InvoiceSqliteDao {
         Ok(())
     }
 
-    async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Box<dyn Error>>
+    async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), sqlx::Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -111,15 +106,23 @@ impl InvoiceSqliteDao {
 }
 
 impl InvoiceDao for InvoiceSqliteDao {
-    async fn create_invoice(&self, new_invoice: NewInvoice) {
-        todo!()
+    async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, sqlx::Error> {
+        let mut conn = get_pooled_connection().await?;
+        let tx = conn.acquire().await?;
+
+        let new_invoice = Invoice::from(new_invoice);
+        self.create(tx, &new_invoice).await?;
+
+        Ok(new_invoice)
     }
 
-    async fn get_invoice(&self, id: i32) {
-        todo!()
+    async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, sqlx::Error> {
+        let mut conn = get_pooled_connection().await?;
+        let tx = conn.acquire().await?;
+        Ok(self.read(tx, id).await?)
     }
 
-    async fn search_invoices(&self) {
+    async fn search_invoices(&self) -> Result<Vec<Invoice>, sqlx::Error> {
         todo!()
     }
 }

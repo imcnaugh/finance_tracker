@@ -114,7 +114,7 @@ impl ClientDao for ClientSqliteDao {
     async fn get_client_by_id(&self, id: &str) -> Result<Option<Client>, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
         let tx = conn.acquire().await?;
-        Ok(self.read(tx, &id).await?)
+        Ok(self.read(tx, id).await?)
     }
 
     async fn get_all_clients(&self) -> Result<Vec<Client>, sqlx::Error> {
