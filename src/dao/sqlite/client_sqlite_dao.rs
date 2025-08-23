@@ -2,7 +2,7 @@ use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::NewClient;
 use crate::model::client::Client;
-use sqlx::{Acquire, Executor, Sqlite};
+use sqlx::{Executor, Sqlite};
 
 pub struct ClientSqliteDao;
 
@@ -103,23 +103,20 @@ impl ClientSqliteDao {
 impl ClientDao for ClientSqliteDao {
     async fn create_client(&self, new_client: NewClient) -> Result<Client, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
-        let tx = conn.acquire().await?;
 
         let client = Client::from(new_client);
-        self.create(tx, &client).await?;
+        self.create(&mut *conn, &client).await?;
 
         Ok(client)
     }
 
     async fn get_client_by_id(&self, id: &str) -> Result<Option<Client>, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
-        let tx = conn.acquire().await?;
-        Ok(self.read(tx, id).await?)
+        Ok(self.read(&mut *conn, id).await?)
     }
 
     async fn get_all_clients(&self) -> Result<Vec<Client>, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
-        let tx = conn.acquire().await?;
-        Ok(self.read_all(tx).await?)
+        Ok(self.read_all(&mut *conn).await?)
     }
 }

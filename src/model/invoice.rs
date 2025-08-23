@@ -83,6 +83,10 @@ impl Invoice {
     pub fn get_line_items(&self) -> &Vec<LineItem> {
         &self.line_items
     }
+
+    pub fn set_line_items(&mut self, line_items: Vec<LineItem>) {
+        self.line_items = line_items;
+    }
 }
 
 impl From<&NewInvoice> for Invoice {

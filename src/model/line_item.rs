@@ -1,7 +1,7 @@
-use chrono::{DateTime, LocalResult, MappedLocalTime, TimeZone, Utc};
-use chrono::LocalResult::{Ambiguous, Single};
 use crate::model::NewLineItem;
 use crate::utils::generate_new_id;
+use chrono::LocalResult::{Ambiguous, Single};
+use chrono::{DateTime, LocalResult, TimeZone, Utc};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct LineItem {
@@ -10,7 +10,7 @@ pub struct LineItem {
     unit_price_in_cents: i32,
     quantity: f64,
     invoice_id: String,
-    created_timestamp: i64
+    created_timestamp: i64,
 }
 
 impl LineItem {
@@ -57,10 +57,10 @@ impl LineItem {
     }
 
     pub(crate) fn get_created_timestamp(&self) -> DateTime<Utc> {
-        match Utc.timestamp_opt(self.created_timestamp, 0){
+        match Utc.timestamp_opt(self.created_timestamp, 0) {
             Single(d) => d,
             Ambiguous(e, _) => e,
-            LocalResult::None => Utc::now()
+            LocalResult::None => Utc::now(),
         }
     }
 }
