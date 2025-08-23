@@ -1,3 +1,5 @@
+use chrono::{DateTime, LocalResult, MappedLocalTime, TimeZone, Utc};
+use chrono::LocalResult::{Ambiguous, Single};
 use crate::model::NewLineItem;
 use crate::utils::generate_new_id;
 
@@ -8,6 +10,7 @@ pub struct LineItem {
     unit_price_in_cents: i32,
     quantity: f64,
     invoice_id: String,
+    created_timestamp: i64
 }
 
 impl LineItem {
@@ -17,6 +20,7 @@ impl LineItem {
         unit_price_in_cents: i32,
         quantity: f64,
         invoice_id: String,
+        created_timestamp: DateTime<Utc>,
     ) -> Self {
         Self {
             id,
@@ -24,6 +28,7 @@ impl LineItem {
             unit_price_in_cents,
             quantity,
             invoice_id,
+            created_timestamp: created_timestamp.timestamp(),
         }
     }
 
@@ -50,6 +55,14 @@ impl LineItem {
     pub(crate) fn get_invoice_id(&self) -> &str {
         &self.invoice_id
     }
+
+    pub(crate) fn get_created_timestamp(&self) -> DateTime<Utc> {
+        match Utc.timestamp_opt(self.created_timestamp, 0){
+            Single(d) => d,
+            Ambiguous(e, _) => e,
+            LocalResult::None => Utc::now()
+        }
+    }
 }
 
 impl From<NewLineItem> for LineItem {
@@ -62,6 +75,7 @@ impl From<NewLineItem> for LineItem {
             unit_price_in_cents,
             quantity: value.get_quantity(),
             invoice_id: value.get_invoice_id().into(),
+            created_timestamp: Utc::now().timestamp(),
         }
     }
 }

@@ -45,6 +45,17 @@ DELETE FROM invoice
 WHERE id = ?
 "#;
 
+const LINE_ITEM_SELECT_BY_INVOICE_ID_SQL: &str = r#"
+SELECT
+    id,
+    description,
+    quantity,
+    unit_price_in_cents,
+    created_timestamp
+FROM line_item
+WHERE invoice_id = ?
+"#;
+
 impl InvoiceSqliteDao {
     pub fn new() -> Self {
         Self {}
