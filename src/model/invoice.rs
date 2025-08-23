@@ -8,11 +8,11 @@ use chrono::{DateTime, TimeZone, Utc};
 pub struct Invoice {
     id: String,
     client_id: String,
-    // Stored as Unix epoch seconds in the DB (SQLite INTEGER)
     draft_date: i64,
     sent_date: Option<i64>,
     paid_date: Option<i64>,
     cancelled_date: Option<i64>,
+
     #[sqlx(skip)]
     line_items: Vec<LineItem>,
 }

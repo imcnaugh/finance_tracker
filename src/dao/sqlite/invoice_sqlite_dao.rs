@@ -6,7 +6,7 @@ use sqlx::{Acquire, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
 
-const INSERT_SQL: &str = r#"
+const INVOICE_INSERT_SQL: &str = r#"
 INSERT INTO invoice (
     id,
     client_id,
@@ -17,7 +17,7 @@ INSERT INTO invoice (
 ) VALUES (?, ?, ?, ?, ?, ?)
 "#;
 
-const SELECT_BY_ID_SQL: &str = r#"
+const INVOICE_SELECT_BY_ID_SQL: &str = r#"
 SELECT
     id,
     client_id,
@@ -29,7 +29,7 @@ FROM invoice
 WHERE id = ?
 "#;
 
-const UPDATE_SQL: &str = r#"
+const INVOICE_UPDATE_SQL: &str = r#"
 UPDATE invoice
 SET
     client_id = ?,
@@ -40,7 +40,7 @@ SET
 WHERE id = ?
 "#;
 
-const DELETE_SQL: &str = r#"
+const INVOICE_DELETE_SQL: &str = r#"
 DELETE FROM invoice
 WHERE id = ?
 "#;
@@ -54,7 +54,7 @@ impl InvoiceSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(INSERT_SQL)
+        let query = sqlx::query(INVOICE_INSERT_SQL)
             .bind(item.get_id())
             .bind(item.get_client_id())
             .bind(item.get_draft_date().timestamp())
@@ -70,7 +70,7 @@ impl InvoiceSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let item = sqlx::query_as::<_, Invoice>(SELECT_BY_ID_SQL)
+        let item = sqlx::query_as::<_, Invoice>(INVOICE_SELECT_BY_ID_SQL)
             .bind(id)
             .fetch_optional(executor)
             .await?;
@@ -82,7 +82,7 @@ impl InvoiceSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(UPDATE_SQL)
+        let query = sqlx::query(INVOICE_UPDATE_SQL)
             .bind(item.get_client_id())
             .bind(item.get_draft_date().timestamp())
             .bind(item.get_sent_date().map(|d| d.timestamp()))
@@ -98,7 +98,7 @@ impl InvoiceSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(DELETE_SQL).bind(id);
+        let query = sqlx::query(INVOICE_DELETE_SQL).bind(id);
 
         query.execute(executor).await?;
         Ok(())
