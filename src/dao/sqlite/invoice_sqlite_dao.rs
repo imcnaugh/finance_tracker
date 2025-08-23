@@ -3,7 +3,7 @@ use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::NewInvoice;
 use crate::model::invoice::Invoice;
 use crate::model::line_item::LineItem;
-use sqlx::{Executor, Sqlite};
+use sqlx::{Error, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
 
@@ -12,10 +12,11 @@ INSERT INTO invoice (
     id,
     client_id,
     draft_date,
+    due_date,
     sent_date,
     paid_date,
     cancelled_date
-) VALUES (?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?)
 "#;
 
 const INVOICE_SELECT_BY_ID_SQL: &str = r#"
@@ -23,6 +24,7 @@ SELECT
     id,
     client_id,
     draft_date,
+    due_date,
     sent_date,
     paid_date,
     cancelled_date
@@ -35,6 +37,7 @@ UPDATE invoice
 SET
     client_id = ?,
     draft_date = ?,
+    due_date = ?,
     sent_date = ?,
     paid_date = ?,
     cancelled_date = ?
@@ -62,23 +65,33 @@ impl InvoiceSqliteDao {
         Self {}
     }
 
-    async fn create<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), sqlx::Error>
+    async fn create<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
+        let draft_timestamp = item
+            .get_draft_date()
+            .map_err(|_| Error::Decode("Invalid draft_date".into()))?;
+        let sent_timestamp = Self::map_to_slqx_error(item.get_sent_date(), "sent date")?;
+        let paid_timestamp = Self::map_to_slqx_error(item.get_paid_date(), "paid date")?;
+        let due_timestamp = Self::map_to_slqx_error(item.get_due_date(), "due date")?;
+        let cancelled_timestamp =
+            Self::map_to_slqx_error(item.get_cancelled_date(), "cancelled date")?;
+
         let query = sqlx::query(INVOICE_INSERT_SQL)
             .bind(item.get_id())
             .bind(item.get_client_id())
-            .bind(item.get_draft_date().timestamp())
-            .bind(item.get_sent_date().map(|d| d.timestamp()))
-            .bind(item.get_paid_date().map(|d| d.timestamp()))
-            .bind(item.get_cancelled_date().map(|d| d.timestamp()));
+            .bind(draft_timestamp.timestamp())
+            .bind(due_timestamp.map(|d| d.timestamp()))
+            .bind(sent_timestamp.map(|d| d.timestamp()))
+            .bind(paid_timestamp.map(|d| d.timestamp()))
+            .bind(cancelled_timestamp.map(|d| d.timestamp()));
 
         query.execute(executor).await?;
         Ok(())
     }
 
-    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<Invoice>, sqlx::Error>
+    async fn read<'e, E>(&self, executor: E, id: &str) -> Result<Option<Invoice>, Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -90,23 +103,33 @@ impl InvoiceSqliteDao {
         Ok(item)
     }
 
-    async fn update<'e, E>(&self, executor: E, id: &str, item: &Invoice) -> Result<(), sqlx::Error>
+    async fn update<'e, E>(&self, executor: E, id: &str, item: &Invoice) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
+        let draft_timestamp = item
+            .get_draft_date()
+            .map_err(|_| Error::Decode("Invalid draft_date".into()))?;
+        let sent_timestamp = Self::map_to_slqx_error(item.get_sent_date(), "sent date")?;
+        let paid_timestamp = Self::map_to_slqx_error(item.get_paid_date(), "paid date")?;
+        let due_timestamp = Self::map_to_slqx_error(item.get_due_date(), "due date")?;
+        let cancelled_timestamp =
+            Self::map_to_slqx_error(item.get_cancelled_date(), "cancelled date")?;
+
         let query = sqlx::query(INVOICE_UPDATE_SQL)
             .bind(item.get_client_id())
-            .bind(item.get_draft_date().timestamp())
-            .bind(item.get_sent_date().map(|d| d.timestamp()))
-            .bind(item.get_paid_date().map(|d| d.timestamp()))
-            .bind(item.get_cancelled_date().map(|d| d.timestamp()))
+            .bind(draft_timestamp.timestamp())
+            .bind(due_timestamp.map(|d| d.timestamp()))
+            .bind(sent_timestamp.map(|d| d.timestamp()))
+            .bind(paid_timestamp.map(|d| d.timestamp()))
+            .bind(cancelled_timestamp.map(|d| d.timestamp()))
             .bind(id);
 
         query.execute(executor).await?;
         Ok(())
     }
 
-    async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), sqlx::Error>
+    async fn delete<'e, E>(&self, executor: E, id: &str) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -128,10 +151,14 @@ impl InvoiceSqliteDao {
             sqlx::query_as::<_, LineItem>(LINE_ITEM_SELECT_BY_INVOICE_ID_SQL).bind(invoice_id);
         Ok(query.fetch_all(executor).await?)
     }
+
+    fn map_to_slqx_error<T>(r: Result<Option<T>, ()>, field: &str) -> Result<Option<T>, Error> {
+        r.map_err(|_| Error::Decode(format!("Invalid {} value", field).into()))
+    }
 }
 
 impl InvoiceDao for InvoiceSqliteDao {
-    async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, sqlx::Error> {
+    async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, Error> {
         let mut conn = get_pooled_connection().await?;
 
         let new_invoice = Invoice::from(new_invoice);
@@ -140,7 +167,7 @@ impl InvoiceDao for InvoiceSqliteDao {
         Ok(new_invoice)
     }
 
-    async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, sqlx::Error> {
+    async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, Error> {
         let mut conn = get_pooled_connection().await?;
         let invoice_result = self.read(&mut *conn, id).await?;
 
@@ -154,7 +181,7 @@ impl InvoiceDao for InvoiceSqliteDao {
         }
     }
 
-    async fn search_invoices(&self) -> Result<Vec<Invoice>, sqlx::Error> {
+    async fn search_invoices(&self) -> Result<Vec<Invoice>, Error> {
         todo!()
     }
 }

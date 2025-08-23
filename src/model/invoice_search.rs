@@ -4,27 +4,29 @@ use chrono::{DateTime, Duration, TimeDelta, Utc};
 pub struct InvoiceSearch {
     client_id: Option<String>,
     status: Option<InvoiceStatus>,
+    draft_date_range: Option<DateRange>,
     sent_date_range: Option<DateRange>,
+    paid_date_range: Option<DateRange>,
+    overdue_date_range: Option<DateRange>,
+    due_date_range: Option<DateRange>,
 }
 
 pub struct DateRange {
     duration: TimeDelta,
     start_date: DateTime<Utc>,
-    end_date: DateTime<Utc>,
 }
 
 impl DateRange {
     pub fn new(date: DateTime<Utc>, duration: TimeDelta) -> Self {
-        let (start_date, end_date) = if duration > Duration::zero() {
-            (date, date + duration)
+        let start_date = if duration > Duration::zero() {
+            date
         } else {
-            (date + duration, date)
+            date + duration
         };
 
         Self {
-            duration,
+            duration: duration.abs(),
             start_date,
-            end_date,
         }
     }
 
@@ -34,13 +36,11 @@ impl DateRange {
             Self {
                 duration: duration.abs(),
                 start_date: d2,
-                end_date: d1,
             }
         } else {
             Self {
                 duration: duration.abs(),
                 start_date: d1,
-                end_date: d2,
             }
         }
     }
@@ -50,7 +50,7 @@ impl DateRange {
     }
 
     pub fn get_end_date(&self) -> DateTime<Utc> {
-        self.end_date
+        self.start_date + self.duration
     }
 
     pub fn get_duration(&self) -> TimeDelta {

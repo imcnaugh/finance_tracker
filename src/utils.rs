@@ -1,3 +1,5 @@
+use chrono::LocalResult::{Ambiguous, Single};
+use chrono::{DateTime, MappedLocalTime, TimeZone, Utc};
 use nanoid::nanoid;
 
 const ALPHABET: [char; 16] = [
@@ -7,4 +9,12 @@ const ALPHABET: [char; 16] = [
 /// Generate a new id
 pub fn generate_new_id() -> String {
     nanoid!(10, &ALPHABET)
+}
+
+pub fn timestamp_to_date_time(timestamp: i64) -> Result<DateTime<Utc>, ()> {
+    match Utc.timestamp_opt(timestamp, 0) {
+        Single(d) => Ok(d),
+        Ambiguous(s, _) => Ok(s),
+        MappedLocalTime::None => Err(()),
+    }
 }

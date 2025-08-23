@@ -8,6 +8,7 @@ CREATE TABLE invoice (
     id TEXT PRIMARY KEY,
     client_id TEXT NOT NULL,
     draft_date INT NOT NULL,
+    due_date INT,
     sent_date INT,
     paid_date INT,
     cancelled_date INT,

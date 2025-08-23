@@ -1,14 +1,15 @@
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::new_invoice::NewInvoice;
-use crate::utils::generate_new_id;
-use chrono::{DateTime, TimeZone, Utc};
+use crate::utils::{generate_new_id, timestamp_to_date_time};
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Invoice {
     id: String,
     client_id: String,
     draft_date: i64,
+    due_date: Option<i64>,
     sent_date: Option<i64>,
     paid_date: Option<i64>,
     cancelled_date: Option<i64>,
@@ -22,6 +23,7 @@ impl Invoice {
         id: String,
         client_id: String,
         draft_date: DateTime<Utc>,
+        due_date: Option<DateTime<Utc>>,
         sent_date: Option<DateTime<Utc>>,
         paid_date: Option<DateTime<Utc>>,
         cancelled_date: Option<DateTime<Utc>>,
@@ -31,6 +33,7 @@ impl Invoice {
             id,
             client_id,
             draft_date: draft_date.timestamp(),
+            due_date: due_date.map(|d| d.timestamp()),
             sent_date: sent_date.map(|d| d.timestamp()),
             paid_date: paid_date.map(|d| d.timestamp()),
             cancelled_date: cancelled_date.map(|d| d.timestamp()),
@@ -46,37 +49,41 @@ impl Invoice {
         &self.client_id
     }
 
-    pub fn get_draft_date(&self) -> DateTime<Utc> {
-        // Safe conversion from epoch seconds; fall back to epoch start if invalid
-        Utc.timestamp_opt(self.draft_date, 0)
-            .single()
-            .unwrap_or_else(|| Utc.timestamp(0, 0))
+    pub fn get_draft_date(&self) -> Result<DateTime<Utc>, ()> {
+        timestamp_to_date_time(self.draft_date)
     }
 
-    pub fn get_sent_date(&self) -> Option<DateTime<Utc>> {
-        self.sent_date
-            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    pub fn get_sent_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+        self.sent_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_paid_date(&self) -> Option<DateTime<Utc>> {
-        self.paid_date
-            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    pub fn get_due_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+        self.due_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_cancelled_date(&self) -> Option<DateTime<Utc>> {
-        self.cancelled_date
-            .and_then(|s| Utc.timestamp_opt(s, 0).single())
+    pub fn get_paid_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+        self.paid_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_status(&self) -> InvoiceStatus {
+    pub fn get_cancelled_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+        self.cancelled_date.map(timestamp_to_date_time).transpose()
+    }
+
+    pub fn get_status(&self) -> Result<InvoiceStatus, ()> {
         if self.cancelled_date.is_some() {
-            InvoiceStatus::CANCELLED
+            Ok(InvoiceStatus::CANCELLED)
         } else if self.paid_date.is_some() {
-            InvoiceStatus::PAID
+            Ok(InvoiceStatus::PAID)
+        } else if self
+            .get_due_date()?
+            .map(|d| d < Utc::now())
+            .unwrap_or(false)
+        {
+            Ok(InvoiceStatus::OVERDUE)
         } else if self.sent_date.is_some() {
-            InvoiceStatus::SENT
+            Ok(InvoiceStatus::SENT)
         } else {
-            InvoiceStatus::DRAFT
+            Ok(InvoiceStatus::DRAFT)
         }
     }
 
@@ -95,6 +102,7 @@ impl From<&NewInvoice> for Invoice {
             id: generate_new_id(),
             client_id: value.get_client_id().into(),
             draft_date: Utc::now().timestamp(),
+            due_date: None,
             sent_date: None,
             paid_date: None,
             cancelled_date: None,
