@@ -27,5 +27,3 @@ CREATE TABLE line_item (
 
 CREATE INDEX idx_invoice_client_id ON invoice(client_id);
 CREATE INDEX idx_line_item_invoice_id ON line_item(invoice_id);
-
-CREATE INDEX idx_invoice_status ON invoice(status);

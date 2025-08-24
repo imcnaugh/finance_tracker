@@ -1,8 +1,9 @@
 use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
-use crate::model::NewInvoice;
 use crate::model::invoice::Invoice;
+use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
+use crate::model::{InvoiceSearch, NewInvoice};
 use sqlx::{Error, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
@@ -143,7 +144,7 @@ impl InvoiceSqliteDao {
         &self,
         executor: E,
         invoice_id: &str,
-    ) -> Result<Vec<LineItem>, sqlx::Error>
+    ) -> Result<Vec<LineItem>, Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
@@ -154,6 +155,90 @@ impl InvoiceSqliteDao {
 
     fn map_to_slqx_error<T>(r: Result<Option<T>, ()>, field: &str) -> Result<Option<T>, Error> {
         r.map_err(|_| Error::Decode(format!("Invalid {} value", field).into()))
+    }
+
+    async fn search_invoices<'e, E>(
+        &self,
+        executor: E,
+        search_terms: InvoiceSearch,
+    ) -> Result<Vec<Invoice>, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let mut statement = String::from("SELECT * FROM invoice WHERE 1 = 1");
+
+        if let Some(_) = search_terms.get_client_id() {
+            statement.push_str(" AND client_id = ?");
+        }
+
+        if let Some(status) = search_terms.get_status() {
+            match status {
+                InvoiceStatus::DRAFT => {
+                    statement.push_str(" AND sent_date IS NULL AND cancelled_date IS NULL")
+                }
+                InvoiceStatus::SENT => {
+                    statement.push_str(" AND sent_date IS NOT NULL AND cancelled_date IS NOT NULL AND paid_date IS NULL")
+                }
+                InvoiceStatus::PAID => {
+                    statement.push_str(" AND paid_date IS NOT NULL AND cancelled_date IS NOT NULL")
+                }
+                InvoiceStatus::OVERDUE => {
+                    statement.push_str(" AND paid_date IS NULL AND cancelled_date IS NULL AND due_date < unixepoch()")
+                }
+                InvoiceStatus::CANCELLED => {
+                    statement.push_str(" AND cancelled_date IS NOT NULL")
+                }
+            }
+        }
+
+        if let Some(_) = search_terms.get_draft_date_range() {
+            statement.push_str(" AND draft_date BETWEEN ? AND ?")
+        }
+        if let Some(_) = search_terms.get_sent_date_range() {
+            statement.push_str(" AND sent_date BETWEEN ? AND ?")
+        }
+        if let Some(_) = search_terms.get_paid_date_range() {
+            statement.push_str(" AND paid_date BETWEEN ? AND ?")
+        }
+        if let Some(_) = search_terms.get_due_date_range() {
+            statement.push_str(" AND due_date BETWEEN ? AND ?")
+        }
+        if let Some(_) = search_terms.get_canceled_date_range() {
+            statement.push_str(" AND cancelled_date BETWEEN ? AND ?")
+        }
+
+        let mut query = sqlx::query_as::<_, Invoice>(&statement);
+
+        if let Some(client_id) = search_terms.get_client_id() {
+            query = query.bind(client_id);
+        }
+        if let Some(draft_date_range) = search_terms.get_draft_date_range() {
+            query = query
+                .bind(draft_date_range.get_start_date().timestamp())
+                .bind(draft_date_range.get_end_date().timestamp());
+        }
+        if let Some(sent_date_range) = search_terms.get_sent_date_range() {
+            query = query
+                .bind(sent_date_range.get_start_date().timestamp())
+                .bind(sent_date_range.get_end_date().timestamp());
+        }
+        if let Some(paid_date_range) = search_terms.get_paid_date_range() {
+            query = query
+                .bind(paid_date_range.get_start_date().timestamp())
+                .bind(paid_date_range.get_end_date().timestamp());
+        }
+        if let Some(due_date_range) = search_terms.get_due_date_range() {
+            query = query
+                .bind(due_date_range.get_start_date().timestamp())
+                .bind(due_date_range.get_end_date().timestamp());
+        }
+        if let Some(canceled_date_range) = search_terms.get_canceled_date_range() {
+            query = query
+                .bind(canceled_date_range.get_start_date().timestamp())
+                .bind(canceled_date_range.get_end_date().timestamp());
+        }
+
+        Ok(query.fetch_all(executor).await?)
     }
 }
 
@@ -181,7 +266,8 @@ impl InvoiceDao for InvoiceSqliteDao {
         }
     }
 
-    async fn search_invoices(&self) -> Result<Vec<Invoice>, Error> {
-        todo!()
+    async fn search_invoices(&self, search_terms: InvoiceSearch) -> Result<Vec<Invoice>, Error> {
+        let mut conn = get_pooled_connection().await?;
+        self.search_invoices(&mut *conn, search_terms).await
     }
 }

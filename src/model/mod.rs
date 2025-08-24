@@ -8,6 +8,7 @@ mod new_client;
 mod new_invoice;
 mod new_line_item;
 
+pub use invoice_search::InvoiceSearch;
 pub use new_client::NewClient;
 pub use new_invoice::NewInvoice;
 pub use new_line_item::NewLineItem;
