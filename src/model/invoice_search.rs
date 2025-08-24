@@ -17,23 +17,15 @@ pub struct DateRange {
 }
 
 impl InvoiceSearch {
-    pub fn new(
-        client_id: Option<String>,
-        status: Option<InvoiceStatus>,
-        draft_date_range: Option<DateRange>,
-        sent_date_range: Option<DateRange>,
-        paid_date_range: Option<DateRange>,
-        due_date_range: Option<DateRange>,
-        canceled_date_range: Option<DateRange>,
-    ) -> Self {
+    pub fn new() -> Self {
         Self {
-            client_id,
-            status,
-            draft_date_range,
-            sent_date_range,
-            paid_date_range,
-            due_date_range,
-            canceled_date_range,
+            client_id: None,
+            status: None,
+            draft_date_range: None,
+            sent_date_range: None,
+            paid_date_range: None,
+            due_date_range: None,
+            canceled_date_range: None,
         }
     }
 
@@ -41,28 +33,56 @@ impl InvoiceSearch {
         &self.client_id
     }
 
+    pub fn set_client_id(&mut self, client_id: &str) {
+        self.client_id = Some(client_id.into());
+    }
+
     pub fn get_status(&self) -> &Option<InvoiceStatus> {
         &self.status
+    }
+
+    pub fn set_status(&mut self, status: &InvoiceStatus) {
+        self.status = Some(status.clone());
     }
 
     pub fn get_draft_date_range(&self) -> &Option<DateRange> {
         &self.draft_date_range
     }
 
+    pub fn set_draft_date_range(&mut self, start_date: DateTime<Utc>, end_date: DateTime<Utc>) {
+        self.draft_date_range = Some(DateRange::build(start_date, end_date));
+    }
+
     pub fn get_sent_date_range(&self) -> &Option<DateRange> {
         &self.sent_date_range
+    }
+
+    pub fn set_sent_date_range(&mut self, start_date: DateTime<Utc>, end_date: DateTime<Utc>) {
+        self.sent_date_range = Some(DateRange::build(start_date, end_date));
     }
 
     pub fn get_paid_date_range(&self) -> &Option<DateRange> {
         &self.paid_date_range
     }
 
+    pub fn set_paid_date_range(&mut self, start_date: DateTime<Utc>, end_date: DateTime<Utc>) {
+        self.paid_date_range = Some(DateRange::build(start_date, end_date));
+    }
+
     pub fn get_due_date_range(&self) -> &Option<DateRange> {
         &self.due_date_range
     }
 
+    pub fn set_due_date_range(&mut self, start_date: DateTime<Utc>, end_date: DateTime<Utc>) {
+        self.due_date_range = Some(DateRange::build(start_date, end_date));
+    }
+
     pub fn get_canceled_date_range(&self) -> &Option<DateRange> {
         &self.canceled_date_range
+    }
+
+    pub fn set_canceled_date_range(&mut self, start_date: DateTime<Utc>, end_date: DateTime<Utc>) {
+        self.canceled_date_range = Some(DateRange::build(start_date, end_date));
     }
 }
 

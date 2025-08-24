@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
-use invoice_generator::model::{NewClient, NewLineItem};
 use invoice_generator::model::invoice::Invoice;
+use invoice_generator::model::{NewClient, NewLineItem};
 use invoice_generator::service::{ClientService, InvoiceService};
 
 #[tokio::main]
