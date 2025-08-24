@@ -1,6 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 use invoice_generator::model::{NewClient, NewLineItem};
-use invoice_generator::service::ClientService;
+use invoice_generator::model::invoice::Invoice;
+use invoice_generator::service::{ClientService, InvoiceService};
 
 #[tokio::main]
 async fn main() {
@@ -28,10 +29,22 @@ async fn main() {
         }
         Commands::Invoice(invoice_command) => match invoice_command {
             InvoiceSubCommands::New { client_id } => {
-                println!("Creating new invoice for client: {}", client_id);
+                let invoice_service = InvoiceService::new();
+                match invoice_service.create_new_invoice(client_id).await {
+                    Ok(invoice) => println!("Invoice created: {:?}", invoice),
+                    Err(e) => println!("Error creating invoice: {:?}", e),
+                }
             }
             InvoiceSubCommands::List { status, client_id } => {
-                println!("Listing invoices");
+                let invoice_service = InvoiceService::new();
+                match invoice_service.list_invoices().await {
+                    Ok(invoices) => {
+                        invoices
+                            .iter()
+                            .for_each(|invoice| println!("Invoice: {:?}", invoice));
+                    }
+                    Err(e) => println!("Error getting invoices: {:?}", e),
+                };
             }
         },
     }
