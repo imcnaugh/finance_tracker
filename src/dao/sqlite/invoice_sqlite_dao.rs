@@ -268,6 +268,18 @@ impl InvoiceDao for InvoiceSqliteDao {
 
     async fn search_invoices(&self, search_terms: InvoiceSearch) -> Result<Vec<Invoice>, Error> {
         let mut conn = get_pooled_connection().await?;
-        self.search_invoices(&mut *conn, search_terms).await
+        match self.search_invoices(&mut *conn, search_terms).await {
+            Ok(mut invoices) => {
+                // TODO make a sql call to get line items for many invoices at once
+                for invoice in invoices.iter_mut() {
+                    let line_items = self
+                        .read_line_items_by_invoice_id(&mut *conn, &invoice.get_id())
+                        .await?;
+                    invoice.set_line_items(line_items);
+                }
+                Ok(invoices)
+            }
+            Err(e) => Err(e),
+        }
     }
 }
