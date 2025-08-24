@@ -9,4 +9,5 @@ clap = { version = "4.5.42", features = ["derive"] }
 nanoid = "0.4.0"
 serde = "1.0.219"
 sqlx = { version = "0.8.6", features = [ "runtime-tokio", "sqlite", "migrate", "macros" ] }
+tabled = "0.20.0"
 tokio = { version = "1.47.1", features = ["full"] }
