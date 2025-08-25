@@ -1,7 +1,8 @@
 use clap::{Args, Parser, Subcommand};
-use invoice_generator::model::invoice::Invoice;
-use invoice_generator::model::{NewClient, NewLineItem};
+use invoice_generator::model::NewClient;
 use invoice_generator::service::{ClientService, InvoiceService};
+use invoice_generator::tableds::ClientDetails;
+use tabled::Table;
 
 #[tokio::main]
 async fn main() {
@@ -19,9 +20,11 @@ async fn main() {
                 }
                 ClientSubcommands::List => match service.get_all_clients().await {
                     Ok(clients) => {
-                        clients
-                            .iter()
-                            .for_each(|client| println!("Client: {:?}", client));
+                        println!("Clients:");
+                        let clients: Vec<ClientDetails> =
+                            clients.iter().map(ClientDetails::from).collect();
+                        let tabled_clients = Table::new(clients);
+                        println!("{}", tabled_clients);
                     }
                     Err(e) => println!("Error getting clients: {:?}", e),
                 },
