@@ -744,7 +744,6 @@ dependencies = [
  "nanoid",
  "serde",
  "sqlx",
- "tabled",
  "tokio",
 ]
 

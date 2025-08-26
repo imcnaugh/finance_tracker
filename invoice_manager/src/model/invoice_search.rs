@@ -5,25 +5,32 @@ use std::str::FromStr;
 
 #[derive(Args, Debug, Clone)]
 pub struct InvoiceSearch {
+    /// Client ID
     #[arg(long)]
     client_id: Option<String>,
 
+    /// Invoice status
     #[arg(long)]
     status: Option<InvoiceStatus>,
 
-    #[arg(long)]
+    /// Date range for invoices drafted between dates
+    #[arg(long, value_name = "YYYY-MM-DD..YYYY-MM-DD")]
     draft_date_range: Option<DateRange>,
 
-    #[arg(long)]
+    /// Date range for invoices sent between dates
+    #[arg(long, value_name = "YYYY-MM-DD..YYYY-MM-DD")]
     sent_date_range: Option<DateRange>,
 
-    #[arg(long)]
+    /// Date range for invoices paid between dates
+    #[arg(long, value_name = "YYYY-MM-DD..YYYY-MM-DD")]
     paid_date_range: Option<DateRange>,
 
-    #[arg(long)]
+    /// Date range for invoices due between dates
+    #[arg(long, value_name = "YYYY-MM-DD..YYYY-MM-DD")]
     due_date_range: Option<DateRange>,
 
-    #[arg(long)]
+    /// Date range for invoices canceled between dates
+    #[arg(long, value_name = "YYYY-MM-DD..YYYY-MM-DD")]
     canceled_date_range: Option<DateRange>,
 }
 
@@ -149,9 +156,9 @@ impl FromStr for DateRange {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts: Vec<&str> = s.split(" - ").collect();
+        let parts: Vec<&str> = s.split("..").collect();
         if parts.len() != 2 {
-            return Err("Invalid date range format. Expected 'YYYY-MM-DD - YYYY-MM-DD'".into());
+            return Err("Invalid date range format. Expected 'YYYY-MM-DD..YYYY-MM-DD'".into());
         }
 
         let start = NaiveDate::parse_from_str(parts[0], "%Y-%m-%d")

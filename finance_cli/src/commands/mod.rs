@@ -14,9 +14,11 @@ pub struct Command {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Client commands
     #[command(subcommand)]
     Client(ClientSubcommands),
 
+    /// Invoice commands
     #[command(subcommand)]
     Invoice(InvoiceSubCommands),
 }
