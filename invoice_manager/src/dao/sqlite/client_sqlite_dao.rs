@@ -9,14 +9,20 @@ pub struct ClientSqliteDao;
 const INSERT_SQL: &str = r#"
 INSERT INTO client (
     id,
-    name
-) VALUES (?, ?)
+    name,
+    address,
+    phone,
+    invoice_email
+) VALUES (?, ?, ?, ?, ?)
 "#;
 
 const SELECT_BY_ID_SQL: &str = r#"
 SELECT
     id,
     name,
+    address,
+    phone,
+    invoice_email,
     created_timestamp
 FROM client
 WHERE id = ?
@@ -26,6 +32,9 @@ const UPDATE_SQL: &str = r#"
 UPDATE client
 SET
     name = ?
+    address = ?,
+    phone = ?,
+    invoice_email = ?,
 WHERE id = ?
 "#;
 
@@ -38,6 +47,9 @@ const SELECT_ALL_SQL: &str = r#"
 SELECT
     id,
     name,
+    address,
+    phone,
+    invoice_email,
     created_timestamp
 FROM client
 "#;
@@ -53,7 +65,10 @@ impl ClientSqliteDao {
     {
         let query = sqlx::query(INSERT_SQL)
             .bind(item.get_id())
-            .bind(item.get_name());
+            .bind(item.get_name())
+            .bind(item.get_address())
+            .bind(item.get_phone())
+            .bind(item.get_invoice_email());
 
         query.execute(executor).await?;
         Ok(())
@@ -75,7 +90,12 @@ impl ClientSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(UPDATE_SQL).bind(item.get_name()).bind(id);
+        let query = sqlx::query(UPDATE_SQL)
+            .bind(item.get_name())
+            .bind(item.get_address())
+            .bind(item.get_phone())
+            .bind(item.get_invoice_email())
+            .bind(id);
 
         query.execute(executor).await?;
         Ok(())
@@ -105,6 +125,8 @@ impl ClientDao for ClientSqliteDao {
         let mut conn = get_pooled_connection().await?;
 
         let client = Client::from(new_client);
+
+        println!("{:?}", client);
         self.create(&mut *conn, &client).await?;
 
         Ok(client)

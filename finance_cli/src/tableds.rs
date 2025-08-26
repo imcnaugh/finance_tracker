@@ -14,6 +14,9 @@ pub struct InvoiceDetails {
 pub struct ClientDetails {
     id: String,
     name: String,
+    address: String,
+    phone: String,
+    invoice_email: String,
 }
 
 impl From<&Invoice> for InvoiceDetails {
@@ -34,6 +37,9 @@ impl From<&Client> for ClientDetails {
         Self {
             id: value.get_id().into(),
             name: value.get_name().into(),
+            address: value.get_address().clone().unwrap_or_default(),
+            phone: value.get_phone().clone().unwrap_or_default(),
+            invoice_email: value.get_invoice_email().clone().unwrap_or_default(),
         }
     }
 }

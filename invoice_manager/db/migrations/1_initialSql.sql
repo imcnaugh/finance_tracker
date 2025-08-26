@@ -1,6 +1,9 @@
 CREATE TABLE client (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    address TEXT,
+    phone TEXT,
+    invoice_email TEXT,
     created_timestamp INT NOT NULL DEFAULT (unixepoch())
 );
 
