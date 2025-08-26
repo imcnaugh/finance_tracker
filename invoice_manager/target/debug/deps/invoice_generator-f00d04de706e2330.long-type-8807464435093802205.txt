@@ -1,0 +1,1 @@
+Pin<Box<dyn Future<Output = Result<Transaction<'_, Sqlite>, sqlx::Error>> + Send>>: Executor<'_>

@@ -1,0 +1,1 @@
+for<'q> fn(&'q str) -> QueryAs<'q, _, _, <_ as sqlx::Database>::Arguments<'q>> {sqlx::query_as::<_, _>}
