@@ -78,38 +78,46 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
     pub async fn update_invoice_status(
         &self,
         invoice_id: &str,
-        new_status: &InvoiceStatus,
+        new_status: InvoiceStatus,
     ) -> Result<(), String> {
         let invoice = self.get_invoice(invoice_id).await?;
-        match (
-            invoice
-                .get_status()
-                .map_err(|_| "Issue getting invoice status")?,
-            new_status,
-        ) {
-            (InvoiceStatus::DRAFT, InvoiceStatus::SENT) => {
+        let current_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+
+        if !Self::allowed_transitions(current_status, new_status) {
+            Err(format!(
+                "Unable to update invoice status from {} to {}",
+                current_status, new_status,
+            ))?
+        }
+
+        match new_status {
+            InvoiceStatus::SENT => {
                 self.invoice_dao
                     .set_invoice_sent_timestamp(invoice_id, Utc::now().timestamp())
                     .await
                     .map_err(|e| e.to_string())?;
                 Ok(())
             }
-            (InvoiceStatus::SENT, InvoiceStatus::PAID) => {
+            InvoiceStatus::PAID => {
                 todo!()
             }
-            (InvoiceStatus::OVERDUE, InvoiceStatus::PAID) => {
+            InvoiceStatus::CANCELLED => {
                 todo!()
             }
-            (InvoiceStatus::DRAFT, InvoiceStatus::CANCELLED) => {
-                todo!()
-            }
-            (InvoiceStatus::SENT, InvoiceStatus::CANCELLED) => {
-                todo!()
-            }
-            (InvoiceStatus::OVERDUE, InvoiceStatus::CANCELLED) => {
-                todo!()
-            }
-            _ => Err("Cannot update invoice status".to_string()),
+            _ => Err(format!("unable to set invoice to {} state", new_status)),
+        }
+    }
+
+    fn allowed_transitions(from: InvoiceStatus, to: InvoiceStatus) -> bool {
+        use InvoiceStatus::*;
+        match (from, to) {
+            (DRAFT, SENT) => true,
+            (SENT, PAID) => true,
+            (OVERDUE, PAID) => true,
+            (DRAFT | SENT | OVERDUE, CANCELLED) => true,
+            _ => false,
         }
     }
 }

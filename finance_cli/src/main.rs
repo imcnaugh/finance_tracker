@@ -92,7 +92,7 @@ async fn main() {
                     generate_pdf,
                 } => {
                     match invoice_service
-                        .update_invoice_status(&invoice_id, &status)
+                        .update_invoice_status(&invoice_id, cstatus)
                         .await
                     {
                         Ok(_) => {

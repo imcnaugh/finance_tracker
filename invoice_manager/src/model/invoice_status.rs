@@ -1,4 +1,4 @@
-use clap::{Args, ValueEnum};
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
 use std::fmt::Display;
