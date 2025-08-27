@@ -90,7 +90,18 @@ async fn main() {
                     invoice_id,
                     status,
                     generate_pdf,
-                } => {}
+                } => {
+                    match invoice_service
+                        .update_invoice_status(&invoice_id, &status)
+                        .await
+                    {
+                        Ok(_) => {
+                            println!("Invoice status updated");
+                            //TODO generate pdf
+                        }
+                        Err(e) => println!("Error updating invoice status: {:?}", e),
+                    }
+                }
                 InvoiceSubCommands::GeneratePdf { invoice_id } => {}
             }
         }

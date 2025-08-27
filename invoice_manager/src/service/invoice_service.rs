@@ -4,6 +4,7 @@ use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
+use chrono::Utc;
 
 pub struct InvoiceService<ID>
 where
@@ -71,6 +72,44 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
                 .await
                 .map_err(|e| e.to_string()),
             _ => Err("Cannot add line item to invoice that is not in draft status".to_string()),
+        }
+    }
+
+    pub async fn update_invoice_status(
+        &self,
+        invoice_id: &str,
+        new_status: &InvoiceStatus,
+    ) -> Result<(), String> {
+        let invoice = self.get_invoice(invoice_id).await?;
+        match (
+            invoice
+                .get_status()
+                .map_err(|_| "Issue getting invoice status")?,
+            new_status,
+        ) {
+            (InvoiceStatus::DRAFT, InvoiceStatus::SENT) => {
+                self.invoice_dao
+                    .set_invoice_sent_timestamp(invoice_id, Utc::now().timestamp())
+                    .await
+                    .map_err(|e| e.to_string())?;
+                Ok(())
+            }
+            (InvoiceStatus::SENT, InvoiceStatus::PAID) => {
+                todo!()
+            }
+            (InvoiceStatus::OVERDUE, InvoiceStatus::PAID) => {
+                todo!()
+            }
+            (InvoiceStatus::DRAFT, InvoiceStatus::CANCELLED) => {
+                todo!()
+            }
+            (InvoiceStatus::SENT, InvoiceStatus::CANCELLED) => {
+                todo!()
+            }
+            (InvoiceStatus::OVERDUE, InvoiceStatus::CANCELLED) => {
+                todo!()
+            }
+            _ => Err("Cannot update invoice status".to_string()),
         }
     }
 }

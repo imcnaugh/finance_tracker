@@ -4,6 +4,7 @@ use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
+use chrono::{DateTime, Utc};
 use sqlx::{Error, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
@@ -20,16 +21,6 @@ INSERT INTO invoice (
 ) VALUES (?, ?, ?, ?, ?, ?, ?)
 "#;
 
-const LINE_ITEM_INSERT_SQL: &str = r#"
-INSERT INTO line_item (
-    id,
-    description,
-    quantity,
-    unit_price_in_cents,
-    invoice_id
-    ) VALUES (?, ?, ?, ?, ?)
-"#;
-
 const INVOICE_SELECT_BY_ID_SQL: &str = r#"
 SELECT
     id,
@@ -43,21 +34,20 @@ FROM invoice
 WHERE id = ?
 "#;
 
-const INVOICE_UPDATE_SQL: &str = r#"
+const INVOICE_SET_SENT_DATE_SQL: &str = r#"
 UPDATE invoice
-SET
-    client_id = ?,
-    draft_date = ?,
-    due_date = ?,
-    sent_date = ?,
-    paid_date = ?,
-    cancelled_date = ?
+SET sent_date = ?
 WHERE id = ?
 "#;
 
-const INVOICE_DELETE_SQL: &str = r#"
-DELETE FROM invoice
-WHERE id = ?
+const LINE_ITEM_INSERT_SQL: &str = r#"
+INSERT INTO line_item (
+    id,
+    description,
+    quantity,
+    unit_price_in_cents,
+    invoice_id
+    ) VALUES (?, ?, ?, ?, ?)
 "#;
 
 const LINE_ITEM_SELECT_BY_INVOICE_ID_SQL: &str = r#"
@@ -103,6 +93,22 @@ impl InvoiceSqliteDao {
         Ok(())
     }
 
+    async fn invoice_set_sent_date<'e, E>(
+        &self,
+        executor: E,
+        id: &str,
+        sent_date: i64,
+    ) -> Result<(), Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let query = sqlx::query(INVOICE_SET_SENT_DATE_SQL)
+            .bind(sent_date)
+            .bind(id);
+        query.execute(executor).await?;
+        Ok(())
+    }
+
     async fn insert_line_item<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
@@ -132,47 +138,6 @@ impl InvoiceSqliteDao {
             .await?;
 
         Ok(item)
-    }
-
-    async fn update_invoice<'e, E>(
-        &self,
-        executor: E,
-        id: &str,
-        item: &Invoice,
-    ) -> Result<(), Error>
-    where
-        E: Executor<'e, Database = Sqlite>,
-    {
-        let draft_timestamp = item
-            .get_draft_date()
-            .map_err(|_| Error::Decode("Invalid draft_date".into()))?;
-        let sent_timestamp = Self::map_to_slqx_error(item.get_sent_date(), "sent date")?;
-        let paid_timestamp = Self::map_to_slqx_error(item.get_paid_date(), "paid date")?;
-        let due_timestamp = Self::map_to_slqx_error(item.get_due_date(), "due date")?;
-        let cancelled_timestamp =
-            Self::map_to_slqx_error(item.get_cancelled_date(), "cancelled date")?;
-
-        let query = sqlx::query(INVOICE_UPDATE_SQL)
-            .bind(item.get_client_id())
-            .bind(draft_timestamp.timestamp())
-            .bind(due_timestamp.map(|d| d.timestamp()))
-            .bind(sent_timestamp.map(|d| d.timestamp()))
-            .bind(paid_timestamp.map(|d| d.timestamp()))
-            .bind(cancelled_timestamp.map(|d| d.timestamp()))
-            .bind(id);
-
-        query.execute(executor).await?;
-        Ok(())
-    }
-
-    async fn delete_invoice<'e, E>(&self, executor: E, id: &str) -> Result<(), Error>
-    where
-        E: Executor<'e, Database = Sqlite>,
-    {
-        let query = sqlx::query(INVOICE_DELETE_SQL).bind(id);
-
-        query.execute(executor).await?;
-        Ok(())
     }
 
     async fn read_line_items_by_invoice_id<'e, E>(
@@ -327,5 +292,12 @@ impl InvoiceDao for InvoiceSqliteDao {
         let new_line_item = LineItem::from((new_line_item, invoice_id));
         self.insert_line_item(&mut *conn, &new_line_item).await?;
         Ok(new_line_item)
+    }
+
+    async fn set_invoice_sent_timestamp(&self, id: &str, sent_date: i64) -> Result<(), Error> {
+        let mut conn = get_pooled_connection().await?;
+        self.invoice_set_sent_date(&mut *conn, id, sent_date)
+            .await?;
+        Ok(())
     }
 }
