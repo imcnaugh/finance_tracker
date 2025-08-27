@@ -1,6 +1,7 @@
 use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::model::invoice::Invoice;
+use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 
@@ -59,9 +60,17 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         invoice_id: &str,
         new_line_item: &NewLineItem,
     ) -> Result<LineItem, String> {
-        self.invoice_dao
-            .create_line_item(invoice_id, new_line_item)
-            .await
-            .map_err(|e| e.to_string())
+        let invoice = self.get_invoice(invoice_id).await?;
+        match invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?
+        {
+            InvoiceStatus::DRAFT => self
+                .invoice_dao
+                .create_line_item(invoice_id, new_line_item)
+                .await
+                .map_err(|e| e.to_string()),
+            _ => Err("Cannot add line item to invoice that is not in draft status".to_string()),
+        }
     }
 }

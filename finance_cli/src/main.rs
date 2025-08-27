@@ -86,7 +86,7 @@ async fn main() {
                     invoice_id,
                     line_item_id,
                 } => {}
-                InvoiceSubCommands::Update {
+                InvoiceSubCommands::UpdateStatus {
                     invoice_id,
                     status,
                     generate_pdf,

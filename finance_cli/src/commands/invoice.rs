@@ -33,7 +33,7 @@ pub enum InvoiceSubCommands {
 
     /// Update an invoice's status
     #[command(visible_alias = "u")]
-    Update {
+    UpdateStatus {
         invoice_id: String,
         status: InvoiceStatus,
 
