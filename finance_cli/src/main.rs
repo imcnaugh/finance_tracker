@@ -85,24 +85,39 @@ async fn main() {
                 InvoiceSubCommands::DeleteItem {
                     invoice_id,
                     line_item_id,
-                } => {}
-                InvoiceSubCommands::UpdateStatus {
+                } => {
+                    todo!()
+                }
+                InvoiceSubCommands::Send {
                     invoice_id,
-                    status,
                     generate_pdf,
                 } => {
-                    match invoice_service
-                        .update_invoice_status(&invoice_id, cstatus)
-                        .await
-                    {
-                        Ok(_) => {
-                            println!("Invoice status updated");
-                            //TODO generate pdf
+                    // TODO display invoice and confirm send
+                    match invoice_service.mark_invoice_sent(&invoice_id).await {
+                        Ok(invoice) => {
+                            // TODO generate pdf
+                            println!("Invoice sent: {:?}", invoice);
                         }
-                        Err(e) => println!("Error updating invoice status: {:?}", e),
+                        Err(e) => println!("Error sending invoice: {:?}", e),
                     }
                 }
-                InvoiceSubCommands::GeneratePdf { invoice_id } => {}
+                InvoiceSubCommands::Paid { invoice_id } => {
+                    // TODO display invoice and confirm paid
+                    match invoice_service.mark_invoice_paid(&invoice_id).await {
+                        Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
+                        Err(e) => println!("Error marking invoice as paid: {:?}", e),
+                    }
+                }
+                InvoiceSubCommands::Cancel { invoice_id } => {
+                    // TODO display invoice and confirm cancel
+                    match invoice_service.mark_invoice_cancelled(&invoice_id).await {
+                        Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
+                        Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
+                    }
+                }
+                InvoiceSubCommands::GeneratePdf { invoice_id } => {
+                    todo!()
+                }
             }
         }
     }

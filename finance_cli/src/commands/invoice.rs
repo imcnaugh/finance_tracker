@@ -1,5 +1,4 @@
 use clap::Subcommand;
-use invoice_manager::model::invoice_status::InvoiceStatus;
 use invoice_manager::model::{InvoiceSearch, NewLineItem};
 
 #[derive(Subcommand)]
@@ -31,16 +30,18 @@ pub enum InvoiceSubCommands {
         line_item_id: String,
     },
 
-    /// Update an invoice's status
-    #[command(visible_alias = "u")]
-    UpdateStatus {
+    /// Send a draft invoice
+    Send {
         invoice_id: String,
-        status: InvoiceStatus,
-
-        /// Generate a PDF for an invoice
         #[arg(short, long)]
         generate_pdf: bool,
     },
+
+    /// Mark an invoice as paid
+    Paid { invoice_id: String },
+
+    /// Cancel an invoice
+    Cancel { invoice_id: String },
 
     /// Generate a PDF for an invoice
     #[command(visible_alias = "pdf")]

@@ -2,6 +2,7 @@ use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
+use crate::model::invoice_status::InvoiceStatus::{OVERDUE, SENT};
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
@@ -75,49 +76,52 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         }
     }
 
-    pub async fn update_invoice_status(
-        &self,
-        invoice_id: &str,
-        new_status: InvoiceStatus,
-    ) -> Result<(), String> {
+    pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<(), String> {
         let invoice = self.get_invoice(invoice_id).await?;
-        let current_status = invoice
+        if invoice
             .get_status()
-            .map_err(|_| "Issue getting invoice status")?;
-
-        if !Self::allowed_transitions(current_status, new_status) {
-            Err(format!(
-                "Unable to update invoice status from {} to {}",
-                current_status, new_status,
-            ))?
+            .map_err(|_| "Issue getting invoice status")?
+            != InvoiceStatus::DRAFT
+        {
+            return Err("Cannot send invoice that is not in draft status".to_string());
         }
 
-        match new_status {
-            InvoiceStatus::SENT => {
-                self.invoice_dao
-                    .set_invoice_sent_timestamp(invoice_id, Utc::now().timestamp())
-                    .await
-                    .map_err(|e| e.to_string())?;
+        self.invoice_dao
+            .set_invoice_sent_timestamp(invoice_id, Utc::now().timestamp())
+            .await
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    pub async fn mark_invoice_paid(&self, invoice_id: &str) -> Result<(), String> {
+        use InvoiceStatus::*;
+
+        let invoice = self.get_invoice(invoice_id).await?;
+        let invoice_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+        match invoice_status {
+            SENT | OVERDUE => {
+                todo!();
                 Ok(())
             }
-            InvoiceStatus::PAID => {
-                todo!()
-            }
-            InvoiceStatus::CANCELLED => {
-                todo!()
-            }
-            _ => Err(format!("unable to set invoice to {} state", new_status)),
+            _ => Err("Cannot mark invoice as paid that is not in draft status".to_string()),
         }
     }
 
-    fn allowed_transitions(from: InvoiceStatus, to: InvoiceStatus) -> bool {
+    pub async fn mark_invoice_cancelled(&self, invoice_id: &str) -> Result<(), String> {
         use InvoiceStatus::*;
-        match (from, to) {
-            (DRAFT, SENT) => true,
-            (SENT, PAID) => true,
-            (OVERDUE, PAID) => true,
-            (DRAFT | SENT | OVERDUE, CANCELLED) => true,
-            _ => false,
+
+        let invoice = self.get_invoice(invoice_id).await?;
+        let invoice_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+        match invoice_status {
+            DRAFT | SENT | OVERDUE => {
+                todo!();
+                Ok(())
+            }
+            _ => Err("Cannot mark invoice as cancelled that is not in draft status".to_string()),
         }
     }
 }
