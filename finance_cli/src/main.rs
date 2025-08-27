@@ -13,6 +13,7 @@ pub mod tableds;
 #[tokio::main]
 async fn main() {
     let cli = Command::parse();
+
     match cli.command {
         Commands::Client(client_command) => {
             let service = ClientService::new();
@@ -37,31 +38,61 @@ async fn main() {
                 },
             }
         }
-        Commands::Invoice(invoice_command) => match invoice_command {
-            InvoiceSubCommands::New { client_id } => {
-                let invoice_service = InvoiceService::new();
-                match invoice_service.create_new_invoice(client_id).await {
-                    Ok(invoice) => println!("Invoice created: {:?}", invoice),
-                    Err(e) => println!("Error creating invoice: {:?}", e),
-                }
-            }
-            InvoiceSubCommands::List { search_options } => {
-                let invoice_service = InvoiceService::new();
-
-                match invoice_service.search_invoices(search_options).await {
-                    Ok(invoices) => {
-                        println!("Invoices:");
-                        let invoices: Vec<InvoiceDetails> =
-                            invoices.iter().map(InvoiceDetails::from).collect();
-                        let mut tabled_invoices = Table::new(invoices);
-                        tabled_invoices.with(Style::psql());
-                        println!("{}", tabled_invoices);
+        Commands::Invoice(invoice_command) => {
+            let invoice_service = InvoiceService::new();
+            match invoice_command {
+                InvoiceSubCommands::New { client_id } => {
+                    match invoice_service.create_new_invoice(client_id).await {
+                        Ok(invoice) => println!("Invoice created: {:?}", invoice),
+                        Err(e) => println!("Error creating invoice: {:?}", e),
                     }
-                    Err(e) => println!("Error getting invoices: {:?}", e),
-                };
+                }
+                InvoiceSubCommands::Get { invoice_id } => {
+                    match invoice_service.get_invoice(&invoice_id).await {
+                        Ok(invoice) => {
+                            let mut tabled_invoices = Table::new([InvoiceDetails::from(&invoice)]);
+                            tabled_invoices.with(Style::psql());
+                            println!("{}", tabled_invoices);
+                        }
+                        Err(e) => println!("Error: {}", e.as_str()),
+                    }
+                }
+                InvoiceSubCommands::List { search_options } => {
+                    match invoice_service.search_invoices(search_options).await {
+                        Ok(invoices) => {
+                            println!("Invoices:");
+                            let invoices: Vec<InvoiceDetails> =
+                                invoices.iter().map(InvoiceDetails::from).collect();
+                            let mut tabled_invoices = Table::new(invoices);
+                            tabled_invoices.with(Style::psql());
+                            println!("{}", tabled_invoices);
+                        }
+                        Err(e) => println!("Error getting invoices: {:?}", e),
+                    };
+                }
+                InvoiceSubCommands::AddItem {
+                    invoice_id,
+                    new_line_item,
+                } => {
+                    match invoice_service
+                        .add_line_item_to_invoice(&invoice_id, &new_line_item)
+                        .await
+                    {
+                        Ok(invoice) => println!("Invoice updated: {:?}", invoice),
+                        Err(e) => println!("Error updating invoice: {:?}", e),
+                    }
+                }
+                InvoiceSubCommands::DeleteItem {
+                    invoice_id,
+                    line_item_id,
+                } => {}
+                InvoiceSubCommands::Update {
+                    invoice_id,
+                    status,
+                    generate_pdf,
+                } => {}
+                InvoiceSubCommands::GeneratePdf { invoice_id } => {}
             }
-
-            _ => {}
-        },
+        }
     }
 }

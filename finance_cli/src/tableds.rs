@@ -7,7 +7,7 @@ pub struct InvoiceDetails {
     id: String,
     client_id: String,
     status: String,
-    total: f64,
+    total: String,
 }
 
 #[derive(Tabled)]
@@ -21,13 +21,15 @@ pub struct ClientDetails {
 
 impl From<&Invoice> for InvoiceDetails {
     fn from(value: &Invoice) -> Self {
+        let total_in_cents = value.get_line_items().iter().fold(0.0, |acc, li| {
+            acc + (li.get_quantity() * li.get_total_in_cents() as f64)
+        });
+        let total_in_cents = format!("${:.2}", total_in_cents / 100.0);
         Self {
             id: value.get_id().into(),
             client_id: value.get_client_id().into(),
             status: value.get_status().unwrap().to_string(),
-            total: value.get_line_items().iter().fold(0.0, |acc, li| {
-                acc + (li.get_quantity() * li.get_total_in_cents() as f64)
-            }),
+            total: total_in_cents,
         }
     }
 }

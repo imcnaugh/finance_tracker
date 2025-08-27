@@ -35,6 +35,14 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         Ok(invoice)
     }
 
+    pub async fn get_invoice(&self, invoice_id: &str) -> Result<Invoice, String> {
+        self.invoice_dao
+            .get_invoice(invoice_id)
+            .await
+            .map_err(|e| e.to_string())
+            .and_then(|opt| opt.ok_or_else(|| "invoice not found".to_string()))
+    }
+
     pub async fn search_invoices(
         &self,
         search_terms: Option<InvoiceSearch>,

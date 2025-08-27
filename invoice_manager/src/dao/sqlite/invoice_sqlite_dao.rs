@@ -26,9 +26,8 @@ INSERT INTO line_item (
     description,
     quantity,
     unit_price_in_cents,
-    created_timestamp,
     invoice_id
-    ) VALUES (?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?)
 "#;
 
 const INVOICE_SELECT_BY_ID_SQL: &str = r#"
@@ -67,7 +66,8 @@ SELECT
     description,
     quantity,
     unit_price_in_cents,
-    created_timestamp
+    created_timestamp,
+    invoice_id
 FROM line_item
 WHERE invoice_id = ?
 "#;
