@@ -1,12 +1,17 @@
 use crate::model::invoice::Invoice;
+use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 
 pub trait InvoiceDao {
     async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, sqlx::Error>;
     async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, sqlx::Error>;
-    async fn set_invoice_sent_timestamp(&self, id: &str, sent_date: i64)
-    -> Result<(), sqlx::Error>;
+    async fn set_invoice_status_timestamp(
+        &self,
+        id: &str,
+        sent_date: i64,
+        status: InvoiceStatus,
+    ) -> Result<(), sqlx::Error>;
     async fn search_invoices(
         &self,
         search_terms: &InvoiceSearch,

@@ -5,6 +5,7 @@ use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::{DateTime, Utc};
+use log::error;
 use sqlx::{Error, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
@@ -37,6 +38,18 @@ WHERE id = ?
 const INVOICE_SET_SENT_DATE_SQL: &str = r#"
 UPDATE invoice
 SET sent_date = ?
+WHERE id = ?
+"#;
+
+const INVOICE_SET_PAID_DATE_SQL: &str = r#"
+UPDATE invoice
+SET paid_date = ?
+WHERE id = ?
+"#;
+
+const INVOICE_SET_CANCELLED_DATE_SQL: &str = r#"
+UPDATE invoice
+SET cancelled_date = ?
 WHERE id = ?
 "#;
 
@@ -93,18 +106,27 @@ impl InvoiceSqliteDao {
         Ok(())
     }
 
-    async fn invoice_set_sent_date<'e, E>(
+    async fn invoice_set_status_date<'e, E>(
         &self,
         executor: E,
         id: &str,
-        sent_date: i64,
+        date_type: InvoiceStatus,
+        date: i64,
     ) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(INVOICE_SET_SENT_DATE_SQL)
-            .bind(sent_date)
-            .bind(id);
+        let sql = match date_type {
+            InvoiceStatus::SENT => INVOICE_SET_SENT_DATE_SQL,
+            InvoiceStatus::PAID => INVOICE_SET_PAID_DATE_SQL,
+            InvoiceStatus::CANCELLED => INVOICE_SET_CANCELLED_DATE_SQL,
+            (t) => {
+                return Err(Error::Decode(
+                    format!("Unable to set date for status type {:?}", t).into(),
+                ));
+            }
+        };
+        let query = sqlx::query(sql).bind(date).bind(id);
         query.execute(executor).await?;
         Ok(())
     }
@@ -294,9 +316,14 @@ impl InvoiceDao for InvoiceSqliteDao {
         Ok(new_line_item)
     }
 
-    async fn set_invoice_sent_timestamp(&self, id: &str, sent_date: i64) -> Result<(), Error> {
+    async fn set_invoice_status_timestamp(
+        &self,
+        id: &str,
+        sent_date: i64,
+        status: InvoiceStatus,
+    ) -> Result<(), Error> {
         let mut conn = get_pooled_connection().await?;
-        self.invoice_set_sent_date(&mut *conn, id, sent_date)
+        self.invoice_set_status_date(&mut *conn, id, status, sent_date)
             .await?;
         Ok(())
     }

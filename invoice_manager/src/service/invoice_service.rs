@@ -77,20 +77,22 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
     }
 
     pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<(), String> {
-        let invoice = self.get_invoice(invoice_id).await?;
-        if invoice
-            .get_status()
-            .map_err(|_| "Issue getting invoice status")?
-            != InvoiceStatus::DRAFT
-        {
-            return Err("Cannot send invoice that is not in draft status".to_string());
-        }
+        use InvoiceStatus::*;
 
-        self.invoice_dao
-            .set_invoice_sent_timestamp(invoice_id, Utc::now().timestamp())
-            .await
-            .map_err(|e| e.to_string())?;
-        Ok(())
+        let invoice = self.get_invoice(invoice_id).await?;
+        let invoice_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+        match invoice_status {
+            DRAFT => {
+                self.invoice_dao
+                    .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), SENT)
+                    .await
+                    .map_err(|e| e.to_string())?;
+                Ok(())
+            }
+            _ => Err("Cannot send invoice that is not in draft status".to_string()),
+        }
     }
 
     pub async fn mark_invoice_paid(&self, invoice_id: &str) -> Result<(), String> {
@@ -102,7 +104,10 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
         match invoice_status {
             SENT | OVERDUE => {
-                todo!();
+                self.invoice_dao
+                    .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), PAID)
+                    .await
+                    .map_err(|e| e.to_string())?;
                 Ok(())
             }
             _ => Err("Cannot mark invoice as paid that is not in draft status".to_string()),
@@ -118,7 +123,10 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
         match invoice_status {
             DRAFT | SENT | OVERDUE => {
-                todo!();
+                self.invoice_dao
+                    .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), CANCELLED)
+                    .await
+                    .map_err(|e| e.to_string())?;
                 Ok(())
             }
             _ => Err("Cannot mark invoice as cancelled that is not in draft status".to_string()),
