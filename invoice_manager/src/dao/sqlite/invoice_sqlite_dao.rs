@@ -272,12 +272,16 @@ impl InvoiceSqliteDao {
     async fn delete_line_item<'e, E>(
         &self,
         executor: E,
-        line_item_id: &str,
         invoice_id: &str,
+        line_item_id: &str,
     ) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
     {
+        println!(
+            "here i am, with invoice_id: {} and line_item_id:{}",
+            invoice_id, line_item_id
+        );
         let query = sqlx::query(LINE_ITEM_DELETE_SQL)
             .bind(line_item_id)
             .bind(invoice_id);
