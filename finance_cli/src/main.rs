@@ -86,7 +86,13 @@ async fn main() {
                     invoice_id,
                     line_item_id,
                 } => {
-                    todo!()
+                    match invoice_service
+                        .delete_line_item_from_invoice(&invoice_id, &line_item_id)
+                        .await
+                    {
+                        Ok(invoice) => println!("Invoice updated: {:?}", invoice),
+                        Err(e) => println!("Error updating invoice: {:?}", e),
+                    }
                 }
                 InvoiceSubCommands::Send {
                     invoice_id,

@@ -57,25 +57,6 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn add_line_item_to_invoice(
-        &self,
-        invoice_id: &str,
-        new_line_item: &NewLineItem,
-    ) -> Result<LineItem, String> {
-        let invoice = self.get_invoice(invoice_id).await?;
-        match invoice
-            .get_status()
-            .map_err(|_| "Issue getting invoice status")?
-        {
-            InvoiceStatus::DRAFT => self
-                .invoice_dao
-                .create_line_item(invoice_id, new_line_item)
-                .await
-                .map_err(|e| e.to_string()),
-            _ => Err("Cannot add line item to invoice that is not in draft status".to_string()),
-        }
-    }
-
     pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<(), String> {
         use InvoiceStatus::*;
 
@@ -130,6 +111,57 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
                 Ok(())
             }
             _ => Err("Cannot mark invoice as cancelled that is not in draft status".to_string()),
+        }
+    }
+
+    pub async fn add_line_item_to_invoice(
+        &self,
+        invoice_id: &str,
+        new_line_item: &NewLineItem,
+    ) -> Result<LineItem, String> {
+        let invoice = self.get_invoice(invoice_id).await?;
+        let invoice_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+        match invoice_status {
+            InvoiceStatus::DRAFT => self
+                .invoice_dao
+                .create_line_item(invoice_id, new_line_item)
+                .await
+                .map_err(|e| e.to_string()),
+            _ => Err("Cannot add line item to invoice that is not in draft status".to_string()),
+        }
+    }
+
+    pub async fn delete_line_item_from_invoice(
+        &self,
+        invoice_id: &str,
+        line_item_id: &str,
+    ) -> Result<(), String> {
+        let invoice = self.get_invoice(invoice_id).await?;
+        if invoice
+            .get_line_items()
+            .iter()
+            .find(|li| li.get_id() == line_item_id)
+            .is_none()
+        {
+            return Err(format!(
+                "No line item with id {line_item_id} found for invoice id {invoice_id}"
+            ));
+        }
+
+        let invoice_status = invoice
+            .get_status()
+            .map_err(|_| "Issue getting invoice status")?;
+        match invoice_status {
+            InvoiceStatus::DRAFT => self
+                .invoice_dao
+                .delete_line_item(invoice_id, line_item_id)
+                .await
+                .map_err(|e| e.to_string()),
+            _ => {
+                Err("Cannot remove line item from invoice that is not in draft status".to_string())
+            }
         }
     }
 }

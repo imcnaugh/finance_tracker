@@ -63,6 +63,12 @@ INSERT INTO line_item (
     ) VALUES (?, ?, ?, ?, ?)
 "#;
 
+const LINE_ITEM_DELETE_SQL: &str = r#"
+DELETE FROM line_item
+WHERE id = ?
+AND invoice_id = ?
+"#;
+
 const LINE_ITEM_SELECT_BY_INVOICE_ID_SQL: &str = r#"
 SELECT
     id,
@@ -127,21 +133,6 @@ impl InvoiceSqliteDao {
             }
         };
         let query = sqlx::query(sql).bind(date).bind(id);
-        query.execute(executor).await?;
-        Ok(())
-    }
-
-    async fn insert_line_item<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Error>
-    where
-        E: Executor<'e, Database = Sqlite>,
-    {
-        let query = sqlx::query(LINE_ITEM_INSERT_SQL)
-            .bind(item.get_id())
-            .bind(item.get_description())
-            .bind(item.get_quantity())
-            .bind(item.get_unit_price_in_cents())
-            .bind(item.get_invoice_id());
-
         query.execute(executor).await?;
         Ok(())
     }
@@ -262,6 +253,38 @@ impl InvoiceSqliteDao {
 
         Ok(query.fetch_all(executor).await?)
     }
+
+    async fn insert_line_item<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let query = sqlx::query(LINE_ITEM_INSERT_SQL)
+            .bind(item.get_id())
+            .bind(item.get_description())
+            .bind(item.get_quantity())
+            .bind(item.get_unit_price_in_cents())
+            .bind(item.get_invoice_id());
+
+        query.execute(executor).await?;
+        Ok(())
+    }
+
+    async fn delete_line_item<'e, E>(
+        &self,
+        executor: E,
+        line_item_id: &str,
+        invoice_id: &str,
+    ) -> Result<(), Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let query = sqlx::query(LINE_ITEM_DELETE_SQL)
+            .bind(line_item_id)
+            .bind(invoice_id);
+
+        query.execute(executor).await?;
+        Ok(())
+    }
 }
 
 impl InvoiceDao for InvoiceSqliteDao {
@@ -305,6 +328,18 @@ impl InvoiceDao for InvoiceSqliteDao {
         }
     }
 
+    async fn set_invoice_status_timestamp(
+        &self,
+        id: &str,
+        sent_date: i64,
+        status: InvoiceStatus,
+    ) -> Result<(), Error> {
+        let mut conn = get_pooled_connection().await?;
+        self.invoice_set_status_date(&mut *conn, id, status, sent_date)
+            .await?;
+        Ok(())
+    }
+
     async fn create_line_item(
         &self,
         invoice_id: &str,
@@ -316,14 +351,9 @@ impl InvoiceDao for InvoiceSqliteDao {
         Ok(new_line_item)
     }
 
-    async fn set_invoice_status_timestamp(
-        &self,
-        id: &str,
-        sent_date: i64,
-        status: InvoiceStatus,
-    ) -> Result<(), Error> {
+    async fn delete_line_item(&self, invoice_id: &str, line_item_id: &str) -> Result<(), Error> {
         let mut conn = get_pooled_connection().await?;
-        self.invoice_set_status_date(&mut *conn, id, status, sent_date)
+        self.delete_line_item(&mut *conn, invoice_id, line_item_id)
             .await?;
         Ok(())
     }

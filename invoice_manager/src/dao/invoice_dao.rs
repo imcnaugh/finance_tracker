@@ -22,4 +22,10 @@ pub trait InvoiceDao {
         invoice_id: &str,
         new_line_item: &NewLineItem,
     ) -> Result<LineItem, sqlx::Error>;
+
+    async fn delete_line_item(
+        &self,
+        invoice_id: &str,
+        line_item_id: &str,
+    ) -> Result<(), sqlx::Error>;
 }
