@@ -53,6 +53,9 @@ async fn main() {
                             let mut tabled_invoices = Table::new([InvoiceDetails::from(&invoice)]);
                             tabled_invoices.with(Style::psql());
                             println!("{}", tabled_invoices);
+                            // TODO tabled line items and display them.gi
+                            println!("Line items:");
+                            println!("{:?}", invoice.get_line_items());
                         }
                         Err(e) => println!("Error: {}", e.as_str()),
                     }
