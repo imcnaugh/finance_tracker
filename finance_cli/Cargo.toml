@@ -8,3 +8,4 @@ invoice_manager = {path = "../invoice_manager"}
 clap = { version = "4.5.42", features = ["derive"] }
 tabled = "0.20.0"
 tokio = { version = "1.47.1", features = ["full"] }
+chrono = "0.4.41"

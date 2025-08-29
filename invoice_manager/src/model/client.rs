@@ -47,15 +47,15 @@ impl Client {
         self.name.as_str()
     }
 
-    pub fn get_address(&self) -> &Option<String> {
-        &self.address
+    pub fn get_address(&self) -> Option<&str> {
+        self.address.as_deref()
     }
 
-    pub fn get_phone(&self) -> &Option<String> {
-        &self.phone
+    pub fn get_phone(&self) -> Option<&str> {
+        self.phone.as_deref()
     }
 
-    pub fn get_invoice_email(&self) -> &Option<String> {
-        &self.invoice_email
+    pub fn get_invoice_email(&self) -> Option<&str> {
+        self.invoice_email.as_deref()
     }
 }

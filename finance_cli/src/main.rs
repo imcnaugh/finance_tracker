@@ -1,14 +1,11 @@
-use crate::commands::client::ClientSubcommands;
-use crate::commands::invoice::InvoiceSubCommands;
-use crate::commands::{Command, Commands};
-use crate::tableds::{ClientDetails, InvoiceDetails};
+use crate::command::client::ClientSubcommands;
+use crate::command::invoice::InvoiceSubCommands;
+use crate::command::{Command, Commands};
 use clap::Parser;
 use invoice_manager::service::{ClientService, InvoiceService};
-use tabled::Table;
-use tabled::settings::Style;
 
-mod commands;
-pub mod tableds;
+mod command;
+mod util;
 
 #[tokio::main]
 async fn main() {
@@ -26,14 +23,7 @@ async fn main() {
                     };
                 }
                 ClientSubcommands::List => match service.get_all_clients().await {
-                    Ok(clients) => {
-                        println!("Clients:");
-                        let clients: Vec<ClientDetails> =
-                            clients.iter().map(ClientDetails::from).collect();
-                        let mut tabled_clients = Table::new(clients);
-                        tabled_clients.with(Style::psql());
-                        println!("{}", tabled_clients);
-                    }
+                    Ok(clients) => util::client_display::display_clients(&clients),
                     Err(e) => println!("Error getting clients: {:?}", e),
                 },
             }
@@ -50,12 +40,7 @@ async fn main() {
                 InvoiceSubCommands::Get { invoice_id } => {
                     match invoice_service.get_invoice(&invoice_id).await {
                         Ok(invoice) => {
-                            let mut tabled_invoices = Table::new([InvoiceDetails::from(&invoice)]);
-                            tabled_invoices.with(Style::psql());
-                            println!("{}", tabled_invoices);
-                            // TODO tabled line items and display them.gi
-                            println!("Line items:");
-                            println!("{:?}", invoice.get_line_items());
+                            util::invoice_display::display_invoice(&invoice);
                         }
                         Err(e) => println!("Error: {}", e.as_str()),
                     }
@@ -63,12 +48,7 @@ async fn main() {
                 InvoiceSubCommands::List { search_options } => {
                     match invoice_service.search_invoices(search_options).await {
                         Ok(invoices) => {
-                            println!("Invoices:");
-                            let invoices: Vec<InvoiceDetails> =
-                                invoices.iter().map(InvoiceDetails::from).collect();
-                            let mut tabled_invoices = Table::new(invoices);
-                            tabled_invoices.with(Style::psql());
-                            println!("{}", tabled_invoices);
+                            util::invoice_display::display_invoices(&invoices);
                         }
                         Err(e) => println!("Error getting invoices: {:?}", e),
                     };

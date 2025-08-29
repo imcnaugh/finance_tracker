@@ -1,8 +1,8 @@
 pub mod client;
 pub mod invoice;
 
-use crate::commands::client::ClientSubcommands;
-use crate::commands::invoice::InvoiceSubCommands;
+use crate::command::client::ClientSubcommands;
+use crate::command::invoice::InvoiceSubCommands;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -14,11 +14,11 @@ pub struct Command {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Client commands
+    /// Client command
     #[command(subcommand)]
     Client(ClientSubcommands),
 
-    /// Invoice commands
+    /// Invoice command
     #[command(subcommand)]
     Invoice(InvoiceSubCommands),
 }

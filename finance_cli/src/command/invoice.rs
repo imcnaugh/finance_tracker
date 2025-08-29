@@ -7,6 +7,7 @@ pub enum InvoiceSubCommands {
     New { client_id: String },
 
     /// Get an invoice by id
+    #[command(visible_aliases = ["show", "print"])]
     Get { invoice_id: String },
 
     #[command(
