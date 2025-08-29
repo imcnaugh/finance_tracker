@@ -189,18 +189,16 @@ impl InvoiceSqliteDao {
                 InvoiceStatus::DRAFT => {
                     statement.push_str(" AND sent_date IS NULL AND cancelled_date IS NULL")
                 }
-                InvoiceStatus::SENT => {
-                    statement.push_str(" AND sent_date IS NOT NULL AND cancelled_date IS NOT NULL AND paid_date IS NULL")
-                }
+                InvoiceStatus::SENT => statement.push_str(
+                    " AND sent_date IS NOT NULL AND cancelled_date IS NULL AND paid_date IS NULL",
+                ),
                 InvoiceStatus::PAID => {
-                    statement.push_str(" AND paid_date IS NOT NULL AND cancelled_date IS NOT NULL")
+                    statement.push_str(" AND paid_date IS NOT NULL AND cancelled_date IS NULL")
                 }
-                InvoiceStatus::OVERDUE => {
-                    statement.push_str(" AND paid_date IS NULL AND cancelled_date IS NULL AND due_date < unixepoch()")
-                }
-                InvoiceStatus::CANCELLED => {
-                    statement.push_str(" AND cancelled_date IS NOT NULL")
-                }
+                InvoiceStatus::OVERDUE => statement.push_str(
+                    " AND paid_date IS NULL AND cancelled_date IS NULL AND due_date < unixepoch()",
+                ),
+                InvoiceStatus::CANCELLED => statement.push_str(" AND cancelled_date IS NOT NULL"),
             }
         }
 
