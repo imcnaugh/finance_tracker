@@ -58,7 +58,7 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::confirm::prompt_confirm("Send this invoice?") {
+                    if util::prompt_confirm("Send this invoice?") {
                         match invoice_service.mark_invoice_sent(&invoice_id).await {
                             Ok(invoice) => {
                                 // TODO generate pdf
@@ -78,7 +78,7 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::confirm::prompt_confirm("Mark this invoice as paid?") {
+                    if util::prompt_confirm("Mark this invoice as paid?") {
                         match invoice_service.mark_invoice_paid(&invoice_id).await {
                             Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
                             Err(e) => println!("Error marking invoice as paid: {:?}", e),
@@ -94,7 +94,7 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::confirm::prompt_confirm("Cancel this invoice?") {
+                    if util::prompt_confirm("Cancel this invoice?") {
                         match invoice_service.mark_invoice_cancelled(&invoice_id).await {
                             Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
                             Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
