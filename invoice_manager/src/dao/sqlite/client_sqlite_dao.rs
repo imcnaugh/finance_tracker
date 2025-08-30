@@ -28,21 +28,6 @@ FROM client
 WHERE id = ?
 "#;
 
-const UPDATE_SQL: &str = r#"
-UPDATE client
-SET
-    name = ?
-    address = ?,
-    phone = ?,
-    invoice_email = ?,
-WHERE id = ?
-"#;
-
-const DELETE_SQL: &str = r#"
-DELETE FROM client
-WHERE id = ?
-"#;
-
 const SELECT_ALL_SQL: &str = r#"
 SELECT
     id,
@@ -84,31 +69,6 @@ impl ClientSqliteDao {
             .await?;
 
         Ok(item)
-    }
-
-    async fn _update<'e, E>(&self, executor: E, id: &str, item: &Client) -> Result<(), sqlx::Error>
-    where
-        E: Executor<'e, Database = Sqlite>,
-    {
-        let query = sqlx::query(UPDATE_SQL)
-            .bind(item.get_name())
-            .bind(item.get_address())
-            .bind(item.get_phone())
-            .bind(item.get_invoice_email())
-            .bind(id);
-
-        query.execute(executor).await?;
-        Ok(())
-    }
-
-    async fn _delete<'e, E>(&self, executor: E, id: &str) -> Result<(), sqlx::Error>
-    where
-        E: Executor<'e, Database = Sqlite>,
-    {
-        let query = sqlx::query(DELETE_SQL).bind(id);
-
-        query.execute(executor).await?;
-        Ok(())
     }
 
     async fn read_all<'e, E>(&self, executor: E) -> Result<Vec<Client>, sqlx::Error>

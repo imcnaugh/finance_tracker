@@ -4,8 +4,6 @@ use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
-use chrono::{DateTime, Utc};
-use log::error;
 use sqlx::{Error, Executor, Sqlite};
 
 pub struct InvoiceSqliteDao;
@@ -126,7 +124,7 @@ impl InvoiceSqliteDao {
             InvoiceStatus::SENT => INVOICE_SET_SENT_DATE_SQL,
             InvoiceStatus::PAID => INVOICE_SET_PAID_DATE_SQL,
             InvoiceStatus::CANCELLED => INVOICE_SET_CANCELLED_DATE_SQL,
-            (t) => {
+            t => {
                 return Err(Error::Decode(
                     format!("Unable to set date for status type {:?}", t).into(),
                 ));
