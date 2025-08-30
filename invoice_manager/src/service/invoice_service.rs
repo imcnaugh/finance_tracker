@@ -2,7 +2,6 @@ use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
-use crate::model::invoice_status::InvoiceStatus::{OVERDUE, SENT};
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
@@ -12,18 +11,28 @@ where
     ID: InvoiceDao,
 {
     invoice_dao: ID,
+    confirm_fn: Option<fn(&str) -> bool>,
 }
 
 impl InvoiceService<InvoiceSqliteDao> {
-    pub fn new() -> InvoiceService<InvoiceSqliteDao> {
+    pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService<InvoiceSqliteDao> {
         let invoice_dao = InvoiceSqliteDao::new();
-        Self { invoice_dao }
+        Self {
+            invoice_dao,
+            confirm_fn,
+        }
     }
 }
 
 impl<ID: InvoiceDao> InvoiceService<ID> {
-    pub(crate) fn new_with_dao(invoice_dao: ID) -> InvoiceService<ID> {
-        Self { invoice_dao }
+    pub(crate) fn new_with_dao(
+        invoice_dao: ID,
+        confirm_fn: Option<fn(&str) -> bool>,
+    ) -> InvoiceService<ID> {
+        Self {
+            invoice_dao,
+            confirm_fn,
+        }
     }
 
     pub async fn create_new_invoice(&self, client_id: String) -> Result<Invoice, String> {
@@ -66,6 +75,12 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
         match invoice_status {
             DRAFT => {
+                if let Some(confirm_fn) = &self.confirm_fn {
+                    if !confirm_fn("Send this invoice?") {
+                        return Err("Invoice not sent".to_string());
+                    }
+                }
+
                 self.invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), SENT)
                     .await
@@ -85,6 +100,12 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
         match invoice_status {
             SENT | OVERDUE => {
+                if let Some(confirm_fn) = &self.confirm_fn {
+                    if !confirm_fn("Mark this invoice as paid?") {
+                        return Err("Invoice not marked as paid".to_string());
+                    }
+                }
+
                 self.invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), PAID)
                     .await
@@ -104,6 +125,12 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
         match invoice_status {
             DRAFT | SENT | OVERDUE => {
+                if let Some(confirm_fn) = &self.confirm_fn {
+                    if !confirm_fn("Cancel this invoice?") {
+                        return Err("Invoice not Cancel".to_string());
+                    }
+                }
+
                 self.invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), CANCELLED)
                     .await
@@ -153,6 +180,13 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         let invoice_status = invoice
             .get_status()
             .map_err(|_| "Issue getting invoice status")?;
+
+        if let Some(confirm_fn) = &self.confirm_fn {
+            if !confirm_fn(&format!("Remove line item with id {line_item_id}?")) {
+                return Err("Line item not removed".to_string());
+            }
+        }
+
         match invoice_status {
             InvoiceStatus::DRAFT => self
                 .invoice_dao

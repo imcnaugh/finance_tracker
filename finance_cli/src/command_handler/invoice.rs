@@ -3,7 +3,8 @@ use crate::util;
 use invoice_manager::service::InvoiceService;
 
 pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
-    let invoice_service = InvoiceService::new();
+    let invoice_service = InvoiceService::new(Some(util::prompt_confirm));
+
     match invoice_command {
         InvoiceSubCommands::New { client_id } => {
             match invoice_service.create_new_invoice(client_id).await {
@@ -58,17 +59,13 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::prompt_confirm("Send this invoice?") {
-                        match invoice_service.mark_invoice_sent(&invoice_id).await {
-                            Ok(invoice) => {
-                                // TODO generate pdf
-                                let _ = generate_pdf; // suppress unused for now
-                                println!("Invoice sent: {:?}", invoice);
-                            }
-                            Err(e) => println!("Error sending invoice: {:?}", e),
+
+                    match invoice_service.mark_invoice_sent(&invoice_id).await {
+                        Ok(invoice) => {
+                            // TODO generate pdf
+                            println!("Invoice sent: {:?}", invoice);
                         }
-                    } else {
-                        println!("Action cancelled by user.");
+                        Err(e) => println!("Error sending invoice: {:?}", e),
                     }
                 }
                 Err(e) => println!("Error: {}", e.as_str()),
@@ -78,13 +75,10 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::prompt_confirm("Mark this invoice as paid?") {
-                        match invoice_service.mark_invoice_paid(&invoice_id).await {
-                            Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
-                            Err(e) => println!("Error marking invoice as paid: {:?}", e),
-                        }
-                    } else {
-                        println!("Action cancelled by user.");
+
+                    match invoice_service.mark_invoice_paid(&invoice_id).await {
+                        Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
+                        Err(e) => println!("Error marking invoice as paid: {:?}", e),
                     }
                 }
                 Err(e) => println!("Error: {}", e.as_str()),
@@ -94,13 +88,10 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             match invoice_service.get_invoice(&invoice_id).await {
                 Ok(invoice) => {
                     util::invoice_display::display_invoice(&invoice);
-                    if util::prompt_confirm("Cancel this invoice?") {
-                        match invoice_service.mark_invoice_cancelled(&invoice_id).await {
-                            Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
-                            Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
-                        }
-                    } else {
-                        println!("Action cancelled by user.");
+
+                    match invoice_service.mark_invoice_cancelled(&invoice_id).await {
+                        Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
+                        Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
                     }
                 }
                 Err(e) => println!("Error: {}", e.as_str()),
