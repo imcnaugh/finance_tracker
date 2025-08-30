@@ -1,7 +1,7 @@
 use crate::util::line_item_display::display_line_items;
 use chrono::{DateTime, Utc};
+use comfy_table::{Table, presets::UTF8_FULL};
 use invoice_manager::model::invoice::Invoice;
-use comfy_table::{presets::UTF8_FULL, Table};
 
 pub struct InvoiceDisplay {
     id: String,

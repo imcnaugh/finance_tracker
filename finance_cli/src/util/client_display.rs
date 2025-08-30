@@ -1,5 +1,5 @@
+use comfy_table::{Table, presets::UTF8_FULL};
 use invoice_manager::model::client::Client;
-use comfy_table::{presets::UTF8_FULL, Table};
 
 struct ClientDisplay {
     id: String,
@@ -42,13 +42,7 @@ pub fn display_clients(clients: &Vec<Client>) {
 
     for client in clients {
         let cd = ClientDisplay::from(client);
-        table.add_row(vec![
-            cd.id,
-            cd.name,
-            cd.address,
-            cd.phone,
-            cd.invoice_email,
-        ]);
+        table.add_row(vec![cd.id, cd.name, cd.address, cd.phone, cd.invoice_email]);
     }
 
     println!("{}", table);

@@ -1,5 +1,5 @@
+use comfy_table::{Table, presets::UTF8_FULL};
 use invoice_manager::model::line_item::LineItem;
-use comfy_table::{presets::UTF8_FULL, Table};
 
 pub struct LineItemDisplay {
     id: String,
