@@ -4,7 +4,7 @@ use invoice_manager::model::NewClient;
 #[derive(Subcommand)]
 pub enum ClientSubcommands {
     /// Add a new client
-    Add(NewClient),
+    New(NewClient),
 
     /// List all clients
     #[command(visible_alias = "ls")]

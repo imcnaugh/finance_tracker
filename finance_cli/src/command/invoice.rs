@@ -10,11 +10,10 @@ pub enum InvoiceSubCommands {
     #[command(visible_aliases = ["show", "print"])]
     Get { invoice_id: String },
 
+    /// List invoices with options to search
     #[command(
         visible_alias = "ls",
-        about = "List invoices with options to search
-
-Dates are set to start at the beginning of the day, so to search for a single day
+        long_about = "Dates are set to start at the beginning of the day, so to search for a single day
 enter 2025-11-07..2025-11-08, that will search from the start of the 7th to the
 start of the 8th."
     )]

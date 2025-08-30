@@ -16,7 +16,7 @@ async fn main() {
             let service = ClientService::new();
 
             match client_command {
-                ClientSubcommands::Add(new_client) => {
+                ClientSubcommands::New(new_client) => {
                     match service.create_client(new_client).await {
                         Ok(client) => println!("Client created: {:?}", client),
                         Err(e) => println!("Error creating client: {:?}", e),
