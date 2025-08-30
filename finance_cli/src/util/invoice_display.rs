@@ -1,37 +1,17 @@
 use crate::util::line_item_display::display_line_items;
 use chrono::{DateTime, Utc};
 use invoice_manager::model::invoice::Invoice;
-use tabled::settings::object::Columns;
-use tabled::settings::{Remove, Rotate, Style};
-use tabled::{Table, Tabled};
+use comfy_table::{presets::UTF8_FULL, Table};
 
-#[derive(Tabled)]
 pub struct InvoiceDisplay {
-    #[tabled(rename = "ID", order = 0)]
     id: String,
-
-    #[tabled(rename = "Client ID", order = 1)]
     client_id: String,
-
-    #[tabled(rename = "Status", order = 2)]
     status: String,
-
-    #[tabled(rename = "Drafted", order = 3)]
     draft_date: String,
-
-    #[tabled(rename = "Sent", order = 4)]
     sent_date: String,
-
-    #[tabled(rename = "Due", order = 5)]
     due_date: String,
-
-    #[tabled(rename = "Paid", order = 6)]
     paid_date: String,
-
-    #[tabled(rename = "Cancelled", order = 7)]
     cancelled_date: String,
-
-    #[tabled(rename = "Total", order = 8)]
     total: String,
 }
 
@@ -58,26 +38,35 @@ impl From<&Invoice> for InvoiceDisplay {
 }
 
 pub fn display_invoice(invoice: &Invoice) {
-    let invoice_display = InvoiceDisplay::from(invoice);
-    let mut table = Table::new([&invoice_display]);
-    table
-        .with(Rotate::Left)
-        .with(Rotate::Bottom)
-        .with(Style::modern().remove_horizontal());
+    let id = InvoiceDisplay::from(invoice);
+    let mut table = Table::new();
+    table.load_preset(UTF8_FULL);
+
+    table.add_row(vec!["ID", id.id.as_str()]);
+    table.add_row(vec!["Client ID", id.client_id.as_str()]);
+    table.add_row(vec!["Status", id.status.as_str()]);
+    table.add_row(vec!["Drafted", id.draft_date.as_str()]);
+    table.add_row(vec!["Sent", id.sent_date.as_str()]);
+    table.add_row(vec!["Due", id.due_date.as_str()]);
+    table.add_row(vec!["Paid", id.paid_date.as_str()]);
+    table.add_row(vec!["Cancelled", id.cancelled_date.as_str()]);
+    table.add_row(vec!["Total", id.total.as_str()]);
+
     println!("{}", table);
 
     display_line_items(invoice.get_line_items());
 }
 
 pub fn display_invoices(invoices: &[Invoice]) {
-    let invoice_displays = invoices
-        .iter()
-        .map(|i| InvoiceDisplay::from(i))
-        .collect::<Vec<_>>();
-    let mut table = Table::new(invoice_displays);
-    table
-        .with(Remove::column(Columns::new(3..=7)))
-        .with(Style::modern());
+    let mut table = Table::new();
+    table.load_preset(UTF8_FULL);
+    table.set_header(vec!["ID", "Client ID", "Status", "Total"]);
+
+    for inv in invoices {
+        let id = InvoiceDisplay::from(inv);
+        table.add_row(vec![id.id, id.client_id, id.status, id.total]);
+    }
+
     println!("{}", table);
 }
 

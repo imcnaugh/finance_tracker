@@ -1,22 +1,11 @@
 use invoice_manager::model::line_item::LineItem;
-use tabled::settings::Style;
-use tabled::{Table, Tabled};
+use comfy_table::{presets::UTF8_FULL, Table};
 
-#[derive(Tabled)]
 pub struct LineItemDisplay {
-    #[tabled(rename = "ID", order = 0)]
     id: String,
-
-    #[tabled(rename = "Description", order = 1)]
     description: String,
-
-    #[tabled(rename = "Quantity", order = 2)]
     quantity: f64,
-
-    #[tabled(rename = "Unit Price", order = 3)]
     unit_price: String,
-
-    #[tabled(rename = "Total", order = 4)]
     total: String,
 }
 
@@ -35,9 +24,19 @@ impl From<&LineItem> for LineItemDisplay {
 }
 
 pub fn display_line_items(line_items: &Vec<LineItem>) {
-    let display_line_items: Vec<LineItemDisplay> =
-        line_items.iter().map(LineItemDisplay::from).collect();
-    let mut table = Table::new(&display_line_items);
-    table.with(Style::modern());
+    let mut table = Table::new();
+    table.load_preset(UTF8_FULL);
+    table.set_header(vec!["ID", "Description", "Quantity", "Unit Price", "Total"]);
+
+    for li in line_items.iter().map(LineItemDisplay::from) {
+        table.add_row(vec![
+            li.id,
+            li.description,
+            format!("{}", li.quantity),
+            li.unit_price,
+            li.total,
+        ]);
+    }
+
     println!("{}", table);
 }

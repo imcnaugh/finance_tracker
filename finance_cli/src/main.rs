@@ -81,27 +81,55 @@ async fn main() {
                     invoice_id,
                     generate_pdf,
                 } => {
-                    // TODO display invoice and confirm send
-                    match invoice_service.mark_invoice_sent(&invoice_id).await {
+                    match invoice_service.get_invoice(&invoice_id).await {
                         Ok(invoice) => {
-                            // TODO generate pdf
-                            println!("Invoice sent: {:?}", invoice);
+                            util::invoice_display::display_invoice(&invoice);
+                            if util::confirm::prompt_confirm("Send this invoice?") {
+                                match invoice_service.mark_invoice_sent(&invoice_id).await {
+                                    Ok(invoice) => {
+                                        // TODO generate pdf
+                                        let _ = generate_pdf; // suppress unused for now
+                                        println!("Invoice sent: {:?}", invoice);
+                                    }
+                                    Err(e) => println!("Error sending invoice: {:?}", e),
+                                }
+                            } else {
+                                println!("Action cancelled by user.");
+                            }
                         }
-                        Err(e) => println!("Error sending invoice: {:?}", e),
+                        Err(e) => println!("Error: {}", e.as_str()),
                     }
                 }
                 InvoiceSubCommands::Paid { invoice_id } => {
-                    // TODO display invoice and confirm paid
-                    match invoice_service.mark_invoice_paid(&invoice_id).await {
-                        Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
-                        Err(e) => println!("Error marking invoice as paid: {:?}", e),
+                    match invoice_service.get_invoice(&invoice_id).await {
+                        Ok(invoice) => {
+                            util::invoice_display::display_invoice(&invoice);
+                            if util::confirm::prompt_confirm("Mark this invoice as paid?") {
+                                match invoice_service.mark_invoice_paid(&invoice_id).await {
+                                    Ok(invoice) => println!("Invoice marked as paid: {:?}", invoice),
+                                    Err(e) => println!("Error marking invoice as paid: {:?}", e),
+                                }
+                            } else {
+                                println!("Action cancelled by user.");
+                            }
+                        }
+                        Err(e) => println!("Error: {}", e.as_str()),
                     }
                 }
                 InvoiceSubCommands::Cancel { invoice_id } => {
-                    // TODO display invoice and confirm cancel
-                    match invoice_service.mark_invoice_cancelled(&invoice_id).await {
-                        Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
-                        Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
+                    match invoice_service.get_invoice(&invoice_id).await {
+                        Ok(invoice) => {
+                            util::invoice_display::display_invoice(&invoice);
+                            if util::confirm::prompt_confirm("Cancel this invoice?") {
+                                match invoice_service.mark_invoice_cancelled(&invoice_id).await {
+                                    Ok(invoice) => println!("Invoice marked as cancelled: {:?}", invoice),
+                                    Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
+                                }
+                            } else {
+                                println!("Action cancelled by user.");
+                            }
+                        }
+                        Err(e) => println!("Error: {}", e.as_str()),
                     }
                 }
                 InvoiceSubCommands::GeneratePdf { invoice_id } => {
