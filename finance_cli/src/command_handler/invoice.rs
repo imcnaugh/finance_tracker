@@ -1,9 +1,10 @@
 use crate::command::invoice::InvoiceSubCommands;
 use crate::util;
-use invoice_manager::service::InvoiceService;
+use invoice_manager::service::{generate_pdf, ClientService, InvoiceService};
 
 pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
     let invoice_service = InvoiceService::new(Some(util::prompt_confirm));
+    let client_service = ClientService::new();
 
     match invoice_command {
         InvoiceSubCommands::New { client_id } => {
@@ -98,7 +99,17 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
             }
         }
         InvoiceSubCommands::GeneratePdf { invoice_id } => {
-            todo!()
+            match invoice_service.get_invoice(&invoice_id).await {
+                Ok(invoice) => {
+                    match client_service.get_client_by_id(invoice.get_client_id()).await {
+                        Ok(client) => {
+                            generate_pdf(&invoice, &client);
+                        }
+                        Err(e) => println!("Error getting client: {:?}", e),
+                    }
+                }
+                Err(e) => println!("Error: {}", e.as_str()),
+            }
         }
     }
 }
