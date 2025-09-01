@@ -1,5 +1,6 @@
 use crate::command::invoice::InvoiceSubCommands;
 use crate::util;
+use invoice_manager::model::invoice::Invoice;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
 
 pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
@@ -52,36 +53,48 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
         InvoiceSubCommands::Send {
             invoice_id,
             generate_pdf,
-        } => match invoice_service.mark_invoice_sent(&invoice_id).await {
+        } => match invoice_service.get_invoice(&invoice_id).await {
             Ok(invoice) => {
                 util::invoice_display::display_invoice(&invoice);
+                match invoice_service.mark_invoice_sent(&invoice_id).await {
+                    Ok(invoice) => {
+                        util::invoice_display::display_invoice(&invoice);
 
-                if !generate_pdf {
-                    return;
-                }
-
-                match client_service
-                    .get_client_by_id(&invoice.get_client_id())
-                    .await
-                {
-                    Ok(client) => {
-                        invoice_manager::service::generate_pdf(&invoice, &client);
+                        if generate_pdf {
+                            let client = client_service
+                                .get_client_by_id(&invoice.get_client_id())
+                                .await
+                                .unwrap();
+                            invoice_manager::service::generate_pdf(&invoice, &client);
+                        }
                     }
-                    Err(e) => println!("Error getting client: {:?}", e),
+                    Err(e) => println!("Error sending invoice: {:?}", e),
                 }
             }
-            Err(e) => println!("Error sending invoice: {:?}", e),
+            Err(e) => println!("Error: {}", e.as_str()),
         },
         InvoiceSubCommands::Paid { invoice_id } => {
-            match invoice_service.mark_invoice_paid(&invoice_id).await {
-                Ok(invoice) => util::invoice_display::display_invoice(&invoice),
-                Err(e) => println!("Error marking invoice as paid: {:?}", e),
+            match invoice_service.get_invoice(&invoice_id).await {
+                Ok(invoice) => {
+                    util::invoice_display::display_invoice(&invoice);
+                    match invoice_service.mark_invoice_paid(&invoice_id).await {
+                        Ok(invoice) => util::invoice_display::display_invoice(&invoice),
+                        Err(e) => println!("Error marking invoice as paid: {:?}", e),
+                    }
+                }
+                Err(e) => println!("Error: {}", e.as_str()),
             }
         }
         InvoiceSubCommands::Cancel { invoice_id } => {
-            match invoice_service.mark_invoice_cancelled(&invoice_id).await {
-                Ok(invoice) => util::invoice_display::display_invoice(&invoice),
-                Err(e) => println!("Error marking invoice as cancelled: {:?}", e),
+            match invoice_service.get_invoice(&invoice_id).await {
+                Ok(invoice) => {
+                    util::invoice_display::display_invoice(&invoice);
+                    match invoice_service.mark_invoice_cancelled(&invoice_id).await {
+                        Ok(invoice) => util::invoice_display::display_invoice(&invoice),
+                        Err(e) => println!("Error marking invoice as paid: {:?}", e),
+                    }
+                }
+                Err(e) => println!("Error: {}", e.as_str()),
             }
         }
         InvoiceSubCommands::GeneratePdf { invoice_id } => {
