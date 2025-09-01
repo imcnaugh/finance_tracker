@@ -333,9 +333,9 @@ impl InvoiceDao for InvoiceSqliteDao {
         let mut conn = get_pooled_connection().await?;
         self.invoice_set_status_date(&mut *conn, id, status, sent_date)
             .await?;
-        // TODO needs line items
-        let invoice = self.select_invoice_by_id(&mut *conn, id).await?.unwrap();
-
+        let mut invoice = self.select_invoice_by_id(&mut *conn, id).await?.unwrap();
+        let line_items = self.read_line_items_by_invoice_id(&mut *conn, id).await?;
+        invoice.set_line_items(line_items);
         Ok(invoice)
     }
 
