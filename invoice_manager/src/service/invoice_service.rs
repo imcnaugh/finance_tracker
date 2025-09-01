@@ -2,7 +2,6 @@ use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
-use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
 
@@ -66,7 +65,7 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<(), String> {
+    pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<Invoice, String> {
         use InvoiceStatus::*;
 
         let invoice = self.get_invoice(invoice_id).await?;
@@ -81,17 +80,18 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
                     }
                 }
 
-                self.invoice_dao
+                let invoice = self
+                    .invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), SENT)
                     .await
                     .map_err(|e| e.to_string())?;
-                Ok(())
+                Ok(invoice)
             }
             _ => Err("Cannot send invoice that is not in draft status".to_string()),
         }
     }
 
-    pub async fn mark_invoice_paid(&self, invoice_id: &str) -> Result<(), String> {
+    pub async fn mark_invoice_paid(&self, invoice_id: &str) -> Result<Invoice, String> {
         use InvoiceStatus::*;
 
         let invoice = self.get_invoice(invoice_id).await?;
@@ -106,17 +106,18 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
                     }
                 }
 
-                self.invoice_dao
+                let invoice = self
+                    .invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), PAID)
                     .await
                     .map_err(|e| e.to_string())?;
-                Ok(())
+                Ok(invoice)
             }
             _ => Err("Cannot mark invoice as paid that is not in draft status".to_string()),
         }
     }
 
-    pub async fn mark_invoice_cancelled(&self, invoice_id: &str) -> Result<(), String> {
+    pub async fn mark_invoice_cancelled(&self, invoice_id: &str) -> Result<Invoice, String> {
         use InvoiceStatus::*;
 
         let invoice = self.get_invoice(invoice_id).await?;
@@ -131,11 +132,12 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
                     }
                 }
 
-                self.invoice_dao
+                let invoice = self
+                    .invoice_dao
                     .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), CANCELLED)
                     .await
                     .map_err(|e| e.to_string())?;
-                Ok(())
+                Ok(invoice)
             }
             _ => Err("Cannot mark invoice as cancelled that is not in draft status".to_string()),
         }
@@ -145,7 +147,7 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         &self,
         invoice_id: &str,
         new_line_item: &NewLineItem,
-    ) -> Result<LineItem, String> {
+    ) -> Result<Invoice, String> {
         let invoice = self.get_invoice(invoice_id).await?;
         let invoice_status = invoice
             .get_status()
@@ -164,7 +166,7 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         &self,
         invoice_id: &str,
         line_item_id: &str,
-    ) -> Result<(), String> {
+    ) -> Result<Invoice, String> {
         let invoice = self.get_invoice(invoice_id).await?;
         if invoice
             .get_line_items()

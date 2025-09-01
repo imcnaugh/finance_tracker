@@ -274,10 +274,6 @@ impl InvoiceSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        println!(
-            "here i am, with invoice_id: {} and line_item_id:{}",
-            invoice_id, line_item_id
-        );
         let query = sqlx::query(LINE_ITEM_DELETE_SQL)
             .bind(line_item_id)
             .bind(invoice_id);
@@ -333,28 +329,37 @@ impl InvoiceDao for InvoiceSqliteDao {
         id: &str,
         sent_date: i64,
         status: InvoiceStatus,
-    ) -> Result<(), Error> {
+    ) -> Result<Invoice, Error> {
         let mut conn = get_pooled_connection().await?;
         self.invoice_set_status_date(&mut *conn, id, status, sent_date)
             .await?;
-        Ok(())
+        // TODO needs line items
+        let invoice = self.select_invoice_by_id(&mut *conn, id).await?.unwrap();
+
+        Ok(invoice)
     }
 
     async fn create_line_item(
         &self,
         invoice_id: &str,
         new_line_item: &NewLineItem,
-    ) -> Result<LineItem, Error> {
+    ) -> Result<Invoice, Error> {
         let mut conn = get_pooled_connection().await?;
         let new_line_item = LineItem::from((new_line_item, invoice_id));
         self.insert_line_item(&mut *conn, &new_line_item).await?;
-        Ok(new_line_item)
+        let invoice = self.get_invoice(invoice_id).await?.unwrap();
+        Ok(invoice)
     }
 
-    async fn delete_line_item(&self, invoice_id: &str, line_item_id: &str) -> Result<(), Error> {
+    async fn delete_line_item(
+        &self,
+        invoice_id: &str,
+        line_item_id: &str,
+    ) -> Result<Invoice, Error> {
         let mut conn = get_pooled_connection().await?;
         self.delete_line_item(&mut *conn, invoice_id, line_item_id)
             .await?;
-        Ok(())
+        let invoice = self.get_invoice(invoice_id).await?.unwrap();
+        Ok(invoice)
     }
 }
