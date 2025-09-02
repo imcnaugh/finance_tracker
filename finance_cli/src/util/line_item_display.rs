@@ -38,5 +38,10 @@ pub fn display_line_items(line_items: &[LineItem]) {
         ]);
     }
 
-    println!("{}", table);
+    println!("Line Items:");
+    if table.is_empty() {
+        println!("No line items found");
+    } else {
+        println!("{}", table);
+    }
 }

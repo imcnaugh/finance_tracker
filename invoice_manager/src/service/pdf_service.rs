@@ -23,7 +23,7 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
             let unit_price = li.get_unit_price_in_cents() as f64 / 100.0;
             let total = li.get_total_in_cents() as f64 / 100.0;
             format!(
-                "{} & {:.2} & \\${:.2} & \\${:.2} \\\\ \n \\hline",
+                " {} & {:.2} & \\${:.2} & \\${:.2} \\\\ \n \\hline ",
                 li.get_description(),
                 li.get_quantity(),
                 unit_price,

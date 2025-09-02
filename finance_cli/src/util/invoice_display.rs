@@ -52,6 +52,7 @@ pub fn display_invoice(invoice: &Invoice) {
     table.add_row(vec!["Cancelled", id.cancelled_date.as_str()]);
     table.add_row(vec!["Total", id.total.as_str()]);
 
+    println!("Invoice:");
     println!("{}", table);
 
     display_line_items(invoice.get_line_items());
@@ -67,7 +68,12 @@ pub fn display_invoices(invoices: &[Invoice]) {
         table.add_row(vec![id.id, id.client_id, id.status, id.total]);
     }
 
-    println!("{}", table);
+    println!("Invoices:");
+    if table.is_empty() {
+        println!("No invoices found");
+    } else {
+        println!("{}", table);
+    }
 }
 
 fn date_result_option_to_string(

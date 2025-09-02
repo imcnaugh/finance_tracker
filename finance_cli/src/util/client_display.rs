@@ -32,6 +32,7 @@ pub fn display_client(client: &Client) {
     table.add_row(vec!["Phone", cd.phone.as_str()]);
     table.add_row(vec!["Invoice Email", cd.invoice_email.as_str()]);
 
+    println!("Client:");
     println!("{}", table);
 }
 
@@ -45,5 +46,10 @@ pub fn display_clients(clients: &Vec<Client>) {
         table.add_row(vec![cd.id, cd.name, cd.address, cd.phone, cd.invoice_email]);
     }
 
-    println!("{}", table);
+    println!("Clients:");
+    if table.is_empty() {
+        println!("No clients found");
+    } else {
+        println!("{}", table);
+    }
 }
