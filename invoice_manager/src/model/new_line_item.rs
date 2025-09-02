@@ -8,7 +8,6 @@ pub struct NewLineItem {
 }
 
 impl NewLineItem {
-
     pub fn get_description(&self) -> &str {
         &self.description
     }
@@ -22,16 +21,15 @@ impl NewLineItem {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::model::line_item::LineItem;
     use super::*;
     use crate::model::NewLineItem;
+    use crate::model::line_item::LineItem;
 
     #[test]
     fn test_from_new_line_item() {
-        let new_line_item = NewLineItem{
+        let new_line_item = NewLineItem {
             description: "Test Item".into(),
             quantity: 10.0,
             unit_price: 100.0,

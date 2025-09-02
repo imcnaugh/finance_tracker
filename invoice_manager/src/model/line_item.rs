@@ -14,7 +14,6 @@ pub struct LineItem {
 }
 
 impl LineItem {
-
     pub fn get_id(&self) -> &str {
         &self.id
     }

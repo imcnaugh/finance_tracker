@@ -3,28 +3,34 @@ use crate::model::invoice_status::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 
 pub trait InvoiceDao {
-    async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, sqlx::Error>;
-    async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, sqlx::Error>;
-    async fn set_invoice_status_timestamp(
+    fn create_invoice(
+        &self,
+        new_invoice: &NewInvoice,
+    ) -> impl Future<Output = Result<Invoice, sqlx::Error>> + Send;
+    fn get_invoice(
+        &self,
+        id: &str,
+    ) -> impl Future<Output = Result<Option<Invoice>, sqlx::Error>> + Send;
+    fn set_invoice_status_timestamp(
         &self,
         id: &str,
         sent_date: i64,
         status: InvoiceStatus,
-    ) -> Result<Invoice, sqlx::Error>;
-    async fn search_invoices(
+    ) -> impl Future<Output = Result<Invoice, sqlx::Error>> + Send;
+    fn search_invoices(
         &self,
         search_terms: &InvoiceSearch,
-    ) -> Result<Vec<Invoice>, sqlx::Error>;
+    ) -> impl Future<Output = Result<Vec<Invoice>, sqlx::Error>> + Send;
 
-    async fn create_line_item(
+    fn create_line_item(
         &self,
         invoice_id: &str,
         new_line_item: &NewLineItem,
-    ) -> Result<Invoice, sqlx::Error>;
+    ) -> impl Future<Output = Result<Invoice, sqlx::Error>> + Send;
 
-    async fn delete_line_item(
+    fn delete_line_item(
         &self,
         invoice_id: &str,
         line_item_id: &str,
-    ) -> Result<Invoice, sqlx::Error>;
+    ) -> impl Future<Output = Result<Invoice, sqlx::Error>> + Send;
 }

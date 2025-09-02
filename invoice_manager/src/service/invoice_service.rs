@@ -5,16 +5,13 @@ use crate::model::invoice_status::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
 
-pub struct InvoiceService<ID>
-where
-    ID: InvoiceDao,
-{
-    invoice_dao: ID,
+pub struct InvoiceService {
+    invoice_dao: InvoiceSqliteDao,
     confirm_fn: Option<fn(&str) -> bool>,
 }
 
-impl InvoiceService<InvoiceSqliteDao> {
-    pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService<InvoiceSqliteDao> {
+impl InvoiceService {
+    pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService {
         let invoice_dao = InvoiceSqliteDao;
         Self {
             invoice_dao,
@@ -23,8 +20,7 @@ impl InvoiceService<InvoiceSqliteDao> {
     }
 }
 
-impl<ID: InvoiceDao> InvoiceService<ID> {
-
+impl InvoiceService {
     pub async fn create_new_invoice(&self, client_id: String) -> Result<Invoice, String> {
         let new_invoice = NewInvoice::new(client_id);
 
@@ -66,7 +62,8 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         match invoice_status {
             DRAFT => {
                 if let Some(confirm_fn) = &self.confirm_fn
-                    && !confirm_fn("Send this invoice?") {
+                    && !confirm_fn("Send this invoice?")
+                {
                     return Err("Invoice not sent".to_string());
                 }
 
@@ -91,8 +88,9 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         match invoice_status {
             SENT | OVERDUE => {
                 if let Some(confirm_fn) = &self.confirm_fn
-                && !confirm_fn("Mark this invoice as paid?"){
-                        return Err("Invoice not marked as paid".to_string());
+                    && !confirm_fn("Mark this invoice as paid?")
+                {
+                    return Err("Invoice not marked as paid".to_string());
                 }
 
                 let invoice = self
@@ -116,8 +114,9 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
         match invoice_status {
             DRAFT | SENT | OVERDUE => {
                 if let Some(confirm_fn) = &self.confirm_fn
-                && !confirm_fn("Cancel this invoice?"){
-                        return Err("Invoice not Cancel".to_string());
+                    && !confirm_fn("Cancel this invoice?")
+                {
+                    return Err("Invoice not Cancel".to_string());
                 }
 
                 let invoice = self
@@ -171,8 +170,9 @@ impl<ID: InvoiceDao> InvoiceService<ID> {
             .map_err(|_| "Issue getting invoice status")?;
 
         if let Some(confirm_fn) = &self.confirm_fn
-        && !confirm_fn(&format!("Remove line item with id {line_item_id}?")){
-                return Err("Line item not removed".to_string());
+            && !confirm_fn(&format!("Remove line item with id {line_item_id}?"))
+        {
+            return Err("Line item not removed".to_string());
         }
 
         match invoice_status {
