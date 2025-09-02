@@ -6,6 +6,7 @@ use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use sqlx::{Error, Executor, Sqlite};
 
+#[derive(Default)]
 pub struct InvoiceSqliteDao;
 
 const INVOICE_INSERT_SQL: &str = r#"
@@ -174,7 +175,7 @@ impl InvoiceSqliteDao {
     {
         let mut statement = String::from("SELECT * FROM invoice WHERE 1 = 1");
 
-        if let Some(_) = search_terms.get_client_id() {
+        if search_terms.get_client_id().is_some() {
             statement.push_str(" AND client_id = ?");
         }
 
@@ -196,19 +197,19 @@ impl InvoiceSqliteDao {
             }
         }
 
-        if let Some(_) = search_terms.get_draft_date_range() {
+        if search_terms.get_draft_date_range().is_some() {
             statement.push_str(" AND draft_date BETWEEN ? AND ?")
         }
-        if let Some(_) = search_terms.get_sent_date_range() {
+        if search_terms.get_sent_date_range().is_some() {
             statement.push_str(" AND sent_date BETWEEN ? AND ?")
         }
-        if let Some(_) = search_terms.get_paid_date_range() {
+        if search_terms.get_paid_date_range().is_some() {
             statement.push_str(" AND paid_date BETWEEN ? AND ?")
         }
-        if let Some(_) = search_terms.get_due_date_range() {
+        if search_terms.get_due_date_range().is_some() {
             statement.push_str(" AND due_date BETWEEN ? AND ?")
         }
-        if let Some(_) = search_terms.get_canceled_date_range() {
+        if search_terms.get_canceled_date_range().is_some() {
             statement.push_str(" AND cancelled_date BETWEEN ? AND ?")
         }
 
@@ -310,7 +311,7 @@ impl InvoiceDao for InvoiceSqliteDao {
                 // TODO make a sql call to get line items for many invoices at once
                 for invoice in invoices.iter_mut() {
                     let line_items = self
-                        .read_line_items_by_invoice_id(&mut *conn, &invoice.get_id())
+                        .read_line_items_by_invoice_id(&mut *conn, invoice.get_id())
                         .await?;
                     invoice.set_line_items(line_items);
                 }
@@ -357,11 +358,5 @@ impl InvoiceDao for InvoiceSqliteDao {
             .await?;
         let invoice = self.get_invoice(invoice_id).await?.unwrap();
         Ok(invoice)
-    }
-}
-
-impl Default for InvoiceSqliteDao {
-    fn default() -> Self {
-        InvoiceSqliteDao {}
     }
 }

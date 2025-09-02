@@ -8,13 +8,6 @@ pub struct NewLineItem {
 }
 
 impl NewLineItem {
-    pub(crate) fn new(description: String, quantity: f64, price: f64) -> Self {
-        Self {
-            description,
-            quantity,
-            unit_price: price,
-        }
-    }
 
     pub fn get_description(&self) -> &str {
         &self.description
@@ -26,5 +19,30 @@ impl NewLineItem {
 
     pub fn get_unit_price(&self) -> f64 {
         self.unit_price
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::model::line_item::LineItem;
+    use super::*;
+    use crate::model::NewLineItem;
+
+    #[test]
+    fn test_from_new_line_item() {
+        let new_line_item = NewLineItem{
+            description: "Test Item".into(),
+            quantity: 10.0,
+            unit_price: 100.0,
+        };
+
+        let line_item = LineItem::from((&new_line_item, "1234567890"));
+
+        assert_eq!(line_item.get_description(), "Test Item");
+        assert_eq!(line_item.get_total_in_cents(), 100000);
+        assert_eq!(line_item.get_quantity(), 10.0);
+        assert_eq!(line_item.get_id().len(), 10);
+        assert_eq!(line_item.get_invoice_id(), "1234567890");
     }
 }

@@ -38,3 +38,9 @@ impl ClientService {
             .map_err(|e| e.to_string())
     }
 }
+
+impl Default for ClientService {
+    fn default() -> Self {
+        Self::new()
+    }
+}

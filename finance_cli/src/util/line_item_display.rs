@@ -23,7 +23,7 @@ impl From<&LineItem> for LineItemDisplay {
     }
 }
 
-pub fn display_line_items(line_items: &Vec<LineItem>) {
+pub fn display_line_items(line_items: &[LineItem]) {
     let mut table = Table::new();
     table.load_preset(UTF8_FULL);
     table.set_header(vec!["ID", "Description", "Quantity", "Unit Price", "Total"]);

@@ -23,22 +23,6 @@ impl From<NewClient> for Client {
 }
 
 impl Client {
-    pub(crate) fn new(
-        id: String,
-        name: String,
-        address: Option<String>,
-        phone: Option<String>,
-        invoice_email: Option<String>,
-    ) -> Self {
-        Self {
-            id,
-            name,
-            address,
-            phone,
-            invoice_email,
-        }
-    }
-
     pub fn get_id(&self) -> &str {
         self.id.as_str()
     }

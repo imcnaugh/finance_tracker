@@ -43,5 +43,5 @@ pub async fn get_pooled_connection() -> Result<PoolConnection<Sqlite>, sqlx::Err
         })
         .await;
 
-    Ok(pool.acquire().await?)
+    pool.acquire().await
 }

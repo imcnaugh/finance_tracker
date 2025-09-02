@@ -14,23 +14,6 @@ pub struct LineItem {
 }
 
 impl LineItem {
-    pub(crate) fn new(
-        id: String,
-        description: String,
-        unit_price_in_cents: i32,
-        quantity: f64,
-        invoice_id: String,
-        created_timestamp: DateTime<Utc>,
-    ) -> Self {
-        Self {
-            id,
-            description,
-            unit_price_in_cents,
-            quantity,
-            invoice_id,
-            created_timestamp: created_timestamp.timestamp(),
-        }
-    }
 
     pub fn get_id(&self) -> &str {
         &self.id
@@ -77,24 +60,5 @@ impl From<(&NewLineItem, &str)> for LineItem {
             invoice_id: value.1.into(),
             created_timestamp: Utc::now().timestamp(),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::model::NewLineItem;
-
-    #[test]
-    fn test_from_new_line_item() {
-        let new_line_item = NewLineItem::new("Test Item".into(), 10.0, 100.0);
-
-        let line_item = LineItem::from((&new_line_item, "1234567890"));
-
-        assert_eq!(line_item.description, "Test Item");
-        assert_eq!(line_item.unit_price_in_cents, 10000);
-        assert_eq!(line_item.quantity, 10.0);
-        assert_eq!(line_item.id.len(), 10);
-        assert_eq!(line_item.invoice_id, "1234567890");
     }
 }

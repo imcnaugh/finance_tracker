@@ -48,7 +48,7 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
             client.get_address().unwrap_or_default(),
         )
         .replace("@@SENT_DATE@@", &sent_date)
-        .replace("@@INVOICE_ID@@", &invoice.get_id().to_string())
+        .replace("@@INVOICE_ID@@", invoice.get_id())
         .replace("@@LINE_ITEMS@@", &line_items)
         .replace("@@TOTAL@@", &total);
 

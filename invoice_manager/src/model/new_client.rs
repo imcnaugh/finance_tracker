@@ -15,20 +15,6 @@ pub struct NewClient {
 }
 
 impl NewClient {
-    pub(crate) fn new(
-        name: String,
-        address: Option<String>,
-        phone: Option<String>,
-        invoice_email: Option<String>,
-    ) -> Self {
-        Self {
-            name,
-            address,
-            phone,
-            invoice_email,
-        }
-    }
-
     pub fn get_name(&self) -> &String {
         &self.name
     }

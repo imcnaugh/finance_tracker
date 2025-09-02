@@ -3,7 +3,7 @@ use chrono::{DateTime, Duration, NaiveDate, TimeDelta, Utc};
 use clap::Args;
 use std::str::FromStr;
 
-#[derive(Args, Debug, Clone)]
+#[derive(Args, Debug, Clone, Default)]
 pub struct InvoiceSearch {
     /// Client ID
     #[arg(long)]
@@ -66,7 +66,7 @@ impl InvoiceSearch {
     }
 
     pub fn set_status(&mut self, status: &InvoiceStatus) {
-        self.status = Some(status.clone());
+        self.status = Some(*status);
     }
 
     pub fn get_draft_date_range(&self) -> &Option<DateRange> {
@@ -170,20 +170,6 @@ impl FromStr for DateRange {
         let end_date = end.and_hms_opt(0, 0, 0).unwrap().and_utc();
 
         Ok(Self::build(start_date, end_date))
-    }
-}
-
-impl Default for InvoiceSearch {
-    fn default() -> Self {
-        Self {
-            client_id: None,
-            status: None,
-            draft_date_range: None,
-            sent_date_range: None,
-            paid_date_range: None,
-            due_date_range: None,
-            canceled_date_range: None,
-        }
     }
 }
 
