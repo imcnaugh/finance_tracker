@@ -1,3 +1,4 @@
+use crate::model::error::Error;
 use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
 use crate::model::new_invoice::NewInvoice;
@@ -49,27 +50,27 @@ impl Invoice {
         &self.client_id
     }
 
-    pub fn get_draft_date(&self) -> Result<DateTime<Utc>, ()> {
+    pub fn get_draft_date(&self) -> Result<DateTime<Utc>, Error> {
         timestamp_to_date_time(self.draft_date)
     }
 
-    pub fn get_sent_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+    pub fn get_sent_date(&self) -> Result<Option<DateTime<Utc>>, Error> {
         self.sent_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_due_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+    pub fn get_due_date(&self) -> Result<Option<DateTime<Utc>>, Error> {
         self.due_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_paid_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+    pub fn get_paid_date(&self) -> Result<Option<DateTime<Utc>>, Error> {
         self.paid_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_cancelled_date(&self) -> Result<Option<DateTime<Utc>>, ()> {
+    pub fn get_cancelled_date(&self) -> Result<Option<DateTime<Utc>>, Error> {
         self.cancelled_date.map(timestamp_to_date_time).transpose()
     }
 
-    pub fn get_status(&self) -> Result<InvoiceStatus, ()> {
+    pub fn get_status(&self) -> Result<InvoiceStatus, Error> {
         if self.cancelled_date.is_some() {
             Ok(InvoiceStatus::CANCELLED)
         } else if self.paid_date.is_some() {

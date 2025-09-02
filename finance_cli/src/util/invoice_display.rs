@@ -70,14 +70,18 @@ pub fn display_invoices(invoices: &[Invoice]) {
     println!("{}", table);
 }
 
-fn date_result_option_to_string(date: Result<Option<DateTime<Utc>>, ()>) -> String {
+fn date_result_option_to_string(
+    date: Result<Option<DateTime<Utc>>, invoice_manager::model::error::Error>,
+) -> String {
     date.ok()
         .flatten()
         .map(|d| d.format("%Y-%m-%d").to_string())
         .unwrap_or_default()
 }
 
-fn date_result_to_string(date: Result<DateTime<Utc>, ()>) -> String {
+fn date_result_to_string(
+    date: Result<DateTime<Utc>, invoice_manager::model::error::Error>,
+) -> String {
     date.ok()
         .map(|d| d.format("%Y-%m-%d").to_string())
         .unwrap_or_default()

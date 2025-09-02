@@ -1,3 +1,4 @@
+use crate::model::error::Error;
 use chrono::LocalResult::{Ambiguous, Single};
 use chrono::{DateTime, MappedLocalTime, TimeZone, Utc};
 use nanoid::nanoid;
@@ -11,10 +12,10 @@ pub fn generate_new_id() -> String {
     nanoid!(10, &ALPHABET)
 }
 
-pub fn timestamp_to_date_time(timestamp: i64) -> Result<DateTime<Utc>, ()> {
+pub fn timestamp_to_date_time(timestamp: i64) -> Result<DateTime<Utc>, Error> {
     match Utc.timestamp_opt(timestamp, 0) {
         Single(d) => Ok(d),
         Ambiguous(s, _) => Ok(s),
-        MappedLocalTime::None => Err(()),
+        MappedLocalTime::None => Err(Error::new("Invalid timestamp value")),
     }
 }

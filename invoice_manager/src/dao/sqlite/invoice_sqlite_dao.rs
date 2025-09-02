@@ -161,7 +161,10 @@ impl InvoiceSqliteDao {
         query.fetch_all(executor).await
     }
 
-    fn map_to_slqx_error<T>(r: Result<Option<T>, ()>, field: &str) -> Result<Option<T>, Error> {
+    fn map_to_slqx_error<T>(
+        r: Result<Option<T>, crate::model::error::Error>,
+        field: &str,
+    ) -> Result<Option<T>, Error> {
         r.map_err(|_| Error::Decode(format!("Invalid {} value", field).into()))
     }
 
