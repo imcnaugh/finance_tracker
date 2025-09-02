@@ -80,10 +80,6 @@ WHERE invoice_id = ?
 "#;
 
 impl InvoiceSqliteDao {
-    pub fn new() -> Self {
-        Self {}
-    }
-
     async fn insert_invoice<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
@@ -161,7 +157,7 @@ impl InvoiceSqliteDao {
     {
         let query =
             sqlx::query_as::<_, LineItem>(LINE_ITEM_SELECT_BY_INVOICE_ID_SQL).bind(invoice_id);
-        Ok(query.fetch_all(executor).await?)
+        query.fetch_all(executor).await
     }
 
     fn map_to_slqx_error<T>(r: Result<Option<T>, ()>, field: &str) -> Result<Option<T>, Error> {
@@ -247,7 +243,7 @@ impl InvoiceSqliteDao {
                 .bind(canceled_date_range.get_end_date().timestamp());
         }
 
-        Ok(query.fetch_all(executor).await?)
+        query.fetch_all(executor).await
     }
 
     async fn insert_line_item<'e, E>(&self, executor: E, item: &LineItem) -> Result<(), Error>
@@ -361,5 +357,11 @@ impl InvoiceDao for InvoiceSqliteDao {
             .await?;
         let invoice = self.get_invoice(invoice_id).await?.unwrap();
         Ok(invoice)
+    }
+}
+
+impl Default for InvoiceSqliteDao {
+    fn default() -> Self {
+        InvoiceSqliteDao {}
     }
 }

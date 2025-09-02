@@ -15,7 +15,7 @@ where
 
 impl InvoiceService<InvoiceSqliteDao> {
     pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService<InvoiceSqliteDao> {
-        let invoice_dao = InvoiceSqliteDao::new();
+        let invoice_dao = InvoiceSqliteDao::default();
         Self {
             invoice_dao,
             confirm_fn,

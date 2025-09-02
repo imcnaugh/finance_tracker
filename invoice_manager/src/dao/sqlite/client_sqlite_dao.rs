@@ -76,7 +76,7 @@ impl ClientSqliteDao {
         E: Executor<'e, Database = Sqlite>,
     {
         let query = sqlx::query_as::<_, Client>(SELECT_ALL_SQL);
-        Ok(query.fetch_all(executor).await?)
+        query.fetch_all(executor).await
     }
 }
 
@@ -86,19 +86,17 @@ impl ClientDao for ClientSqliteDao {
 
         let client = Client::from(new_client);
 
-        println!("{:?}", client);
         self.create(&mut *conn, &client).await?;
-
         Ok(client)
     }
 
     async fn get_client_by_id(&self, id: &str) -> Result<Option<Client>, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
-        Ok(self.read(&mut *conn, id).await?)
+        self.read(&mut *conn, id).await
     }
 
     async fn get_all_clients(&self) -> Result<Vec<Client>, sqlx::Error> {
         let mut conn = get_pooled_connection().await?;
-        Ok(self.read_all(&mut *conn).await?)
+        self.read_all(&mut *conn).await
     }
 }

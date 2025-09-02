@@ -1,6 +1,5 @@
 use crate::command::invoice::InvoiceSubCommands;
 use crate::util;
-use invoice_manager::model::invoice::Invoice;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
 
 pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
@@ -53,20 +52,18 @@ pub async fn handle_invoice_command(invoice_command: InvoiceSubCommands) {
         InvoiceSubCommands::Send {
             invoice_id,
             generate_pdf,
-        } => {
-            match invoice_service.mark_invoice_sent(&invoice_id).await {
-                Ok(invoice) => {
-                    if generate_pdf {
-                        let client = client_service
-                            .get_client_by_id(&invoice.get_client_id())
-                            .await
-                            .unwrap();
-                        invoice_manager::service::generate_pdf(&invoice, &client);
-                    }
-                    util::invoice_display::display_invoice(&invoice);
+        } => match invoice_service.mark_invoice_sent(&invoice_id).await {
+            Ok(invoice) => {
+                if generate_pdf {
+                    let client = client_service
+                        .get_client_by_id(invoice.get_client_id())
+                        .await
+                        .unwrap();
+                    invoice_manager::service::generate_pdf(&invoice, &client);
                 }
-                Err(e) => println!("Error sending invoice: {:?}", e)
+                util::invoice_display::display_invoice(&invoice);
             }
+            Err(e) => println!("Error sending invoice: {:?}", e),
         },
         InvoiceSubCommands::Paid { invoice_id } => {
             match invoice_service.mark_invoice_paid(&invoice_id).await {

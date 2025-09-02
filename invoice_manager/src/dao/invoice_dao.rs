@@ -1,6 +1,5 @@
 use crate::model::invoice::Invoice;
 use crate::model::invoice_status::InvoiceStatus;
-use crate::model::line_item::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 
 pub trait InvoiceDao {
