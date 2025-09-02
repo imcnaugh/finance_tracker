@@ -1,11 +1,18 @@
 use crate::model::client::Client;
 use crate::model::invoice::Invoice;
+use num_format::{Locale, ToFormattedString};
 use std::fs;
 use std::io::Write;
 use std::process::Command;
 // use tectonic::latex_to_pdf;
 
 pub fn generate_pdf(invoice: &Invoice, client: &Client) {
+    let format_cents = |total_cents: i32| {
+        let dollars = (total_cents / 100).to_formatted_string(&Locale::en);
+        let cents = total_cents % 100;
+        format!("{}.{:02}", dollars, cents)
+    };
+
     let template = fs::read_to_string("invoice_manager/template/invoice.tex")
         .expect("Failed to read template file");
 
@@ -25,10 +32,10 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
         .get_line_items()
         .iter()
         .map(|li| {
-            let unit_price = li.get_unit_price_in_cents() as f64 / 100.0;
-            let total = li.get_total_in_cents() as f64 / 100.0;
+            let unit_price = format_cents(li.get_unit_price_in_cents());
+            let total = format_cents(li.get_total_in_cents());
             format!(
-                " {} & {:.2} & \\${:.2} & \\${:.2} \\\\ \n \\hline ",
+                " {} & {} & \\${} & \\${} \\\\ \n \\hline ",
                 li.get_description(),
                 li.get_quantity(),
                 unit_price,
@@ -42,9 +49,8 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
         .get_line_items()
         .iter()
         .map(|li| li.get_total_in_cents())
-        .sum::<i32>() as f64
-        / 100.0;
-    let total = format!("{:.2}", total);
+        .sum::<i32>();
+    let total = format_cents(total);
 
     let filled = template
         .replace("@@CLIENT_NAME@@", client.get_name())

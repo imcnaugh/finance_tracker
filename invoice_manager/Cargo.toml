@@ -10,3 +10,4 @@ nanoid = "0.4.0"
 serde = { version = "1.0.219", features = ["derive"] }
 sqlx = { version = "0.8.6", features = [ "runtime-tokio", "sqlite", "migrate", "macros" ] }
 tokio = { version = "1.47.1", features = ["full"] }
+num-format = "0.4.4"
