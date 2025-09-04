@@ -1,4 +1,5 @@
 mod client_service;
+mod config_service;
 mod invoice_service;
 mod pdf_service;
 
