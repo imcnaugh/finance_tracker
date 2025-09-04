@@ -16,11 +16,6 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
     let template = fs::read_to_string("invoice_manager/template/invoice.tex")
         .expect("Failed to read template file");
 
-    let client_address = client
-        .get_address()
-        .unwrap_or_default()
-        .replace("\n", "\\\\ \n");
-
     let sent_date = invoice
         .get_sent_date()
         .ok()
@@ -52,9 +47,20 @@ pub fn generate_pdf(invoice: &Invoice, client: &Client) {
         .sum::<i32>();
     let total = format_cents(total);
 
+    let client_contact = [
+        client.get_address().unwrap_or_default(),
+        client.get_invoice_email().unwrap_or_default(),
+    ]
+    .iter()
+    .filter(|s| !s.is_empty())
+    .cloned()
+    .collect::<Vec<&str>>()
+    .join("\\\\ \n")
+    .replace("\n", "\\\\ \n");
+
     let filled = template
         .replace("@@CLIENT_NAME@@", client.get_name())
-        .replace("@@CLIENT_ADDRESS@@", &client_address)
+        .replace("@@CLIENT_CONTACT@@", &client_contact)
         .replace("@@SENT_DATE@@", &sent_date)
         .replace("@@INVOICE_ID@@", invoice.get_id())
         .replace("@@LINE_ITEMS@@", &line_items)
