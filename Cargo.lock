@@ -89,6 +89,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "args"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4b7432c65177b8d5c032d56e020dd8d407e939468479fc8c300e2d93e6d970b"
+dependencies = [
+ "getopts",
+ "log",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -509,6 +519,7 @@ checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 name = "finance_cli"
 version = "0.1.0"
 dependencies = [
+ "args",
  "chrono",
  "clap",
  "comfy-table",
@@ -624,6 +635,15 @@ checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "getopts"
+version = "0.2.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df"
+dependencies = [
+ "unicode-width",
 ]
 
 [[package]]
