@@ -12,7 +12,7 @@ pub struct InvoiceService {
 
 impl InvoiceService {
     pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService {
-        let config_path = crate::service::config_service::get_config();
+        let config_path = crate::service::config_service::get_or_create_config();
 
         println!("{:?}", config_path.unwrap());
         let invoice_dao = InvoiceSqliteDao;
