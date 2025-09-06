@@ -31,11 +31,11 @@ pub fn create_config(init_config: NewCompanyConfig) -> Result<(), String> {
         init_config.get_company_email(),
     );
 
-    let idk = Configs::new(db_config, company_config);
+    let configs = Configs::new(db_config, company_config);
 
-    let wut = toml::to_string(&idk).unwrap();
+    let configs_as_str = toml::to_string(&configs).unwrap();
 
-    fs::write(path, wut).map_err(|e| format!("Failed to write config file: {}", e))
+    fs::write(path, configs_as_str).map_err(|e| format!("Failed to write config file: {}", e))
 }
 
 // TODO should really be a result
