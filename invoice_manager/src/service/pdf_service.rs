@@ -1,5 +1,4 @@
-use crate::model::client::Client;
-use crate::model::invoice::Invoice;
+use crate::model::{Client, Invoice};
 use num_format::{Locale, ToFormattedString};
 use std::fs;
 use std::io::Write;

@@ -1,7 +1,7 @@
 use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
-use crate::model::invoice::Invoice;
-use crate::model::invoice_status::InvoiceStatus;
+use crate::model::Invoice;
+use crate::model::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
 
@@ -12,9 +12,6 @@ pub struct InvoiceService {
 
 impl InvoiceService {
     pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService {
-        let config_path = crate::service::config_service::get_or_create_config();
-
-        println!("{:?}", config_path.unwrap());
         let invoice_dao = InvoiceSqliteDao;
         Self {
             invoice_dao,

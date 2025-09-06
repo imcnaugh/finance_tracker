@@ -1,4 +1,4 @@
-use crate::model::invoice_status::InvoiceStatus;
+use crate::model::invoice::invoice_status::InvoiceStatus;
 use chrono::{DateTime, Duration, NaiveDate, TimeDelta, Utc};
 use clap::Args;
 use std::str::FromStr;

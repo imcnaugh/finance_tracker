@@ -1,5 +1,5 @@
+use crate::model::Client;
 use crate::model::NewClient;
-use crate::model::client::Client;
 
 pub trait ClientDao {
     async fn create_client(&self, new_client: NewClient) -> Result<Client, sqlx::Error>;

@@ -1,3 +1,4 @@
+use crate::model::NewConfig;
 use directories::ProjectDirs;
 use serde::Deserialize;
 use std::fs;
@@ -21,10 +22,6 @@ pub struct CompanyConfig {
     email: String,
 }
 
-pub fn get_or_create_config() -> Result<Configs, String> {
-    get_config().or_else(|_| create_config().map(|_| get_config().unwrap()))
-}
-
 pub fn get_config() -> Result<Configs, String> {
     let path = get_config_path().unwrap();
 
@@ -41,17 +38,18 @@ pub fn get_config() -> Result<Configs, String> {
     toml::from_str(&content).map_err(|e| format!("Failed to parse config file: {}", e))
 }
 
-pub fn create_config() -> Result<(), String> {
+pub fn create_config(init_config: NewConfig) -> Result<(), String> {
     let path = get_config_path().unwrap();
     let default_database_path = get_default_database_path().unwrap();
+
     let content = format!(
         r#"[database]
 path = "{}"
 
 [company]
-name = ""
-address = ""
-email = ""
+name = "{}"
+address = "{}"
+email = "{}"
 "#,
         default_database_path.to_str().unwrap()
     );

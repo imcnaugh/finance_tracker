@@ -1,7 +1,7 @@
 use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
+use crate::model::Client;
 use crate::model::NewClient;
-use crate::model::client::Client;
 use sqlx::{Executor, Sqlite};
 
 pub struct ClientSqliteDao;

@@ -1,4 +1,4 @@
-use crate::model::new_client::NewClient;
+use crate::model::client::NewClient;
 use crate::utils::generate_new_id;
 
 #[derive(Debug, sqlx::FromRow)]

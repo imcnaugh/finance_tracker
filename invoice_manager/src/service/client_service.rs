@@ -1,7 +1,7 @@
 use crate::dao::client_dao::ClientDao;
 use crate::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
+use crate::model::Client;
 use crate::model::NewClient;
-use crate::model::client::Client;
 
 pub struct ClientService {
     client_dao: ClientSqliteDao,

@@ -1,8 +1,8 @@
 use crate::dao::invoice_dao::InvoiceDao;
 use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
-use crate::model::invoice::Invoice;
-use crate::model::invoice_status::InvoiceStatus;
-use crate::model::line_item::LineItem;
+use crate::model::Invoice;
+use crate::model::InvoiceStatus;
+use crate::model::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use sqlx::{Error, Executor, Sqlite};
 

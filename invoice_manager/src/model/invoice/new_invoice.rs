@@ -6,7 +6,7 @@ pub struct NewInvoice {
 }
 
 impl NewInvoice {
-    pub(crate) fn new(client_id: String) -> Self {
+    pub fn new(client_id: String) -> Self {
         Self { client_id }
     }
 
