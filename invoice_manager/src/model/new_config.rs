@@ -1,13 +1,13 @@
 use clap::Args;
 
 #[derive(Args, Debug)]
-pub struct NewConfig {
+pub struct NewCompanyConfig {
     company_name: String,
     company_address: String,
     company_email: String,
 }
 
-impl NewConfig {
+impl NewCompanyConfig {
     pub fn get_company_name(&self) -> &str {
         &self.company_name
     }

@@ -1,26 +1,7 @@
-use crate::model::NewConfig;
+use crate::model::{CompanyConfig, Configs, DatabaseConfig, NewCompanyConfig};
 use directories::ProjectDirs;
-use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
-
-#[derive(Deserialize, Debug)]
-pub struct Configs {
-    database: DatabaseConfig,
-    company: CompanyConfig,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct DatabaseConfig {
-    path: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct CompanyConfig {
-    name: String,
-    address: String,
-    email: String,
-}
 
 pub fn get_config() -> Result<Configs, String> {
     let path = get_config_path().unwrap();
@@ -38,26 +19,23 @@ pub fn get_config() -> Result<Configs, String> {
     toml::from_str(&content).map_err(|e| format!("Failed to parse config file: {}", e))
 }
 
-pub fn create_config(init_config: NewConfig) -> Result<(), String> {
+pub fn create_config(init_config: NewCompanyConfig) -> Result<(), String> {
     let path = get_config_path().unwrap();
     let default_database_path = get_default_database_path().unwrap();
+    let default_database_path = default_database_path.to_str().unwrap();
 
-    let content = format!(
-        r#"[database]
-path = "{}"
-
-[company]
-name = "{}"
-address = "{}"
-email = "{}"
-"#,
-        default_database_path.to_str().unwrap(),
+    let db_config = DatabaseConfig::new(default_database_path);
+    let company_config = CompanyConfig::new(
         init_config.get_company_name(),
         init_config.get_company_address(),
         init_config.get_company_email(),
     );
 
-    fs::write(path, content).map_err(|e| format!("Failed to write config file: {}", e))
+    let idk = Configs::new(db_config, company_config);
+
+    let wut = toml::to_string(&idk).unwrap();
+
+    fs::write(path, wut).map_err(|e| format!("Failed to write config file: {}", e))
 }
 
 // TODO should really be a result
