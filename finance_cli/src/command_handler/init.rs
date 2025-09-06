@@ -1,5 +1,8 @@
-use crate::command::init::InitCommand;
+use invoice_manager::model::NewConfig;
 
-pub async fn handle_init_command(init_command: InitCommand) {
-    invoice_manager::service::create_config(init_command);
+pub async fn handle_init_command(new_config: NewConfig) {
+    match invoice_manager::service::create_config(new_config) {
+        Ok(_) => println!("Config created successfully"),
+        Err(e) => println!("Error creating config: {:?}", e),
+    }
 }

@@ -51,7 +51,10 @@ name = "{}"
 address = "{}"
 email = "{}"
 "#,
-        default_database_path.to_str().unwrap()
+        default_database_path.to_str().unwrap(),
+        init_config.get_company_name(),
+        init_config.get_company_address(),
+        init_config.get_company_email(),
     );
 
     fs::write(path, content).map_err(|e| format!("Failed to write config file: {}", e))
