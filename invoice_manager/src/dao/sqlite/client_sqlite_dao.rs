@@ -4,7 +4,7 @@ use crate::model::NewClient;
 use sqlx::{Executor, Pool, Sqlite};
 
 pub struct ClientSqliteDao {
-    pool: Pool<Sqlite>
+    pool: Pool<Sqlite>,
 }
 
 const INSERT_SQL: &str = r#"
@@ -42,9 +42,7 @@ FROM client
 
 impl ClientSqliteDao {
     pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self {
-            pool
-        }
+        Self { pool }
     }
 
     async fn create<'e, E>(&self, executor: E, item: &Client) -> Result<(), sqlx::Error>

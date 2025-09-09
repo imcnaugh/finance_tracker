@@ -1,9 +1,16 @@
 use crate::command::client::ClientSubcommands;
 use crate::util;
-use invoice_manager::service::ClientService;
+use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
+use invoice_manager::dao::sqlite::sqlite_connection::get_pooled_connection;
+use invoice_manager::service::{ClientService, get_config};
+use std::sync::Arc;
 
 pub async fn handle_client_command(client_command: ClientSubcommands) {
-    let service = ClientService::new();
+    let configuration = get_config().unwrap();
+    let db_configs = configuration.get_database_configuration().unwrap();
+    let pool = get_pooled_connection(db_configs).await;
+    let client_dao = ClientSqliteDao::new(pool);
+    let service = ClientService::new(client_dao);
 
     match client_command {
         ClientSubcommands::New { new_client } => {

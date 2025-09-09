@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct CompanyConfig {
+pub struct CompanyConfiguration {
     name: String,
     address: String,
     email: String,
 }
 
-impl CompanyConfig {
+impl CompanyConfiguration {
     pub fn new(name: &str, address: &str, email: &str) -> Self {
         Self {
             name: name.to_string(),

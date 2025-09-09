@@ -7,7 +7,7 @@ use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use sqlx::{Error, Executor, Pool, Sqlite};
 
 pub struct InvoiceSqliteDao {
-    pool: Pool<Sqlite>
+    pool: Pool<Sqlite>,
 }
 
 const INVOICE_INSERT_SQL: &str = r#"
@@ -82,11 +82,8 @@ WHERE invoice_id = ?
 "#;
 
 impl InvoiceSqliteDao {
-
     pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self {
-            pool
-        }
+        Self { pool }
     }
 
     async fn insert_invoice<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), Error>

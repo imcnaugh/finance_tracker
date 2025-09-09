@@ -1,9 +1,6 @@
 use crate::model::DatabaseConfiguration;
 use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
 use std::fs;
-use tokio::sync::OnceCell;
-
-static POOL: OnceCell<Pool<Sqlite>> = OnceCell::const_new();
 
 pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Pool<Sqlite> {
     let db_url = cfg.get_path();
