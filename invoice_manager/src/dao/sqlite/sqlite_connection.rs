@@ -1,47 +1,37 @@
-use sqlx::pool::PoolConnection;
+use crate::model::DatabaseConfiguration;
 use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
-use std::env;
 use std::fs;
 use tokio::sync::OnceCell;
 
 static POOL: OnceCell<Pool<Sqlite>> = OnceCell::const_new();
 
-pub async fn get_pooled_connection() -> Result<PoolConnection<Sqlite>, sqlx::Error> {
-    let pool = POOL
-        .get_or_init(|| async {
-            let db_url = env::var("INVOICE_DB_PATH").unwrap_or(String::from("devdb.sqlite"));
-            let max_connections = env::var("INVOICE_DB_POOL_SIZE")
-                .unwrap_or(String::from("3"))
-                .parse::<u32>()
-                .unwrap();
+pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Pool<Sqlite> {
+    let db_url = cfg.get_path();
+    let max_connections = cfg.get_pool_size();
 
-            if let Some(parent) = std::path::Path::new(&db_url).parent() {
-                fs::create_dir_all(parent).expect("Failed to create database directory");
-            }
-            if !std::path::Path::new(&db_url).exists() {
-                fs::File::create(&db_url).expect("Failed to create database file");
-            }
+    if let Some(parent) = std::path::Path::new(&db_url).parent() {
+        fs::create_dir_all(parent).expect("Failed to create database directory");
+    }
+    if !std::path::Path::new(&db_url).exists() {
+        fs::File::create(&db_url).expect("Failed to create database file");
+    }
 
-            let string = format!("sqlite://{}", &db_url);
-            let connection_pool = SqlitePoolOptions::new()
-                .max_connections(max_connections)
-                .connect(&string)
-                .await
-                .expect("Failed to connect to database");
+    let string = format!("sqlite://{}", &db_url);
+    let connection_pool = SqlitePoolOptions::new()
+        .max_connections(max_connections)
+        .connect(&string)
+        .await
+        .expect("Failed to connect to database");
 
-            sqlx::query("PRAGMA foreign_keys = ON;")
-                .execute(&connection_pool)
-                .await
-                .expect("Failed to enable foreign keys");
+    sqlx::query("PRAGMA foreign_keys = ON;")
+        .execute(&connection_pool)
+        .await
+        .expect("Failed to enable foreign keys");
 
-            sqlx::migrate!("./db/migrations")
-                .run(&connection_pool)
-                .await
-                .expect("Failed to run migrations");
+    sqlx::migrate!("./db/migrations")
+        .run(&connection_pool)
+        .await
+        .expect("Failed to run migrations");
 
-            connection_pool
-        })
-        .await;
-
-    pool.acquire().await
+    connection_pool
 }

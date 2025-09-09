@@ -4,10 +4,11 @@ use crate::model::Invoice;
 use crate::model::InvoiceStatus;
 use crate::model::LineItem;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
-use sqlx::{Error, Executor, Sqlite};
+use sqlx::{Error, Executor, Pool, Sqlite};
 
-#[derive(Default)]
-pub struct InvoiceSqliteDao;
+pub struct InvoiceSqliteDao {
+    pool: Pool<Sqlite>
+}
 
 const INVOICE_INSERT_SQL: &str = r#"
 INSERT INTO invoice (
@@ -81,6 +82,13 @@ WHERE invoice_id = ?
 "#;
 
 impl InvoiceSqliteDao {
+
+    pub fn new(pool: Pool<Sqlite>) -> Self {
+        Self {
+            pool
+        }
+    }
+
     async fn insert_invoice<'e, E>(&self, executor: E, item: &Invoice) -> Result<(), Error>
     where
         E: Executor<'e, Database = Sqlite>,
@@ -285,7 +293,7 @@ impl InvoiceSqliteDao {
 
 impl InvoiceDao for InvoiceSqliteDao {
     async fn create_invoice(&self, new_invoice: &NewInvoice) -> Result<Invoice, Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
 
         let new_invoice = Invoice::from(new_invoice);
         self.insert_invoice(&mut *conn, &new_invoice).await?;
@@ -294,7 +302,7 @@ impl InvoiceDao for InvoiceSqliteDao {
     }
 
     async fn get_invoice(&self, id: &str) -> Result<Option<Invoice>, Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         let invoice_result = self.select_invoice_by_id(&mut *conn, id).await?;
 
         match invoice_result {
@@ -307,8 +315,23 @@ impl InvoiceDao for InvoiceSqliteDao {
         }
     }
 
+    async fn set_invoice_status_timestamp(
+        &self,
+        id: &str,
+        sent_date: i64,
+        status: InvoiceStatus,
+    ) -> Result<Invoice, Error> {
+        let mut conn = self.pool.acquire().await?;
+        self.invoice_set_status_date(&mut *conn, id, status, sent_date)
+            .await?;
+        let mut invoice = self.select_invoice_by_id(&mut *conn, id).await?.unwrap();
+        let line_items = self.read_line_items_by_invoice_id(&mut *conn, id).await?;
+        invoice.set_line_items(line_items);
+        Ok(invoice)
+    }
+
     async fn search_invoices(&self, search_terms: &InvoiceSearch) -> Result<Vec<Invoice>, Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         match self.search_invoices(&mut *conn, search_terms).await {
             Ok(mut invoices) => {
                 // TODO make a sql call to get line items for many invoices at once
@@ -324,27 +347,12 @@ impl InvoiceDao for InvoiceSqliteDao {
         }
     }
 
-    async fn set_invoice_status_timestamp(
-        &self,
-        id: &str,
-        sent_date: i64,
-        status: InvoiceStatus,
-    ) -> Result<Invoice, Error> {
-        let mut conn = get_pooled_connection().await?;
-        self.invoice_set_status_date(&mut *conn, id, status, sent_date)
-            .await?;
-        let mut invoice = self.select_invoice_by_id(&mut *conn, id).await?.unwrap();
-        let line_items = self.read_line_items_by_invoice_id(&mut *conn, id).await?;
-        invoice.set_line_items(line_items);
-        Ok(invoice)
-    }
-
     async fn create_line_item(
         &self,
         invoice_id: &str,
         new_line_item: &NewLineItem,
     ) -> Result<Invoice, Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         let new_line_item = LineItem::from((new_line_item, invoice_id));
         self.insert_line_item(&mut *conn, &new_line_item).await?;
         let invoice = self.get_invoice(invoice_id).await?.unwrap();
@@ -356,7 +364,7 @@ impl InvoiceDao for InvoiceSqliteDao {
         invoice_id: &str,
         line_item_id: &str,
     ) -> Result<Invoice, Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         self.delete_line_item(&mut *conn, invoice_id, line_item_id)
             .await?;
         let invoice = self.get_invoice(invoice_id).await?.unwrap();

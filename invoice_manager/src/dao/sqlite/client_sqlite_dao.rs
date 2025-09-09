@@ -1,10 +1,11 @@
 use crate::dao::client_dao::ClientDao;
-use crate::dao::sqlite::sqlite_connection::get_pooled_connection;
 use crate::model::Client;
 use crate::model::NewClient;
-use sqlx::{Executor, Sqlite};
+use sqlx::{Executor, Pool, Sqlite};
 
-pub struct ClientSqliteDao;
+pub struct ClientSqliteDao {
+    pool: Pool<Sqlite>
+}
 
 const INSERT_SQL: &str = r#"
 INSERT INTO client (
@@ -40,8 +41,10 @@ FROM client
 "#;
 
 impl ClientSqliteDao {
-    pub fn new() -> Self {
-        Self
+    pub fn new(pool: Pool<Sqlite>) -> Self {
+        Self {
+            pool
+        }
     }
 
     async fn create<'e, E>(&self, executor: E, item: &Client) -> Result<(), sqlx::Error>
@@ -82,7 +85,7 @@ impl ClientSqliteDao {
 
 impl ClientDao for ClientSqliteDao {
     async fn create_client(&self, new_client: NewClient) -> Result<Client, sqlx::Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
 
         let client = Client::from(new_client);
 
@@ -91,12 +94,12 @@ impl ClientDao for ClientSqliteDao {
     }
 
     async fn get_client_by_id(&self, id: &str) -> Result<Option<Client>, sqlx::Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         self.read(&mut *conn, id).await
     }
 
     async fn get_all_clients(&self) -> Result<Vec<Client>, sqlx::Error> {
-        let mut conn = get_pooled_connection().await?;
+        let mut conn = self.pool.acquire().await?;
         self.read_all(&mut *conn).await
     }
 }

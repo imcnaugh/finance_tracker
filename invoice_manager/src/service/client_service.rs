@@ -1,15 +1,13 @@
 use crate::dao::client_dao::ClientDao;
-use crate::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
 use crate::model::Client;
 use crate::model::NewClient;
 
-pub struct ClientService {
-    client_dao: ClientSqliteDao,
+pub struct ClientService<C: ClientDao> {
+    client_dao: C,
 }
 
-impl ClientService {
-    pub fn new() -> Self {
-        let client_dao = ClientSqliteDao::new();
+impl<C: ClientDao> ClientService<C> {
+    pub fn new(client_dao: C) -> Self {
         Self { client_dao }
     }
 
@@ -36,11 +34,5 @@ impl ClientService {
             .get_all_clients()
             .await
             .map_err(|e| e.to_string())
-    }
-}
-
-impl Default for ClientService {
-    fn default() -> Self {
-        Self::new()
     }
 }

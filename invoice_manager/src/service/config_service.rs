@@ -24,7 +24,7 @@ pub fn create_config(init_config: NewCompanyConfig) -> Result<(), String> {
     let default_database_path = get_default_database_path().unwrap();
     let default_database_path = default_database_path.to_str().unwrap();
 
-    let db_config = DatabaseConfiguration::new(default_database_path);
+    let db_config = DatabaseConfiguration::new(default_database_path, None);
     let company_config = CompanyConfig::new(
         init_config.get_company_name(),
         init_config.get_company_address(),
