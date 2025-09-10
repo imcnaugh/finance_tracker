@@ -2,6 +2,7 @@ use crate::model::DatabaseConfiguration;
 use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
 use std::fs;
 
+// TODO this should really be a result
 pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Pool<Sqlite> {
     let db_url = cfg.get_path();
     let max_connections = cfg.get_pool_size();
