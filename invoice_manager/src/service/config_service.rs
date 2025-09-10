@@ -30,7 +30,7 @@ pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String>
         init_config.get_company_email(),
     );
 
-    let configs = Configuration::new(Some(db_config), Some(company_config));
+    let configs = Configuration::new(db_config, company_config);
 
     let configs_as_str = toml::to_string(&configs).unwrap();
 

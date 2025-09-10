@@ -3,11 +3,13 @@ use crate::util;
 use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
 use invoice_manager::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
 use invoice_manager::dao::sqlite::sqlite_connection::get_pooled_connection;
+use invoice_manager::model::Configuration;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf, get_config};
 
 pub struct InvoiceCommandHandler {
     client_service: ClientService<ClientSqliteDao>,
     invoice_service: InvoiceService<InvoiceSqliteDao>,
+    configuration: Configuration,
 }
 
 impl InvoiceCommandHandler {
@@ -28,6 +30,7 @@ impl InvoiceCommandHandler {
         Ok(Self {
             client_service,
             invoice_service,
+            configuration,
         })
     }
 
@@ -119,7 +122,11 @@ impl InvoiceCommandHandler {
                             .await
                         {
                             Ok(client) => {
-                                generate_pdf(&invoice, &client);
+                                generate_pdf(
+                                    &invoice,
+                                    &client,
+                                    self.configuration.get_company_configuration(),
+                                );
                             }
                             Err(e) => println!("Error getting client: {:?}", e),
                         }

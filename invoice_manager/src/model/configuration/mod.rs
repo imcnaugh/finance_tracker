@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Configuration {
-    database_configuration: Option<DatabaseConfiguration>,
-    company_configuration: Option<CompanyConfiguration>,
+    database_configuration: DatabaseConfiguration,
+    company_configuration: CompanyConfiguration,
 }
 
 impl Configuration {
     pub fn new(
-        database_configuration: Option<DatabaseConfiguration>,
-        company_configuration: Option<CompanyConfiguration>,
+        database_configuration: DatabaseConfiguration,
+        company_configuration: CompanyConfiguration,
     ) -> Self {
         Self {
             database_configuration,
@@ -23,19 +23,19 @@ impl Configuration {
         }
     }
 
-    pub fn get_database_configuration(&self) -> Option<&DatabaseConfiguration> {
-        self.database_configuration.as_ref()
+    pub fn get_database_configuration(&self) -> &DatabaseConfiguration {
+        &self.database_configuration
     }
 
-    pub fn get_company_configuration(&self) -> Option<&CompanyConfiguration> {
-        self.company_configuration.as_ref()
+    pub fn get_company_configuration(&self) -> &CompanyConfiguration {
+        &self.company_configuration
     }
 
     pub fn set_database_configuration(&mut self, database: DatabaseConfiguration) {
-        self.database_configuration = Some(database);
+        self.database_configuration = database;
     }
 
     pub fn set_company_configuration(&mut self, company: CompanyConfiguration) {
-        self.company_configuration = Some(company);
+        self.company_configuration = company;
     }
 }

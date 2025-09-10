@@ -1,11 +1,16 @@
-use crate::model::{Client, Invoice};
+use crate::model::{Client, CompanyConfiguration, Invoice};
 use num_format::{Locale, ToFormattedString};
 use std::fs;
 use std::io::Write;
 use std::process::Command;
 // use tectonic::latex_to_pdf;
 
-pub fn generate_pdf(invoice: &Invoice, client: &Client) {
+pub fn generate_pdf(
+    invoice: &Invoice,
+    client: &Client,
+    company_configurations: &CompanyConfiguration,
+) {
+    // TODO use the configuration for the company name and header
     let format_cents = |total_cents: i32| {
         let dollars = (total_cents / 100).to_formatted_string(&Locale::en);
         let cents = total_cents % 100;
