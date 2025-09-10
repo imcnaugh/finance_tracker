@@ -1,4 +1,6 @@
-use crate::model::{CompanyConfiguration, Configuration, DatabaseConfiguration, NewCompanyConfig};
+use crate::model::{
+    CompanyConfiguration, Configuration, DatabaseConfiguration, NewCompanyConfiguration,
+};
 use directories::ProjectDirs;
 use std::fs;
 use std::path::PathBuf;
@@ -19,7 +21,7 @@ pub fn get_config() -> Result<Configuration, String> {
     toml::from_str(&content).map_err(|e| format!("Failed to parse config file: {}", e))?
 }
 
-pub fn create_config(init_config: NewCompanyConfig) -> Result<(), String> {
+pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String> {
     let path = get_config_path().unwrap();
     let default_database_path = get_default_database_path().unwrap();
     let default_database_path = default_database_path.to_str().unwrap();

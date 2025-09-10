@@ -1,5 +1,6 @@
 mod company_configuration;
 mod database_configuration;
+pub mod new_configuration;
 
 pub use company_configuration::CompanyConfiguration;
 pub use database_configuration::DatabaseConfiguration;

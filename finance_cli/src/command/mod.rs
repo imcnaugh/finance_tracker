@@ -5,7 +5,7 @@ pub mod invoice;
 use crate::command::client::ClientSubcommands;
 use crate::command::invoice::InvoiceSubCommands;
 use clap::{Parser, Subcommand};
-use invoice_manager::model::NewCompanyConfig;
+use invoice_manager::model::NewCompanyConfiguration;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -25,5 +25,5 @@ pub enum Commands {
     Invoice(InvoiceSubCommands),
 
     /// Init
-    Init(NewCompanyConfig),
+    Init(NewCompanyConfiguration),
 }
