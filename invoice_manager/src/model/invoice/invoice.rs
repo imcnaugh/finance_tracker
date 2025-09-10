@@ -1,7 +1,6 @@
 use crate::model::error::Error;
-use crate::model::invoice_status::InvoiceStatus;
 use crate::model::line_item::LineItem;
-use crate::model::new_invoice::NewInvoice;
+use crate::model::{InvoiceStatus, NewInvoice};
 use crate::utils::{generate_new_id, timestamp_to_date_time};
 use chrono::{DateTime, Utc};
 

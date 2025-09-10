@@ -1,5 +1,5 @@
 use comfy_table::{Table, presets::UTF8_FULL};
-use invoice_manager::model::client::Client;
+use invoice_manager::model::Client;
 
 struct ClientDisplay {
     id: String,

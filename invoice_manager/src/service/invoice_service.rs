@@ -1,26 +1,22 @@
 use crate::dao::invoice_dao::InvoiceDao;
-use crate::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
-use crate::model::invoice::Invoice;
-use crate::model::invoice_status::InvoiceStatus;
+use crate::model::Invoice;
+use crate::model::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
 
-pub struct InvoiceService {
-    invoice_dao: InvoiceSqliteDao,
+pub struct InvoiceService<I: InvoiceDao> {
     confirm_fn: Option<fn(&str) -> bool>,
+    invoice_dao: I,
 }
 
-impl InvoiceService {
-    pub fn new(confirm_fn: Option<fn(&str) -> bool>) -> InvoiceService {
-        let invoice_dao = InvoiceSqliteDao;
+impl<I: InvoiceDao> InvoiceService<I> {
+    pub fn new(confirm_fn: Option<fn(&str) -> bool>, invoice_dao: I) -> Self {
         Self {
-            invoice_dao,
             confirm_fn,
+            invoice_dao,
         }
     }
-}
 
-impl InvoiceService {
     pub async fn create_new_invoice(&self, client_id: String) -> Result<Invoice, String> {
         let new_invoice = NewInvoice::new(client_id);
 

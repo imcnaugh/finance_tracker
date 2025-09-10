@@ -1,14 +1,11 @@
-pub mod client;
+mod client;
+mod configuration;
 pub mod error;
-pub mod invoice;
-mod invoice_search;
-pub mod invoice_status;
-pub mod line_item;
-mod new_client;
-mod new_invoice;
-mod new_line_item;
+mod invoice;
+mod line_item;
 
-pub use invoice_search::InvoiceSearch;
-pub use new_client::NewClient;
-pub use new_invoice::NewInvoice;
-pub use new_line_item::NewLineItem;
+pub use client::{Client, NewClient};
+pub use configuration::new_configuration::NewCompanyConfiguration;
+pub use configuration::{CompanyConfiguration, Configuration, DatabaseConfiguration};
+pub use invoice::{Invoice, InvoiceSearch, InvoiceStatus, NewInvoice};
+pub use line_item::{LineItem, NewLineItem};
