@@ -15,4 +15,16 @@ impl CompanyConfiguration {
             email: email.to_string(),
         }
     }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn get_address(&self) -> &str {
+        &self.address
+    }
+
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
 }

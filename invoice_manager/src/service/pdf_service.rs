@@ -62,7 +62,14 @@ pub fn generate_pdf(
     .join("\\\\ \n")
     .replace("\n", "\\\\ \n");
 
+    let company_address = company_configurations
+        .get_address()
+        .replace("\n", "\\\\ \n");
+
     let filled = template
+        .replace("@@COMPANY_NAME@@", company_configurations.get_name())
+        .replace("@@COMPANY_ADDRESS@@", &company_address)
+        .replace("@@COMPANY_EMAIL@@", company_configurations.get_email())
         .replace("@@CLIENT_NAME@@", client.get_name())
         .replace("@@CLIENT_CONTACT@@", &client_contact)
         .replace("@@SENT_DATE@@", &sent_date)

@@ -16,9 +16,7 @@ impl InvoiceCommandHandler {
     pub async fn build() -> Result<Self, String> {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration
-            .get_database_configuration()
-            .ok_or("Configurations are not set, please run init")?;
+        let db_configs = configuration.get_database_configuration();
         let pool = get_pooled_connection(db_configs).await;
 
         let client_dao = ClientSqliteDao::new(pool.clone());
@@ -91,7 +89,11 @@ impl InvoiceCommandHandler {
                             .get_client_by_id(invoice.get_client_id())
                             .await
                             .unwrap();
-                        invoice_manager::service::generate_pdf(&invoice, &client);
+                        invoice_manager::service::generate_pdf(
+                            &invoice,
+                            &client,
+                            self.configuration.get_company_configuration(),
+                        );
                     }
                     util::invoice_display::display_invoice(&invoice);
                 }
