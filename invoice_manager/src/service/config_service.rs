@@ -19,10 +19,11 @@ pub fn get_config() -> Result<Configuration, String> {
 }
 
 pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String> {
-    let path = get_config_path().unwrap();
-    let default_database_path = get_default_database_path().unwrap();
-    let default_database_path = default_database_path.to_str().unwrap();
+    let path = get_config_path().ok_or("Failed to get config path")?;
+    let default_database_path =
+        get_default_database_path().ok_or("Failed to get default database path")?;
 
+    let default_database_path = default_database_path.to_str().ok_or("Invalid path")?;
     let db_config = DatabaseConfiguration::new(default_database_path, None);
     let company_config = CompanyConfiguration::new(
         init_config.get_company_name(),
@@ -37,7 +38,6 @@ pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String>
     fs::write(path, configs_as_str).map_err(|e| format!("Failed to write config file: {}", e))
 }
 
-// TODO should really be a result
 fn get_config_path() -> Option<PathBuf> {
     #[cfg(feature = "dev")]
     {
@@ -48,7 +48,6 @@ fn get_config_path() -> Option<PathBuf> {
     path.map(|p| p.config_dir().join("config.toml"))
 }
 
-// TODO should really be a result
 fn get_default_database_path() -> Option<PathBuf> {
     #[cfg(feature = "dev")]
     {

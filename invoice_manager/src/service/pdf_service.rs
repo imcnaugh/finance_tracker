@@ -10,7 +10,6 @@ pub fn generate_pdf(
     client: &Client,
     company_configurations: &CompanyConfiguration,
 ) {
-    // TODO use the configuration for the company name and header
     let format_cents = |total_cents: i32| {
         let dollars = (total_cents / 100).to_formatted_string(&Locale::en);
         let cents = total_cents % 100;
