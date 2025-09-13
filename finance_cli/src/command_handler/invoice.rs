@@ -17,7 +17,7 @@ impl InvoiceCommandHandler {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
         let db_configs = configuration.get_database_configuration();
-        let pool = get_pooled_connection(db_configs).await;
+        let pool = get_pooled_connection(db_configs).await?;
 
         let client_dao = ClientSqliteDao::new(pool.clone());
         let invoice_dao = InvoiceSqliteDao::new(pool.clone());

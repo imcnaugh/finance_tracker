@@ -3,15 +3,15 @@ use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
 use std::fs;
 
 // TODO this should really be a result
-pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Pool<Sqlite> {
+pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Result<Pool<Sqlite>, String> {
     let db_url = cfg.get_path();
     let max_connections = cfg.get_pool_size();
 
     if let Some(parent) = std::path::Path::new(&db_url).parent() {
-        fs::create_dir_all(parent).expect("Failed to create database directory");
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?
     }
     if !std::path::Path::new(&db_url).exists() {
-        fs::File::create(&db_url).expect("Failed to create database file");
+        fs::File::create(&db_url).map_err(|e| e.to_string())?;
     }
 
     let string = format!("sqlite://{}", &db_url);
@@ -31,5 +31,5 @@ pub async fn get_pooled_connection(cfg: &DatabaseConfiguration) -> Pool<Sqlite> 
         .await
         .expect("Failed to run migrations");
 
-    connection_pool
+    Ok(connection_pool)
 }

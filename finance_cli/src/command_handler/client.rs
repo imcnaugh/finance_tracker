@@ -13,7 +13,7 @@ impl ClientCommandHandler {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
         let db_configs = configuration.get_database_configuration();
-        let pool = get_pooled_connection(db_configs).await;
+        let pool = get_pooled_connection(db_configs).await?;
         let client_dao = ClientSqliteDao::new(pool);
         let client_service = ClientService::new(client_dao);
         Ok(Self { client_service })
