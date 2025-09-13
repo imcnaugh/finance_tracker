@@ -20,6 +20,7 @@ pub fn get_config() -> Result<Configuration, String> {
 
 pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String> {
     let path = get_config_path().ok_or("Failed to get config path")?;
+
     let default_database_path =
         get_default_database_path().ok_or("Failed to get default database path")?;
 
@@ -34,6 +35,10 @@ pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String>
     let configs = Configuration::new(db_config, company_config);
 
     let configs_as_str = toml::to_string(&configs).unwrap();
+
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?
+    }
 
     fs::write(path, configs_as_str).map_err(|e| format!("Failed to write config file: {}", e))
 }
