@@ -80,10 +80,16 @@ pub fn generate_pdf(
     //
     // fs::write("invoice.pdf", &pdf_bytes).expect("Failed to write PDF file");
 
-    call_cli(filled);
+    let file_name = format!(
+        "./invoice-{}-{}.pdf",
+        invoice.get_id(),
+        invoice.get_status().unwrap().to_string()
+    );
+
+    call_cli(filled, &file_name);
 }
 
-fn call_cli(filled: String) {
+fn call_cli(filled: String, file_name: &str) {
     let mut child = Command::new("tectonic")
         .arg("-")
         .stdin(std::process::Stdio::piped())
@@ -98,4 +104,6 @@ fn call_cli(filled: String) {
         .unwrap();
 
     child.wait().unwrap();
+
+    fs::rename("texput.pdf", file_name).expect("Failed to rename PDF file");
 }
