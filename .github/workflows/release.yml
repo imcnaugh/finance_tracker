@@ -1,0 +1,75 @@
+name: Build and Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build for macOS ARM64
+        run: cargo build --release --locked --target aarch64-apple-darwin
+
+      - name: Decode signing certificate (macOS)
+        shell: bash
+        run: |
+          echo "${{ secrets.MAC_CERT_P12 }}" | base64 -d > signing_cert.p12
+
+      - name: Setup macOS keychain (macOS)
+        shell: bash
+        run: |
+          security create-keychain -p temp build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p temp build.keychain
+          security import signing_cert.p12 -k build.keychain -P "${{ secrets.MAC_CERT_P12_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
+
+      - name: Build (macOS arm64)
+        shell: bash
+        env:
+          SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
+        run: |
+          # Codesign the binary
+          codesign --sign "$SIGN_IDENTITY" target/aarch64-apple-darwin/release/finance_cli
+          # Verify signature
+          codesign --verify --verbose target/aarch64-apple-darwin/release/finance_cli
+          # Package tarball for Homebrew distribution
+          mkdir -p dist
+          cp target/aarch64-apple-darwin/release/finance_cli dist/finance_cli
+          tar -C dist -czf finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz finance_cli
+          rm -rf dist
+
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-cli-${{ matrix.os }}
+          path: |
+            finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz
+          if-no-files-found: ignore
+
+      - name: Create GitHub Release (macOS)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+

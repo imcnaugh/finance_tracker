@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "finance_cli",
+    "finance_tracker",
     "invoice_manager"
 ]
