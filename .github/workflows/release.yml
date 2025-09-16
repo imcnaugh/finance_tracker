@@ -45,29 +45,29 @@ jobs:
           SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
         run: |
           # Codesign the binary
-          codesign --sign "$SIGN_IDENTITY" target/aarch64-apple-darwin/release/finance_cli
+          codesign --sign "$SIGN_IDENTITY" target/aarch64-apple-darwin/release/finance_tracker
           # Verify signature
-          codesign --verify --verbose target/aarch64-apple-darwin/release/finance_cli
+          codesign --verify --verbose target/aarch64-apple-darwin/release/finance_tracker
           # Package tarball for Homebrew distribution
           mkdir -p dist
-          cp target/aarch64-apple-darwin/release/finance_cli dist/finance_cli
-          tar -C dist -czf finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz finance_cli
+          cp target/aarch64-apple-darwin/release/finance_tracker dist/finance_tracker
+          tar -C dist -czf finance_tracker-${{ github.ref_name }}-darwin-arm64.tar.gz finance_tracker
           rm -rf dist
 
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: finance-cli-${{ matrix.os }}
+          name: finance_tracker-${{ matrix.os }}
           path: |
-            finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz
+            finance_tracker-${{ github.ref_name }}-darwin-arm64.tar.gz
           if-no-files-found: ignore
 
       - name: Create GitHub Release (macOS)
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            finance_cli-${{ github.ref_name }}-darwin-arm64.tar.gz
+            finance_tracker-${{ github.ref_name }}-darwin-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
