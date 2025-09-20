@@ -16,8 +16,9 @@ pub fn generate_pdf(
         format!("{}.{:02}", dollars, cents)
     };
 
-    let template = fs::read_to_string("invoice_manager/template/invoice.tex")
-        .expect("Failed to read template file");
+    // Embed the LaTeX template at compile time to avoid runtime path issues when shipping binaries.
+    // Path is relative to this source file.
+    let template: &str = include_str!("../../template/invoice.tex");
 
     let sent_date = invoice
         .get_sent_date()
