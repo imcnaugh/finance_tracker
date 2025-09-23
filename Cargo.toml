@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = [ "double_entry_bookkeeping",
     "finance_tracker",
     "invoice_manager"
 ]
