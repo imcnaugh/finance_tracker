@@ -1,5 +1,4 @@
-use crate::model::LedgerEntry;
-use crate::model::account::Account;
+use crate::model::NewTransaction;
 
 pub struct LedgerService {}
 
@@ -8,13 +7,5 @@ impl LedgerService {
         Self {}
     }
 
-    pub fn make_transaction(
-        &self,
-        from_account: &Account,
-        to_account: &Account,
-        amount: i64,
-        description: &str,
-    ) {
-        let from_transaction = LedgerEntry::new();
-    }
+    pub fn make_transaction(&self, new_transaction: NewTransaction) {}
 }
