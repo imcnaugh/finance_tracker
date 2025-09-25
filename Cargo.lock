@@ -445,6 +445,8 @@ name = "double_entry_bookkeeping"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "clap",
+ "utilities",
 ]
 
 [[package]]
