@@ -2,6 +2,7 @@ use crate::util::line_item_display::display_line_items;
 use chrono::{DateTime, Utc};
 use comfy_table::{Table, presets::UTF8_FULL};
 use invoice_manager::model::Invoice;
+use utilities::Error;
 
 pub struct InvoiceDisplay {
     id: String,
@@ -76,18 +77,14 @@ pub fn display_invoices(invoices: &[Invoice]) {
     }
 }
 
-fn date_result_option_to_string(
-    date: Result<Option<DateTime<Utc>>, invoice_manager::model::error::Error>,
-) -> String {
+fn date_result_option_to_string(date: Result<Option<DateTime<Utc>>, Error>) -> String {
     date.ok()
         .flatten()
         .map(|d| d.format("%Y-%m-%d").to_string())
         .unwrap_or_default()
 }
 
-fn date_result_to_string(
-    date: Result<DateTime<Utc>, invoice_manager::model::error::Error>,
-) -> String {
+fn date_result_to_string(date: Result<DateTime<Utc>, Error>) -> String {
     date.ok()
         .map(|d| d.format("%Y-%m-%d").to_string())
         .unwrap_or_default()

@@ -166,7 +166,7 @@ impl InvoiceSqliteDao {
     }
 
     fn map_to_slqx_error<T>(
-        r: Result<Option<T>, crate::model::error::Error>,
+        r: Result<Option<T>, utilities::Error>,
         field: &str,
     ) -> Result<Option<T>, Error> {
         r.map_err(|_| Error::Decode(format!("Invalid {} value", field).into()))

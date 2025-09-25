@@ -12,6 +12,10 @@ pub struct LedgerEntry {
 
 impl LedgerEntry {
     pub fn from(new_transaction: NewTransaction) -> (Self, Self) {
+        // let debit_entry = LedgerEntry {
+        //     id:
+        // }
+
         todo!()
     }
 }

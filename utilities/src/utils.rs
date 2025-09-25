@@ -1,4 +1,4 @@
-use crate::model::error::Error;
+use crate::Error;
 use chrono::LocalResult::{Ambiguous, Single};
 use chrono::{DateTime, MappedLocalTime, TimeZone, Utc};
 use nanoid::nanoid;

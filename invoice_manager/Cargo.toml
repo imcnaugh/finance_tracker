@@ -8,12 +8,11 @@ default = []
 dev = []
 
 [dependencies]
-chrono = "0.4.41"
-clap = { version = "4.5.42", features = ["derive"] }
-nanoid = "0.4.0"
+clap = { workspace = true }
+chrono = { workspace = true }
+utilities = { workspace = true }
 serde = { version = "1.0.219", features = ["derive"] }
 sqlx = { version = "0.8.6", features = [ "runtime-tokio", "sqlite", "migrate", "macros" ] }
-tokio = { version = "1.47.1", features = ["full"] }
 num-format = "0.4.4"
 directories = "6.0.0"
 toml = "0.9.5"

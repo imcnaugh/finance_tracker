@@ -1,6 +1,5 @@
 mod client;
 mod configuration;
-pub mod error;
 mod invoice;
 mod line_item;
 

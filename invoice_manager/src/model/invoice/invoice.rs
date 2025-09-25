@@ -1,8 +1,8 @@
-use crate::model::error::Error;
 use crate::model::line_item::LineItem;
 use crate::model::{InvoiceStatus, NewInvoice};
-use crate::utils::{generate_new_id, timestamp_to_date_time};
 use chrono::{DateTime, Utc};
+use utilities::Error;
+use utilities::utils::{generate_new_id, timestamp_to_date_time};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Invoice {

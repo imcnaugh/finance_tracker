@@ -1,5 +1,12 @@
 [workspace]
-members = [ "double_entry_bookkeeping",
+members = [
+    "double_entry_bookkeeping",
     "finance_tracker",
-    "invoice_manager"
+    "invoice_manager",
+    "utilities"
 ]
+
+[workspace.dependencies]
+chrono = "0.4.41"
+clap = { version = "4.5.42", features = ["derive"] }
+utilities = { path = "utilities" }
