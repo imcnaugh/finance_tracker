@@ -3,19 +3,19 @@ use clap::Args;
 
 #[derive(Args, Debug)]
 pub struct NewTransaction {
-    from_account: Account,
-    to_account: Account,
+    debit_account: Account,
+    credit_account: Account,
     amount: i64,
     description: String,
 }
 
 impl NewTransaction {
-    pub fn get_from_account(&self) -> &Account {
-        &self.from_account
+    pub fn get_debit_account(&self) -> &Account {
+        &self.debit_account
     }
 
-    pub fn get_to_account(&self) -> &Account {
-        &self.to_account
+    pub fn get_credit_account(&self) -> &Account {
+        &self.credit_account
     }
 
     pub fn get_amount(&self) -> i64 {

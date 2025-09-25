@@ -1,4 +1,5 @@
-pub mod account;
+mod account;
+mod account_type;
 mod ledger_entry;
 mod new_transaction;
 
