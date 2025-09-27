@@ -7,6 +7,7 @@ edition = "2024"
 clap = { workspace = true }
 chrono = { workspace = true }
 utilities = { workspace = true }
+sqlx = { workspace = true }
 invoice_manager = {path = "../invoice_manager"}
 tokio = { version = "1.47.1", features = ["full"] }
 comfy-table = "7.2.0"

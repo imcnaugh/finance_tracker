@@ -3,6 +3,7 @@ use dialoguer::Confirm;
 pub mod client_display;
 pub mod invoice_display;
 pub mod line_item_display;
+pub mod sqlite_connection;
 
 /// Prompt the user to confirm an action.
 /// Returns true if the user confirms (answers yes/y), false otherwise.

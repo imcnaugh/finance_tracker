@@ -517,6 +517,7 @@ dependencies = [
  "comfy-table",
  "dialoguer",
  "invoice_manager",
+ "sqlx",
  "tokio",
  "utilities",
 ]
