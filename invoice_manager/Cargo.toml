@@ -11,8 +11,8 @@ dev = []
 clap = { workspace = true }
 chrono = { workspace = true }
 utilities = { workspace = true }
+sqlx = {workspace = true}
 serde = { version = "1.0.219", features = ["derive"] }
-sqlx = { version = "0.8.6", features = [ "runtime-tokio", "sqlite", "migrate", "macros" ] }
 num-format = "0.4.4"
 directories = "6.0.0"
 toml = "0.9.5"
