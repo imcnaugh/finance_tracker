@@ -1,7 +1,7 @@
 use crate::command::client::ClientSubcommands;
+use crate::database::DatabaseManager;
 use crate::util;
 use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
-use invoice_manager::dao::sqlite::sqlite_connection::get_pooled_connection;
 use invoice_manager::service::{ClientService, get_config};
 
 pub struct ClientCommandHandler {
@@ -13,8 +13,8 @@ impl ClientCommandHandler {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
         let db_configs = configuration.get_database_configuration();
-        let pool = get_pooled_connection(db_configs).await?;
-        let client_dao = ClientSqliteDao::new(pool);
+        let db_manager = DatabaseManager::new(db_configs).await?;
+        let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
         let client_service = ClientService::new(client_dao);
         Ok(Self { client_service })
     }

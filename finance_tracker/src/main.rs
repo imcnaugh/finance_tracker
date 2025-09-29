@@ -6,6 +6,7 @@ use clap::Parser;
 
 mod command;
 mod command_handler;
+mod database;
 mod util;
 
 #[tokio::main]

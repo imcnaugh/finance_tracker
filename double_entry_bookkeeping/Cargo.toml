@@ -7,3 +7,4 @@ edition = "2024"
 utilities = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
+sqlx = { workspace = true }
