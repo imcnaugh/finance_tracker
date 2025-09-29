@@ -1,15 +1,15 @@
 #[derive(Debug, Clone)]
-pub struct AccountType {
+pub struct Journal {
     id: i64,
-    name: String,
+    description: String,
     created_timestamp: i64,
 }
 
-impl AccountType {
-    pub fn new(id: i64, name: String, created_timestamp: i64) -> Self {
+impl Journal {
+    pub fn new(id: i64, description: String, created_timestamp: i64) -> Self {
         Self {
             id,
-            name,
+            description,
             created_timestamp,
         }
     }
@@ -18,8 +18,8 @@ impl AccountType {
         self.id
     }
 
-    pub fn get_name(&self) -> &str {
-        &self.name
+    pub fn get_description(&self) -> &str {
+        &self.description
     }
 
     pub fn get_created_timestamp(&self) -> i64 {

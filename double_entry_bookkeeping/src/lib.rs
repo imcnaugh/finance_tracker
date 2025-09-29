@@ -1,4 +1,5 @@
+pub mod command;
 mod dao;
 pub mod migrations;
-mod model;
+pub mod model;
 mod service;

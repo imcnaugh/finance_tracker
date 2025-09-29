@@ -54,10 +54,10 @@ impl DatabaseManager {
             .await
             .map_err(|e: MigrateError| format!("Invoice manager migrations failed: {}", e))?;
 
-        // TODO: Re-enable when double_entry_bookkeeping compilation issues are fixed
         // Then run double_entry_bookkeeping migrations
-        // double_entry_bookkeeping::migrations::run(pool).await
-        //     .map_err(|e: MigrateError| format!("Double entry bookkeeping migrations failed: {}", e))?;
+        double_entry_bookkeeping::migrations::run(pool)
+            .await
+            .map_err(|e: MigrateError| format!("Double entry bookkeeping migrations failed: {}", e))?;
 
         Ok(())
     }

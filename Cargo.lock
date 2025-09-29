@@ -517,6 +517,7 @@ dependencies = [
  "clap",
  "comfy-table",
  "dialoguer",
+ "double_entry_bookkeeping",
  "invoice_manager",
  "sqlx",
  "tokio",
