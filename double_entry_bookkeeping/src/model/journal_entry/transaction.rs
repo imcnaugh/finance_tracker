@@ -1,14 +1,14 @@
 #[derive(Debug, Clone)]
-pub struct Ledger {
+pub struct Transaction {
     id: i64,
     account_id: i64,
-    journal_id: i64,
+    journal_entry_id: i64,
     amount_in_cents: i64,
     is_debit: bool,
     created_timestamp: i64,
 }
 
-impl Ledger {
+impl Transaction {
     pub fn new(
         id: i64,
         account_id: i64,
@@ -20,7 +20,7 @@ impl Ledger {
         Self {
             id,
             account_id,
-            journal_id,
+            journal_entry_id: journal_id,
             amount_in_cents,
             is_debit,
             created_timestamp,
@@ -35,8 +35,8 @@ impl Ledger {
         self.account_id
     }
 
-    pub fn get_journal_id(&self) -> i64 {
-        self.journal_id
+    pub fn get_journal_entry_id(&self) -> i64 {
+        self.journal_entry_id
     }
 
     pub fn get_amount_in_cents(&self) -> i64 {

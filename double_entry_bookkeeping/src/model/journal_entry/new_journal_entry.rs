@@ -1,12 +1,14 @@
-#[derive(Debug, Clone)]
-pub struct NewTransaction {
+use clap::Args;
+
+#[derive(Debug, Clone, Args)]
+pub struct NewJournalEntry {
     debit_account_id: i64,
     credit_account_id: i64,
     amount_in_cents: i64,
     description: String,
 }
 
-impl NewTransaction {
+impl NewJournalEntry {
     pub fn new(
         debit_account_id: i64,
         credit_account_id: i64,

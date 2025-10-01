@@ -57,7 +57,9 @@ impl DatabaseManager {
         // Then run double_entry_bookkeeping migrations
         double_entry_bookkeeping::migrations::run(pool)
             .await
-            .map_err(|e: MigrateError| format!("Double entry bookkeeping migrations failed: {}", e))?;
+            .map_err(|e: MigrateError| {
+                format!("Double entry bookkeeping migrations failed: {}", e)
+            })?;
 
         Ok(())
     }

@@ -1,11 +1,11 @@
 #[derive(Debug, Clone)]
-pub struct Journal {
+pub struct JournalEntry {
     id: i64,
     description: String,
     created_timestamp: i64,
 }
 
-impl Journal {
+impl JournalEntry {
     pub fn new(id: i64, description: String, created_timestamp: i64) -> Self {
         Self {
             id,

@@ -1,4 +1,4 @@
-use crate::model::NewTransaction;
+use crate::model::NewJournalEntry;
 
 pub struct LedgerService {}
 
@@ -7,7 +7,7 @@ impl LedgerService {
         Self {}
     }
 
-    pub fn make_transaction(&self, _new_transaction: NewTransaction) {
+    pub fn make_transaction(&self, _new_transaction: NewJournalEntry) {
         // TODO: Implement transaction creation
         // This would:
         // 1. Create a journal entry
