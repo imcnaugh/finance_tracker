@@ -2,16 +2,16 @@ use clap::Args;
 
 #[derive(Debug, Clone, Args)]
 pub struct NewJournalEntry {
-    debit_account_id: i64,
-    credit_account_id: i64,
+    debit_account_id: u64,
+    credit_account_id: u64,
     amount_in_cents: i64,
     description: String,
 }
 
 impl NewJournalEntry {
     pub fn new(
-        debit_account_id: i64,
-        credit_account_id: i64,
+        debit_account_id: u64,
+        credit_account_id: u64,
         amount_in_cents: i64,
         description: String,
     ) -> Self {
@@ -23,11 +23,11 @@ impl NewJournalEntry {
         }
     }
 
-    pub fn get_debit_account_id(&self) -> i64 {
+    pub fn get_debit_account_id(&self) -> u64 {
         self.debit_account_id
     }
 
-    pub fn get_credit_account_id(&self) -> i64 {
+    pub fn get_credit_account_id(&self) -> u64 {
         self.credit_account_id
     }
 

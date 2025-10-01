@@ -1,8 +1,8 @@
 #[derive(Debug, Clone)]
 pub struct Transaction {
-    id: i64,
-    account_id: i64,
-    journal_entry_id: i64,
+    id: u64,
+    account_id: u64,
+    journal_entry_id: u64,
     amount_in_cents: i64,
     is_debit: bool,
     created_timestamp: i64,
@@ -10,9 +10,9 @@ pub struct Transaction {
 
 impl Transaction {
     pub fn new(
-        id: i64,
-        account_id: i64,
-        journal_id: i64,
+        id: u64,
+        account_id: u64,
+        journal_id: u64,
         amount_in_cents: i64,
         is_debit: bool,
         created_timestamp: i64,
@@ -27,15 +27,15 @@ impl Transaction {
         }
     }
 
-    pub fn get_id(&self) -> i64 {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
-    pub fn get_account_id(&self) -> i64 {
+    pub fn get_account_id(&self) -> u64 {
         self.account_id
     }
 
-    pub fn get_journal_entry_id(&self) -> i64 {
+    pub fn get_journal_entry_id(&self) -> u64 {
         self.journal_entry_id
     }
 

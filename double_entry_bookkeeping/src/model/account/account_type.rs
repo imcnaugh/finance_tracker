@@ -1,12 +1,12 @@
 #[derive(Debug, Clone)]
 pub struct AccountType {
-    id: i64,
+    id: u64,
     name: String,
-    created_timestamp: i64,
+    created_timestamp: u64,
 }
 
 impl AccountType {
-    pub fn new(id: i64, name: String, created_timestamp: i64) -> Self {
+    pub fn new(id: u64, name: String, created_timestamp: u64) -> Self {
         Self {
             id,
             name,
@@ -14,7 +14,7 @@ impl AccountType {
         }
     }
 
-    pub fn get_id(&self) -> i64 {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
@@ -22,7 +22,7 @@ impl AccountType {
         &self.name
     }
 
-    pub fn get_created_timestamp(&self) -> i64 {
+    pub fn get_created_timestamp(&self) -> u64 {
         self.created_timestamp
     }
 }

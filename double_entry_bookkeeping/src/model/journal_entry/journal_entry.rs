@@ -1,12 +1,12 @@
 #[derive(Debug, Clone)]
 pub struct JournalEntry {
-    id: i64,
+    id: u64,
     description: String,
     created_timestamp: i64,
 }
 
 impl JournalEntry {
-    pub fn new(id: i64, description: String, created_timestamp: i64) -> Self {
+    pub fn new(id: u64, description: String, created_timestamp: i64) -> Self {
         Self {
             id,
             description,
@@ -14,7 +14,7 @@ impl JournalEntry {
         }
     }
 
-    pub fn get_id(&self) -> i64 {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
