@@ -4,7 +4,7 @@ pub trait AccountDao {
     fn create_account_type(
         &self,
         new_account_type: NewAccountType,
-    ) -> impl Future<Output = Result<AccountType, sqlx::Error>>;
+    ) -> impl Future<Output = Result<u64, sqlx::Error>>;
 
     fn get_account_type_by_id(
         &self,
