@@ -1,10 +1,9 @@
 mod company_configuration;
-mod database_configuration;
 pub mod new_configuration;
 
 pub use company_configuration::CompanyConfiguration;
-pub use database_configuration::DatabaseConfiguration;
 use serde::{Deserialize, Serialize};
+pub use utilities::database_configuration::DatabaseConfiguration;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Configuration {

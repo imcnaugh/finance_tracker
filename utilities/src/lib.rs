@@ -1,3 +1,4 @@
+pub mod database_configuration;
 mod error;
 pub mod utils;
 
