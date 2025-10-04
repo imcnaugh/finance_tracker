@@ -1,1 +1,1 @@
-mod account_sqlite_dao;
+pub mod account_sqlite_dao;

@@ -1,7 +1,9 @@
 pub mod client;
 
+pub mod account;
 pub mod invoice;
 
+use crate::command::account::AccountSubcommands;
 use crate::command::client::ClientSubcommands;
 use crate::command::invoice::InvoiceSubCommands;
 use clap::{Parser, Subcommand};
@@ -23,6 +25,10 @@ pub enum Commands {
     /// Invoice command
     #[command(subcommand)]
     Invoice(InvoiceSubCommands),
+
+    /// Account command
+    #[command(subcommand)]
+    Account(AccountSubcommands),
 
     /// Init
     Init(NewCompanyConfiguration),
