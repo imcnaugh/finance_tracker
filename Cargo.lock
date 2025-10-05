@@ -516,7 +516,6 @@ dependencies = [
  "chrono",
  "clap",
  "comfy-table",
- "dialoguer",
  "double_entry_bookkeeping",
  "invoice_manager",
  "sqlx",
@@ -2004,6 +2003,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "clap",
+ "dialoguer",
  "nanoid",
  "serde",
 ]
