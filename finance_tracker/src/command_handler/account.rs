@@ -1,8 +1,8 @@
 use crate::command::account::AccountSubcommands;
+use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use double_entry_bookkeeping::dao::sqlite::account_sqlite_dao::AccountSqliteDao;
 use double_entry_bookkeeping::service::account_service::AccountService;
-use invoice_manager::service::get_config;
 
 pub struct AccountCommandHandler {
     account_service: AccountService<AccountSqliteDao>,

@@ -8,7 +8,10 @@ clap = { workspace = true }
 chrono = { workspace = true }
 utilities = { workspace = true }
 sqlx = { workspace = true }
+serde = { workspace = true }
 invoice_manager = {path = "../invoice_manager"}
 double_entry_bookkeeping = {path = "../double_entry_bookkeeping"}
 tokio = { version = "1.47.1", features = ["full"] }
 comfy-table = "7.2.0"
+toml = "0.9.7"
+directories = "6.0.0"

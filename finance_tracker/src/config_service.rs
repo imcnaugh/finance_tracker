@@ -1,9 +1,9 @@
-use crate::model::{
-    CompanyConfiguration, Configuration, DatabaseConfiguration, NewCompanyConfiguration,
-};
+use crate::configuration::Configuration;
 use directories::ProjectDirs;
+use invoice_manager::model::{CompanyConfiguration, NewCompanyConfiguration};
 use std::fs;
 use std::path::PathBuf;
+use utilities::database_configuration::DatabaseConfiguration;
 
 pub fn get_config() -> Result<Configuration, String> {
     let path = get_config_path().unwrap();

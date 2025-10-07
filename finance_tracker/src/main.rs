@@ -7,6 +7,8 @@ use clap::Parser;
 
 mod command;
 mod command_handler;
+mod config_service;
+mod configuration;
 mod database;
 mod util;
 
