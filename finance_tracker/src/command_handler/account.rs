@@ -12,7 +12,7 @@ impl AccountCommandHandler {
     pub async fn build() -> Result<Self, String> {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration.get_database_configuration();
+        let db_configs = configuration.get_bookkeeping_database_configuration();
         let db_manager = DatabaseManager::new(db_configs).await?;
         let account_dao = AccountSqliteDao::new(db_manager.get_pool().clone());
         let account_service = AccountService::new(account_dao);

@@ -3,10 +3,6 @@ name = "invoice_manager"
 version = "0.1.0"
 edition = "2024"
 
-[features]
-default = []
-dev = []
-
 [dependencies]
 clap = { workspace = true }
 chrono = { workspace = true }
