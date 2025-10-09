@@ -21,20 +21,12 @@ pub fn get_config() -> Result<Configuration, String> {
 pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String> {
     let path = get_config_path().ok_or("Failed to get config path")?;
 
-    let default_invoice_database_path = get_default_invoice_database_path()
+    let default_database_path = get_default_database_path()
         .ok_or("Failed to get default database path")?
         .to_str()
         .ok_or("Invalid path")?
         .to_string();
-    let invoice_db_config = DatabaseConfiguration::new(&default_invoice_database_path, None);
-
-    let default_bookkeeping_database_path = get_default_bookkeeping_database_path()
-        .ok_or("Failed to get default database path")?
-        .to_str()
-        .ok_or("Invalid path")?
-        .to_string();
-    let bookkeeping_db_config =
-        DatabaseConfiguration::new(&default_bookkeeping_database_path, None);
+    let db_config = DatabaseConfiguration::new(&default_database_path, None);
 
     let company_config = CompanyConfiguration::new(
         init_config.get_company_name(),
@@ -42,7 +34,7 @@ pub fn create_config(init_config: NewCompanyConfiguration) -> Result<(), String>
         init_config.get_company_email(),
     );
 
-    let configs = Configuration::new(invoice_db_config, bookkeeping_db_config, company_config);
+    let configs = Configuration::new(db_config, company_config);
 
     let configs_as_str = toml::to_string(&configs).unwrap();
 
@@ -62,22 +54,13 @@ fn get_config_path() -> Option<PathBuf> {
     get_project_dirs().map(|p| p.config_dir().join("config.toml"))
 }
 
-fn get_default_invoice_database_path() -> Option<PathBuf> {
+fn get_default_database_path() -> Option<PathBuf> {
     #[cfg(feature = "dev")]
     {
-        return Some(PathBuf::from("invoice_devdb.sqlite"));
+        return Some(PathBuf::from("finance_devdb.sqlite"));
     }
 
-    get_project_dirs().map(|p| p.config_dir().join("invoice.sqlite"))
-}
-
-fn get_default_bookkeeping_database_path() -> Option<PathBuf> {
-    #[cfg(feature = "dev")]
-    {
-        return Some(PathBuf::from("bookkeeping_devdb.sqlite"));
-    }
-
-    get_project_dirs().map(|p| p.config_dir().join("bookkeeping.sqlite"))
+    get_project_dirs().map(|p| p.config_dir().join("finance.sqlite"))
 }
 
 fn get_project_dirs() -> Option<ProjectDirs> {

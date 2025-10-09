@@ -1,4 +1,5 @@
-use invoice_manager::model::DatabaseConfiguration;
+use crate::migrations;
+use utilities::database_configuration::DatabaseConfiguration;
 use sqlx::{Pool, Sqlite, migrate::MigrateError, sqlite::SqlitePoolOptions};
 use std::fs;
 
@@ -10,8 +11,8 @@ impl DatabaseManager {
     pub async fn new(config: &DatabaseConfiguration) -> Result<Self, String> {
         let pool = Self::create_connection_pool(config).await?;
 
-        // Run migrations from all crates in dependency order
-        Self::run_all_migrations(&pool).await?;
+        // Run migrations
+        Self::run_migrations(&pool).await?;
 
         Ok(Self { pool })
     }
@@ -48,20 +49,10 @@ impl DatabaseManager {
         Ok(connection_pool)
     }
 
-    async fn run_all_migrations(pool: &Pool<Sqlite>) -> Result<(), String> {
-        // Run invoice_manager migrations first
-        invoice_manager::migrations::run(pool)
+    async fn run_migrations(pool: &Pool<Sqlite>) -> Result<(), String> {
+        migrations::run(pool)
             .await
-            .map_err(|e: MigrateError| format!("Invoice manager migrations failed: {}", e))?;
-
-        // Then run double_entry_bookkeeping migrations
-        double_entry_bookkeeping::migrations::run(pool)
-            .await
-            .map_err(|e: MigrateError| {
-                format!("Double entry bookkeeping migrations failed: {}", e)
-            })?;
-
-        Ok(())
+            .map_err(|e: MigrateError| format!("Migrations failed: {}", e))
     }
 
     pub fn get_pool(&self) -> &Pool<Sqlite> {
