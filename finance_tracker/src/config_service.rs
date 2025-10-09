@@ -57,7 +57,7 @@ fn get_config_path() -> Option<PathBuf> {
 fn get_default_database_path() -> Option<PathBuf> {
     #[cfg(feature = "dev")]
     {
-        return Some(PathBuf::from("finance_devdb.sqlite"));
+        return Some(PathBuf::from("devdb.sqlite"));
     }
 
     get_project_dirs().map(|p| p.config_dir().join("finance.sqlite"))
