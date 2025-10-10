@@ -1,7 +1,7 @@
 use crate::migrations;
-use utilities::database_configuration::DatabaseConfiguration;
 use sqlx::{Pool, Sqlite, migrate::MigrateError, sqlite::SqlitePoolOptions};
 use std::fs;
+use utilities::database_configuration::DatabaseConfiguration;
 
 pub struct DatabaseManager {
     pool: Pool<Sqlite>,
