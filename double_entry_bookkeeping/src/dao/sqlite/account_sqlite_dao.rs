@@ -20,6 +20,13 @@ SELECT
 FROM account_type
 "#;
 
+const INSERT_ACCOUNT_SQL: &str = r#"
+INSERT INTO account (
+    account_type_id,
+    name
+) VALUES (?, ?)
+"#;
+
 impl AccountSqliteDao {
     pub fn new(pool: Pool<Sqlite>) -> Self {
         Self { pool }
