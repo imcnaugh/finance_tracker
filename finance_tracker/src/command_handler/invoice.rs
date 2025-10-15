@@ -1,10 +1,11 @@
 use crate::command::invoice::InvoiceSubCommands;
+use crate::config_service::get_config;
+use crate::configuration::Configuration;
 use crate::database::DatabaseManager;
 use crate::util;
 use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
 use invoice_manager::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
-use invoice_manager::model::Configuration;
-use invoice_manager::service::{ClientService, InvoiceService, generate_pdf, get_config};
+use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
 use utilities::prompt_confirm;
 
 pub struct InvoiceCommandHandler {

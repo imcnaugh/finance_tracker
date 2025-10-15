@@ -1,6 +1,7 @@
-use invoice_manager::model::DatabaseConfiguration;
+use crate::migrations;
 use sqlx::{Pool, Sqlite, migrate::MigrateError, sqlite::SqlitePoolOptions};
 use std::fs;
+use utilities::database_configuration::DatabaseConfiguration;
 
 pub struct DatabaseManager {
     pool: Pool<Sqlite>,
@@ -10,8 +11,8 @@ impl DatabaseManager {
     pub async fn new(config: &DatabaseConfiguration) -> Result<Self, String> {
         let pool = Self::create_connection_pool(config).await?;
 
-        // Run migrations from all crates in dependency order
-        Self::run_all_migrations(&pool).await?;
+        // Run migrations
+        Self::run_migrations(&pool).await?;
 
         Ok(Self { pool })
     }
@@ -48,7 +49,7 @@ impl DatabaseManager {
         Ok(connection_pool)
     }
 
-    async fn run_all_migrations(pool: &Pool<Sqlite>) -> Result<(), String> {
+    async fn run_migrations(pool: &Pool<Sqlite>) -> Result<(), String> {
         sqlx::migrate!("db/migrations")
             .run(pool)
             .await

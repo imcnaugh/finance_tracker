@@ -18,7 +18,7 @@ CREATE TABLE journal_entry(
      created_timestamp INT NOT NULL DEFAULT (unixepoch())
 );
 
-CREATE TABLE journal_entry_transaction(
+CREATE TABLE journal_transaction(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id INTEGER NOT NULL,
     journal_entry_id INTEGER NOT NULL,
@@ -30,5 +30,5 @@ CREATE TABLE journal_entry_transaction(
 );
 
 CREATE INDEX idx_account_type ON account (account_type_id);
-CREATE INDEX idx_journal_entry_transaction_account_id ON journal_entry_transaction (account_id);
-CREATE INDEX idx_journal_entry_transaction_journal_entry_id ON journal_entry_transaction (journal_entry_id);
+CREATE INDEX idx_journal_transaction_account_id ON journal_transaction (account_id);
+CREATE INDEX idx_journal_transaction_journal_entry_id ON journal_transaction (journal_entry_id);

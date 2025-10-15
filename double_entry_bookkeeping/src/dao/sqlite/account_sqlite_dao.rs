@@ -20,6 +20,15 @@ SELECT
 FROM account_type
 "#;
 
+const SELECT_ACCOUNT_TYPE_BY_ID_SQL: &str = r#"
+SELECT
+    id,
+    name,
+    created_timestamp
+    FROM account_type
+    WHERE id = ?
+"#;
+
 const INSERT_ACCOUNT_SQL: &str = r#"
 INSERT INTO account (
     account_type_id,
@@ -53,6 +62,22 @@ impl AccountSqliteDao {
         let query = sqlx::query_as::<_, AccountType>(SELECT_ALL_ACCOUNT_TYPE_SQL);
         query.fetch_all(executor).await
     }
+
+    async fn read_account_type_by_id<'e, E>(
+        &self,
+        account_type_id: u64,
+        executor: E,
+    ) -> Result<Option<AccountType>, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let item = sqlx::query_as::<_, AccountType>(SELECT_ACCOUNT_TYPE_BY_ID_SQL)
+            .bind(account_type_id as i32)
+            .fetch_optional(executor)
+            .await?;
+
+        Ok(item)
+    }
 }
 
 impl AccountDao for AccountSqliteDao {
@@ -68,7 +93,11 @@ impl AccountDao for AccountSqliteDao {
         &self,
         account_type_id: u64,
     ) -> Result<Option<AccountType>, Error> {
-        todo!()
+        let mut conn = self.pool.acquire().await?;
+        let account_type = self
+            .read_account_type_by_id(account_type_id, &mut *conn)
+            .await?;
+        Ok(account_type)
     }
 
     async fn get_all_account_types(&self) -> Result<Vec<AccountType>, Error> {

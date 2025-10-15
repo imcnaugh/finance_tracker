@@ -516,10 +516,13 @@ dependencies = [
  "chrono",
  "clap",
  "comfy-table",
+ "directories",
  "double_entry_bookkeeping",
  "invoice_manager",
+ "serde",
  "sqlx",
  "tokio",
+ "toml",
  "utilities",
 ]
 
@@ -878,11 +881,9 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "clap",
- "directories",
  "num-format",
  "serde",
  "sqlx",
- "toml",
  "utilities",
 ]
 
