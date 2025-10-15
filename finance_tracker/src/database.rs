@@ -49,17 +49,10 @@ impl DatabaseManager {
     }
 
     async fn run_all_migrations(pool: &Pool<Sqlite>) -> Result<(), String> {
-        // Run invoice_manager migrations first
-        invoice_manager::migrations::run(pool)
+        sqlx::migrate!("db/migrations")
+            .run(pool)
             .await
-            .map_err(|e: MigrateError| format!("Invoice manager migrations failed: {}", e))?;
-
-        // Then run double_entry_bookkeeping migrations
-        double_entry_bookkeeping::migrations::run(pool)
-            .await
-            .map_err(|e: MigrateError| {
-                format!("Double entry bookkeeping migrations failed: {}", e)
-            })?;
+            .map_err(|e| format!("Failed to run migrations: {e}"))?;
 
         Ok(())
     }
