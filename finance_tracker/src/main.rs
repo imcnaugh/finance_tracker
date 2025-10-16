@@ -11,6 +11,7 @@ mod config_service;
 mod configuration;
 mod database;
 mod util;
+mod sqlite_dao;
 
 #[tokio::main]
 async fn main() {

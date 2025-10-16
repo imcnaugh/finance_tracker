@@ -2,7 +2,7 @@ use crate::command::client::ClientSubcommands;
 use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use crate::util;
-use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
+use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use invoice_manager::service::ClientService;
 
 pub struct ClientCommandHandler {

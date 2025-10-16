@@ -1,6 +1,6 @@
-use crate::dao::client_dao::ClientDao;
-use crate::model::Client;
-use crate::model::NewClient;
+use invoice_manager::dao::client_dao::ClientDao;
+use invoice_manager::model::Client;
+use invoice_manager::model::NewClient;
 use sqlx::{Executor, Pool, Sqlite};
 
 pub struct ClientSqliteDao {

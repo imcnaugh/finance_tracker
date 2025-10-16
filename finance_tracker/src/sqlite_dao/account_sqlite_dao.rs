@@ -1,5 +1,5 @@
-use crate::dao::account_dao::AccountDao;
-use crate::model::{Account, AccountType, NewAccount, NewAccountType};
+use double_entry_bookkeeping::dao::account_dao::AccountDao;
+use double_entry_bookkeeping::model::{Account, AccountType, NewAccount, NewAccountType};
 use sqlx::{Error, Executor, Pool, Sqlite};
 
 pub struct AccountSqliteDao {
