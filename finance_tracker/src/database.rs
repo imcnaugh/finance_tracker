@@ -1,5 +1,4 @@
-use crate::migrations;
-use sqlx::{Pool, Sqlite, migrate::MigrateError, sqlite::SqlitePoolOptions};
+use sqlx::{Pool, Sqlite, sqlite::SqlitePoolOptions};
 use std::fs;
 use utilities::database_configuration::DatabaseConfiguration;
 
