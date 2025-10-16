@@ -10,8 +10,8 @@ mod command_handler;
 mod config_service;
 mod configuration;
 mod database;
-mod util;
 mod sqlite_dao;
+mod util;
 
 #[tokio::main]
 async fn main() {
