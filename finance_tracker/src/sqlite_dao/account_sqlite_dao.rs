@@ -25,8 +25,8 @@ SELECT
     id,
     name,
     created_timestamp
-    FROM account_type
-    WHERE id = ?
+FROM account_type
+WHERE id = ?
 "#;
 
 const INSERT_ACCOUNT_SQL: &str = r#"
@@ -34,6 +34,25 @@ INSERT INTO account (
     account_type_id,
     name
 ) VALUES (?, ?)
+"#;
+
+const SELECT_ACCOUNT_BY_ID_SQL: &str = r#"
+SELECT
+    id,
+    account_type_id,
+    name,
+    created_timestamp
+FROM account
+WHERE id = ?
+"#;
+
+const SELECT_ALL_ACCOUNT_SQL: &str = r#"
+SELECT
+    id,
+    account_type_id,
+    name,
+    created_timestamp
+FROM account
 "#;
 
 impl AccountSqliteDao {
@@ -94,6 +113,32 @@ impl AccountSqliteDao {
         let result = query.execute(executor).await?;
         Ok(result.last_insert_rowid() as u64)
     }
+
+    async fn read_account_by_id<'e, E>(
+        &self,
+        executor: E,
+        account_id: u64,
+    ) -> Result<Option<Account>, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let item = sqlx::query_as::<_, Account>(SELECT_ACCOUNT_BY_ID_SQL)
+            .bind(account_id as i32)
+            .fetch_optional(executor)
+            .await?;
+
+        Ok(item)
+    }
+
+    async fn read_all_account<'e, E>(&self, executor: E) -> Result<Vec<Account>, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let item = sqlx::query_as::<_, Account>(SELECT_ALL_ACCOUNT_SQL)
+            .fetch_all(executor)
+            .await?;
+        Ok(item)
+    }
 }
 
 impl AccountDao for AccountSqliteDao {
@@ -129,10 +174,14 @@ impl AccountDao for AccountSqliteDao {
     }
 
     async fn get_account_by_id(&self, account_id: u64) -> Result<Option<Account>, Error> {
-        todo!()
+        let mut conn = self.pool.acquire().await?;
+        let account = self.read_account_by_id(&mut *conn, account_id).await?;
+        Ok(account)
     }
 
     async fn get_all_accounts(&self) -> Result<Vec<Account>, Error> {
-        todo!()
+        let mut conn = self.pool.acquire().await?;
+        let accounts = self.read_all_account(&mut *conn).await?;
+        Ok(accounts)
     }
 }
