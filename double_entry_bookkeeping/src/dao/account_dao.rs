@@ -16,7 +16,7 @@ pub trait AccountDao {
     fn create_account(
         &self,
         new_account: NewAccount,
-    ) -> impl Future<Output = Result<Account, sqlx::Error>>;
+    ) -> impl Future<Output = Result<u64, sqlx::Error>>;
 
     fn get_account_by_id(
         &self,

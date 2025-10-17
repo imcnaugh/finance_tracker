@@ -26,12 +26,4 @@ impl Configuration {
     pub fn get_company_configuration(&self) -> &CompanyConfiguration {
         &self.company_configuration
     }
-
-    pub fn set_database_configuration(&mut self, database: DatabaseConfiguration) {
-        self.database_configuration = database;
-    }
-
-    pub fn set_company_configuration(&mut self, company: CompanyConfiguration) {
-        self.company_configuration = company;
-    }
 }

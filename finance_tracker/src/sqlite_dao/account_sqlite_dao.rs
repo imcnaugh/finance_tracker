@@ -78,6 +78,22 @@ impl AccountSqliteDao {
 
         Ok(item)
     }
+
+    async fn insert_account<'e, E>(
+        &self,
+        executor: E,
+        new_account: NewAccount,
+    ) -> Result<u64, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let query = sqlx::query(INSERT_ACCOUNT_SQL)
+            .bind(new_account.get_account_type_id() as i32)
+            .bind(new_account.get_name());
+
+        let result = query.execute(executor).await?;
+        Ok(result.last_insert_rowid() as u64)
+    }
 }
 
 impl AccountDao for AccountSqliteDao {
@@ -106,8 +122,10 @@ impl AccountDao for AccountSqliteDao {
         Ok(account_types)
     }
 
-    async fn create_account(&self, new_account: NewAccount) -> Result<Account, Error> {
-        todo!()
+    async fn create_account(&self, new_account: NewAccount) -> Result<u64, Error> {
+        let mut conn = self.pool.acquire().await?;
+        let account_id = self.insert_account(&mut *conn, new_account).await?;
+        Ok(account_id)
     }
 
     async fn get_account_by_id(&self, account_id: u64) -> Result<Option<Account>, Error> {
