@@ -1,4 +1,6 @@
-#[derive(Debug, Clone)]
+use sqlx::FromRow;
+
+#[derive(Debug, Clone, FromRow)]
 pub struct JournalEntry {
     id: u64,
     description: String,

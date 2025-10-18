@@ -1,4 +1,6 @@
-#[derive(Debug, Clone)]
+use sqlx::FromRow;
+
+#[derive(Debug, Clone, FromRow)]
 pub struct Transaction {
     id: u64,
     account_id: u64,
