@@ -1,2 +1,2 @@
 pub mod account_service;
-pub mod ledger_service;
+pub mod journal_service;
