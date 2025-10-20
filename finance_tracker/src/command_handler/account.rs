@@ -2,13 +2,10 @@ use crate::command::account::AccountSubcommands;
 use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
-use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use double_entry_bookkeeping::service::account_service::AccountService;
-use double_entry_bookkeeping::service::journal_service::JournalService;
 
 pub struct AccountCommandHandler {
     account_service: AccountService<AccountSqliteDao>,
-    journal_service: JournalService<JournalSqliteDao>,
 }
 
 impl AccountCommandHandler {
@@ -21,12 +18,8 @@ impl AccountCommandHandler {
         let account_dao = AccountSqliteDao::new(db_manager.get_pool().clone());
         let account_service = AccountService::new(account_dao);
 
-        let journal_dao = JournalSqliteDao::new(db_manager.get_pool().clone());
-        let journal_service = JournalService::new(journal_dao);
-
         Ok(Self {
             account_service,
-            journal_service,
         })
     }
 
@@ -42,12 +35,6 @@ impl AccountCommandHandler {
                         let account = account
                             .ok_or_else(|| "Account not found".to_string())
                             .unwrap();
-                        let balance = self
-                            .journal_service
-                            .get_account_balance(account.get_id())
-                            .await
-                            .unwrap();
-                        println!("Account: {:?}\nBalance: {}", account, balance);
                     }
                     Err(e) => println!("Error: {}", e),
                 }

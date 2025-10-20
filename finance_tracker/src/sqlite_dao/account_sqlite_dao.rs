@@ -41,21 +41,66 @@ INSERT INTO account (
 
 const SELECT_ACCOUNT_BY_ID_SQL: &str = r#"
 SELECT
-    id,
-    account_type_id,
-    name,
-    created_timestamp
-FROM account
-WHERE id = ?
+    a.id,
+    a.account_type_id,
+    a.name,
+    a.created_timestamp,
+    at.id                AS at_id,
+    at.name              AS at_name,
+    at.normal_balance    AS at_normal_balance,
+    at.created_timestamp AS at_created_timestamp,
+    COALESCE(SUM(
+        CASE
+            WHEN jt.is_debit = 1 AND at.normal_balance = 'DEBIT' THEN jt.amount_in_cents
+            WHEN jt.is_debit = 0 AND at.normal_balance = 'CREDIT' THEN jt.amount_in_cents
+            ELSE -jt.amount_in_cents
+        END
+    ), 0) AS balance_in_cents
+FROM account a
+JOIN account_type at ON at.id = a.account_type_id
+LEFT JOIN journal_transaction jt ON jt.account_id = a.id
+WHERE a.id = ?
+GROUP BY
+    a.id,
+    a.account_type_id,
+    a.name,
+    a.created_timestamp,
+    at.id,
+    at.name,
+    at.normal_balance,
+    at.created_timestamp
 "#;
 
 const SELECT_ALL_ACCOUNT_SQL: &str = r#"
 SELECT
-    id,
-    account_type_id,
-    name,
-    created_timestamp
-FROM account
+    a.id,
+    a.account_type_id,
+    a.name,
+    a.created_timestamp,
+    at.id                AS at_id,
+    at.name              AS at_name,
+    at.normal_balance    AS at_normal_balance,
+    at.created_timestamp AS at_created_timestamp,
+    COALESCE(SUM(
+        CASE
+            WHEN jt.is_debit = 1 AND at.normal_balance = 'DEBIT' THEN jt.amount_in_cents
+            WHEN jt.is_debit = 0 AND at.normal_balance = 'CREDIT' THEN jt.amount_in_cents
+            ELSE -jt.amount_in_cents
+        END
+    ), 0) AS balance_in_cents
+FROM account a
+JOIN account_type at ON at.id = a.account_type_id
+LEFT JOIN journal_transaction jt ON jt.account_id = a.id
+GROUP BY
+    a.id,
+    a.account_type_id,
+    a.name,
+    a.created_timestamp,
+    at.id,
+    at.name,
+    at.normal_balance,
+    at.created_timestamp
+ORDER BY a.id
 "#;
 
 impl AccountSqliteDao {
