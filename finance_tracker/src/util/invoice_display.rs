@@ -1,7 +1,7 @@
 use crate::util::line_item_display::display_line_items;
 use chrono::{DateTime, Utc};
 use comfy_table::{Table, presets::UTF8_FULL};
-use invoice_manager::model::Invoice;
+use invoice_manager::model::{Invoice, InvoiceStatus};
 
 pub struct InvoiceDisplay {
     id: String,
@@ -61,11 +61,18 @@ pub fn display_invoice(invoice: &Invoice) {
 pub fn display_invoices(invoices: &[Invoice]) {
     let mut table = Table::new();
     table.load_preset(UTF8_FULL);
-    table.set_header(vec!["ID", "Client ID", "Status", "Total"]);
+    table.set_header(vec!["ID", "Client ID", "Status", "Date", "Total"]);
 
     for inv in invoices {
         let id = InvoiceDisplay::from(inv);
-        table.add_row(vec![id.id, id.client_id, id.status, id.total]);
+        let date = match inv.get_status().unwrap() {
+            InvoiceStatus::DRAFT => id.draft_date,
+            InvoiceStatus::SENT => id.sent_date,
+            InvoiceStatus::PAID => id.paid_date,
+            InvoiceStatus::OVERDUE => id.due_date,
+            InvoiceStatus::CANCELLED => id.cancelled_date,
+        };
+        table.add_row(vec![id.id, id.client_id, id.status, date, id.total]);
     }
 
     println!("Invoices:");

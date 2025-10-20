@@ -220,6 +220,10 @@ impl InvoiceSqliteDao {
             statement.push_str(" AND cancelled_date BETWEEN ? AND ?")
         }
 
+        statement.push_str(
+            " ORDER BY COALESCE(cancelled_date, paid_date, sent_date, due_date, draft_date) DESC",
+        );
+
         let mut query = sqlx::query_as::<_, Invoice>(&statement);
 
         if let Some(client_id) = search_terms.get_client_id() {
