@@ -8,3 +8,4 @@ pub use account::Account;
 pub use account_type::AccountType;
 pub use new_account::NewAccount;
 pub use new_account_type::NewAccountType;
+pub use normal_balance::NormalBalance;
