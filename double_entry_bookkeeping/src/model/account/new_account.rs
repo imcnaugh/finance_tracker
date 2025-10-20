@@ -1,6 +1,6 @@
 use clap::Args;
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct NewAccount {
     name: String,
     account_type_id: u64,

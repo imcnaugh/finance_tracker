@@ -21,10 +21,21 @@ impl AccountCommandHandler {
 
     pub async fn handle_account_command(&self, account_command: AccountSubcommands) {
         match account_command {
-            AccountSubcommands::List => match self.account_service.get_all_account_types().await {
+            AccountSubcommands::List => match self.account_service.get_all_accounts().await {
                 Ok(accounts) => println!("{:?}", accounts),
                 Err(e) => println!("Error: {}", e),
             },
+            AccountSubcommands::Get { account_id } => {
+                match self.account_service.get_account_by_id(account_id).await {
+                    Ok(account) => {
+                        println!("{:?}", account)
+                    }
+                    Err(e) => println!("Error: {}", e),
+                }
+            }
+            AccountSubcommands::Add { new_account } => {
+                todo!()
+            }
         }
     }
 }
