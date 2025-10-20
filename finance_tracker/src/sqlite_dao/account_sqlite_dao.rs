@@ -8,14 +8,16 @@ pub struct AccountSqliteDao {
 
 const INSERT_ACCOUNT_TYPE_SQL: &str = r#"
 INSERT INTO account_type (
-    name
-) VALUES (?)
+    name,
+    normal_balance
+) VALUES (?, ?)
 "#;
 
 const SELECT_ALL_ACCOUNT_TYPE_SQL: &str = r#"
 SELECT
     id,
     name,
+    normal_balance,
     created_timestamp
 FROM account_type
 "#;
@@ -24,6 +26,7 @@ const SELECT_ACCOUNT_TYPE_BY_ID_SQL: &str = r#"
 SELECT
     id,
     name,
+    normal_balance,
     created_timestamp
 FROM account_type
 WHERE id = ?
@@ -68,7 +71,9 @@ impl AccountSqliteDao {
     where
         E: Executor<'e, Database = Sqlite>,
     {
-        let query = sqlx::query(INSERT_ACCOUNT_TYPE_SQL).bind(new_account_type.get_name());
+        let query = sqlx::query(INSERT_ACCOUNT_TYPE_SQL)
+            .bind(new_account_type.get_name())
+            .bind(new_account_type.get_normal_balance());
 
         let result = query.execute(executor).await?;
         Ok(result.last_insert_rowid() as u64)

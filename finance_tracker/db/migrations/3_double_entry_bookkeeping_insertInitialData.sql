@@ -1,10 +1,10 @@
 -- Create some basic account types
-INSERT INTO account_type (name) VALUES
-('asset'),
-('liability'),
-('equity'),
-('revenue'),
-('expense');
+INSERT INTO account_type (name, normal_balance) VALUES
+                                                    ('asset', 'DEBIT'),
+                                                    ('liability', 'CREDIT'),
+                                                    ('equity', 'CREDIT'),
+                                                    ('revenue', 'CREDIT'),
+                                                    ('expense', 'DEBIT');
 
 -- Create some basic accounts
 INSERT INTO account (name, account_type_id)
