@@ -1,8 +1,8 @@
 use crate::util::line_item_display::display_line_items;
 use chrono::{DateTime, Utc};
 use comfy_table::{Table, presets::UTF8_FULL};
-use utilities::Error;
 use invoice_manager::model::{Invoice, InvoiceStatus};
+use utilities::Error;
 
 pub struct InvoiceDisplay {
     id: String,

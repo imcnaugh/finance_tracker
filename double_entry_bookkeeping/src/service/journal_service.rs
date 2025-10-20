@@ -10,11 +10,23 @@ impl<J: JournalDao> JournalService<J> {
         Self { journal_dao }
     }
 
-    pub async fn make_transaction(&self, new_transaction: NewJournalEntry) {
-        let journal_entry_result = self.journal_dao.create_journal_entry(new_transaction).await;
-        match journal_entry_result {
-            Ok(id) => println!("Transaction created with id: {id}"),
-            Err(e) => println!("Error creating transaction: {}", e),
-        }
+    pub async fn make_transaction(&self, new_transaction: NewJournalEntry) -> Result<u64, String> {
+        let journal_entry_id = self
+            .journal_dao
+            .create_journal_entry(new_transaction)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(journal_entry_id)
+    }
+
+    pub async fn get_account_balance(&self, account_id: u64) -> Result<i64, String> {
+        let balance = self
+            .journal_dao
+            .get_account_balance(account_id)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(balance)
     }
 }

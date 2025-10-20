@@ -2,12 +2,9 @@ use crate::command::invoice::InvoiceSubCommands;
 use crate::config_service::get_config;
 use crate::configuration::Configuration;
 use crate::database::DatabaseManager;
-use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
-use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use crate::util;
-use double_entry_bookkeeping::service::account_service::AccountService;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
 use utilities::prompt_confirm;
 
@@ -29,11 +26,6 @@ impl InvoiceCommandHandler {
 
         let invoice_service = InvoiceService::new(Some(prompt_confirm), invoice_dao);
         let client_service = ClientService::new(client_dao);
-
-        let account_dao = AccountSqliteDao::new(db_manager.get_pool().clone());
-        let account_service = AccountService::new(account_dao);
-
-        let journal_dao = JournalSqliteDao::new(db_manager.get_pool().clone());
 
         Ok(Self {
             client_service,

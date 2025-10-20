@@ -1,5 +1,4 @@
 use crate::dao::account_dao::AccountDao;
-use crate::dao::journal_dao::JournalDao;
 use crate::model::{Account, AccountType};
 
 pub struct AccountService<A: AccountDao> {
