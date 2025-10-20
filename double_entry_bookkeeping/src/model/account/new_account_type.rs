@@ -1,4 +1,4 @@
-use crate::model::account::normal_balance::NormalBalance;
+use crate::model::account::NormalBalance;
 use clap::Args;
 
 #[derive(Args)]

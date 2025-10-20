@@ -44,6 +44,21 @@ FROM journal_transaction
 WHERE journal_entry_id = ?
 "#;
 
+const GET_ACCOUNT_BALANCE_SQL: &str = r#"
+SELECT
+    COALESCE(SUM(
+        CASE
+            WHEN jt.is_debit = 1 AND at.normal_balance = 'DEBIT' THEN jt.amount_in_cents
+            WHEN jt.is_debit = 0 AND at.normal_balance = 'CREDIT' THEN jt.amount_in_cents
+            ELSE -jt.amount_in_cents
+        END
+    ), 0) AS balance_in_cents
+FROM account a
+JOIN account_type at ON a.account_type_id = at.id
+LEFT JOIN journal_transaction jt ON jt.account_id = a.id
+WHERE a.id = ?
+"#;
+
 impl JournalSqliteDao {
     pub fn new(pool: Pool<Sqlite>) -> Self {
         Self { pool }
@@ -116,6 +131,18 @@ impl JournalSqliteDao {
 
         Ok(items)
     }
+
+    async fn get_account_balance<'e, E>(&self, executor: E, account_id: u64) -> Result<i64, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let item = sqlx::query_scalar::<_, i64>(GET_ACCOUNT_BALANCE_SQL)
+            .bind(account_id as i32)
+            .fetch_one(executor)
+            .await?;
+
+        Ok(item)
+    }
 }
 
 impl JournalDao for JournalSqliteDao {
@@ -172,6 +199,8 @@ impl JournalDao for JournalSqliteDao {
     }
 
     async fn get_account_balance(&self, account_id: u64) -> Result<i64, Error> {
-        todo!()
+        let mut conn = self.pool.acquire().await?;
+        let balance = self.get_account_balance(&mut *conn, account_id).await?;
+        Ok(balance)
     }
 }
