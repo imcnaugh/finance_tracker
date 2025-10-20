@@ -30,13 +30,11 @@ impl<A: AccountDao> AccountService<A> {
         Ok(accounts)
     }
 
-    pub async fn get_account_by_id(&self, account_id: u64) -> Result<Option<Account>, String> {
-        let account = self
-            .account_dao
+    pub async fn get_account_by_id(&self, account_id: u64) -> Result<Account, String> {
+        self.account_dao
             .get_account_by_id(account_id)
             .await
-            .map_err(|e| e.to_string())?;
-
-        Ok(account)
+            .map_err(|e| e.to_string())
+            .and_then(|opt| opt.ok_or_else(|| "Account not found".to_string()))
     }
 }
