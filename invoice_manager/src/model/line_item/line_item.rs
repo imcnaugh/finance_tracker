@@ -1,7 +1,7 @@
 use crate::model::NewLineItem;
-use crate::utils::generate_new_id;
 use chrono::LocalResult::{Ambiguous, Single};
 use chrono::{DateTime, LocalResult, TimeZone, Utc};
+use utilities::utils::generate_new_id;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct LineItem {
@@ -49,7 +49,7 @@ impl LineItem {
 
 impl From<(&NewLineItem, &str)> for LineItem {
     fn from(value: (&NewLineItem, &str)) -> Self {
-        let unit_price_in_cents = (value.0.get_unit_price() * 100.0) as i32;
+        let unit_price_in_cents = (value.0.get_unit_price() * 100.0).round() as i32;
 
         Self {
             id: generate_new_id(),

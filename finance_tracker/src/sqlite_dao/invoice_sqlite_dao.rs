@@ -1,8 +1,8 @@
-use crate::dao::invoice_dao::InvoiceDao;
-use crate::model::Invoice;
-use crate::model::InvoiceStatus;
-use crate::model::LineItem;
-use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
+use invoice_manager::dao::invoice_dao::InvoiceDao;
+use invoice_manager::model::Invoice;
+use invoice_manager::model::InvoiceStatus;
+use invoice_manager::model::LineItem;
+use invoice_manager::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use sqlx::{Error, Executor, Pool, Sqlite};
 
 pub struct InvoiceSqliteDao {
@@ -166,7 +166,7 @@ impl InvoiceSqliteDao {
     }
 
     fn map_to_slqx_error<T>(
-        r: Result<Option<T>, crate::model::error::Error>,
+        r: Result<Option<T>, utilities::Error>,
         field: &str,
     ) -> Result<Option<T>, Error> {
         r.map_err(|_| Error::Decode(format!("Invalid {} value", field).into()))

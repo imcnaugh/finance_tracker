@@ -1,0 +1,10 @@
+[package]
+name = "double_entry_bookkeeping"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+utilities = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true }
+sqlx = { workspace = true }

@@ -1,10 +1,12 @@
 use crate::command::invoice::InvoiceSubCommands;
+use crate::config_service::get_config;
+use crate::configuration::Configuration;
+use crate::database::DatabaseManager;
+use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
+use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::util;
-use invoice_manager::dao::sqlite::client_sqlite_dao::ClientSqliteDao;
-use invoice_manager::dao::sqlite::invoice_sqlite_dao::InvoiceSqliteDao;
-use invoice_manager::dao::sqlite::sqlite_connection::get_pooled_connection;
-use invoice_manager::model::Configuration;
-use invoice_manager::service::{ClientService, InvoiceService, generate_pdf, get_config};
+use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
+use utilities::prompt_confirm;
 
 pub struct InvoiceCommandHandler {
     client_service: ClientService<ClientSqliteDao>,
@@ -17,12 +19,12 @@ impl InvoiceCommandHandler {
         let configuration =
             get_config().map_err(|_| "Configurations are not set, please run init")?;
         let db_configs = configuration.get_database_configuration();
-        let pool = get_pooled_connection(db_configs).await?;
+        let db_manager = DatabaseManager::new(db_configs).await?;
 
-        let client_dao = ClientSqliteDao::new(pool.clone());
-        let invoice_dao = InvoiceSqliteDao::new(pool.clone());
+        let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
+        let invoice_dao = InvoiceSqliteDao::new(db_manager.get_pool().clone());
 
-        let invoice_service = InvoiceService::new(Some(util::prompt_confirm), invoice_dao);
+        let invoice_service = InvoiceService::new(Some(prompt_confirm), invoice_dao);
         let client_service = ClientService::new(client_dao);
 
         Ok(Self {

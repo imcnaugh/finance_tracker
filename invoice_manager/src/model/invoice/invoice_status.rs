@@ -4,8 +4,6 @@ use sqlx::Type;
 use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type, Copy, ValueEnum)]
-#[sqlx(type_name = "TEXT")]
-#[sqlx(rename_all = "UPPERCASE")]
 pub enum InvoiceStatus {
     DRAFT,
     SENT,

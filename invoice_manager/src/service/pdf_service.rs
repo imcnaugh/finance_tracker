@@ -3,7 +3,6 @@ use num_format::{Locale, ToFormattedString};
 use std::fs;
 use std::io::Write;
 use std::process::Command;
-// use tectonic::latex_to_pdf;
 
 pub fn generate_pdf(
     invoice: &Invoice,

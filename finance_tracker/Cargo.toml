@@ -3,12 +3,19 @@ name = "finance_tracker"
 version = "0.2.0"
 edition = "2024"
 
+[features]
+default = []
+dev = []
+
 [dependencies]
+clap = { workspace = true }
+chrono = { workspace = true }
+utilities = { workspace = true }
+sqlx = { workspace = true }
+serde = { workspace = true }
 invoice_manager = {path = "../invoice_manager"}
-clap = { version = "4.5.42", features = ["derive"] }
+double_entry_bookkeeping = {path = "../double_entry_bookkeeping"}
 tokio = { version = "1.47.1", features = ["full"] }
-chrono = "0.4.41"
 comfy-table = "7.2.0"
-indicatif = "0.18.0"
-dialoguer = "0.12.0"
-args = "2.2.0"
+toml = "0.9.7"
+directories = "6.0.0"

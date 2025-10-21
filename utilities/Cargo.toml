@@ -1,0 +1,11 @@
+[package]
+name = "utilities"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+nanoid = "0.4.0"
+dialoguer = "0.12.0"
