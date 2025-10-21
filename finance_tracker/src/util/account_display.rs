@@ -37,3 +37,21 @@ pub fn display_account(account: &Account) {
     println!("Account:");
     println!("{}", table);
 }
+
+pub fn display_accounts(accounts: &[Account]) {
+    let mut table = Table::new();
+    table.load_preset(UTF8_FULL);
+    table.set_header(vec!["ID", "Name", "Balance", "Account Type"]);
+
+    for acc in accounts {
+        let ad = AccountDisplay::from(acc);
+        table.add_row(vec![ad.id, ad.name, ad.balance, ad.account_type]);
+    }
+
+    println!("Accounts:");
+    if table.is_empty() {
+        println!("No accounts found");
+    } else {
+        println!("{}", table);
+    }
+}

@@ -4,7 +4,7 @@ use clap::Args;
 pub struct NewJournalEntry {
     debit_account_id: u64,
     credit_account_id: u64,
-    amount_in_cents: i64,
+    amount: f64,
     description: String,
 }
 
@@ -12,13 +12,13 @@ impl NewJournalEntry {
     pub fn new(
         debit_account_id: u64,
         credit_account_id: u64,
-        amount_in_cents: i64,
+        amount_in_cents: f64,
         description: String,
     ) -> Self {
         Self {
             debit_account_id,
             credit_account_id,
-            amount_in_cents,
+            amount: amount_in_cents,
             description,
         }
     }
@@ -32,7 +32,11 @@ impl NewJournalEntry {
     }
 
     pub fn get_amount_in_cents(&self) -> i64 {
-        self.amount_in_cents
+        (self.amount * 100.0).round() as i64
+    }
+
+    pub fn get_amount(&self) -> f64 {
+        self.amount
     }
 
     pub fn get_description(&self) -> &str {

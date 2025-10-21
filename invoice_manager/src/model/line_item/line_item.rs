@@ -49,7 +49,7 @@ impl LineItem {
 
 impl From<(&NewLineItem, &str)> for LineItem {
     fn from(value: (&NewLineItem, &str)) -> Self {
-        let unit_price_in_cents = (value.0.get_unit_price() * 100.0) as i32;
+        let unit_price_in_cents = (value.0.get_unit_price() * 100.0).round() as i32;
 
         Self {
             id: generate_new_id(),

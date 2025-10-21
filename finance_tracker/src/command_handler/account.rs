@@ -25,7 +25,7 @@ impl AccountCommandHandler {
     pub async fn handle_account_command(&self, account_command: AccountSubcommands) {
         match account_command {
             AccountSubcommands::List => match self.account_service.get_all_accounts().await {
-                Ok(accounts) => println!("{:?}", accounts),
+                Ok(accounts) => util::account_display::display_accounts(&accounts),
                 Err(e) => println!("Error: {}", e),
             },
             AccountSubcommands::Get { account_id } => {
