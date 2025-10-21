@@ -23,7 +23,6 @@ impl NewLineItem {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::model::NewLineItem;
     use crate::model::line_item::LineItem;
 

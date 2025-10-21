@@ -5,6 +5,7 @@ members = [
     "invoice_manager",
     "utilities"
 ]
+resolver = "1"
 
 [workspace.dependencies]
 chrono = "0.4.41"

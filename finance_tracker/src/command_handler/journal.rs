@@ -7,7 +7,7 @@ use double_entry_bookkeeping::service::journal_service::JournalService;
 
 pub struct JournalCommandHandler {
     journal_service: JournalService<JournalSqliteDao>,
-    configuration: Configuration,
+    _configuration: Configuration,
 }
 
 impl JournalCommandHandler {
@@ -22,7 +22,7 @@ impl JournalCommandHandler {
 
         Ok(Self {
             journal_service,
-            configuration,
+            _configuration: configuration,
         })
     }
 
