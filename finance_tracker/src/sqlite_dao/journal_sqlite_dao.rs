@@ -153,23 +153,16 @@ impl JournalDao for JournalSqliteDao {
             .insert_journal_entry(&mut *tx, new_journal_entry.get_description())
             .await?;
 
-        self.insert_journal_transaction(
-            &mut *tx,
-            new_journal_entry.get_debit_account_id(),
-            journal_entry_id,
-            new_journal_entry.get_amount_in_cents(),
-            true,
-        )
-        .await?;
-
-        self.insert_journal_transaction(
-            &mut *tx,
-            new_journal_entry.get_credit_account_id(),
-            journal_entry_id,
-            new_journal_entry.get_amount_in_cents(),
-            false,
-        )
-        .await?;
+        for transaction in new_journal_entry.get_transactions().iter() {
+            self.insert_journal_transaction(
+                &mut *tx,
+                transaction.get_account_id(),
+                journal_entry_id,
+                transaction.get_amount_in_cents(),
+                transaction.is_debit(),
+            )
+            .await?;
+        }
 
         tx.commit().await?;
 

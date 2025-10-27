@@ -8,4 +8,5 @@ pub use account::NewAccountType;
 
 pub use journal_entry::JournalEntry;
 pub use journal_entry::NewJournalEntry;
+pub use journal_entry::NewTransaction;
 pub use journal_entry::Transaction;

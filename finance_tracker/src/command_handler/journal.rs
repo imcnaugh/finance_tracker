@@ -3,6 +3,7 @@ use crate::config_service::get_config;
 use crate::configuration::Configuration;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
+use double_entry_bookkeeping::model::NewJournalEntry;
 use double_entry_bookkeeping::service::journal_service::JournalService;
 
 pub struct JournalCommandHandler {
@@ -31,7 +32,7 @@ impl JournalCommandHandler {
             JournalSubCommands::NewTransaction { new_journal_entry } => {
                 match self
                     .journal_service
-                    .make_transaction(new_journal_entry)
+                    .make_transaction(NewJournalEntry::from(new_journal_entry))
                     .await
                 {
                     Ok(journal_entry_id) => {
