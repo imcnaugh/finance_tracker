@@ -53,6 +53,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::cell::RefCell;
     use super::*;
     use crate::model::{JournalEntry, NewTransaction, Transaction};
     use sqlx::Error;
@@ -81,14 +82,19 @@ mod tests {
                 .await;
 
             assert!(response.is_err());
+            assert!(mock_dao.created_journal_entries.borrow().is_empty());
         });
     }
 
-    struct MockDao {}
+    struct MockDao {
+        created_journal_entries: RefCell<Vec<NewJournalEntry>>,
+    }
 
     impl MockDao {
         fn new() -> Self {
-            MockDao {}
+            MockDao {
+                created_journal_entries: RefCell::new(vec![]),
+            }
         }
     }
 
@@ -97,7 +103,8 @@ mod tests {
             &self,
             new_journal_entry: NewJournalEntry,
         ) -> Result<u64, Error> {
-            todo!()
+            self.created_journal_entries.borrow_mut().push(new_journal_entry);
+            Ok(1)
         }
 
         async fn get_journal_entry_by_id(
