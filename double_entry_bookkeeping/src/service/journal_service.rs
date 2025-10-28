@@ -84,6 +84,38 @@ mod tests {
         });
     }
 
+    #[test]
+    fn test_new_transaction_many_credits_and_debits() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let (mock_dao, journal_service) = test_setup();
+
+            let credit_transaction_1 = NewTransaction::new(0, 832, false);
+            let credit_transaction_2 = NewTransaction::new(0, 2, false);
+            let credit_transaction_3 = NewTransaction::new(0, 50, false);
+            let debit_transaction_1 = NewTransaction::new(0, 734, true);
+            let debit_transaction_2 = NewTransaction::new(0, 150, true);
+
+            let transaction = NewJournalEntry::new(
+                "test transaction".to_string(),
+                vec![
+                    credit_transaction_1,
+                    credit_transaction_2,
+                    credit_transaction_3,
+                    debit_transaction_1,
+                    debit_transaction_2,
+                ],
+            );
+
+            let response = journal_service.make_transaction(transaction.clone()).await;
+
+            assert!(response.is_ok());
+            assert_eq!(response.unwrap(), 1);
+            assert_eq!(mock_dao.created_journal_entries.borrow().len(), 1);
+            assert_eq!(mock_dao.created_journal_entries.borrow()[0], transaction);
+        });
+    }
+
     fn test_setup() -> (Arc<MockDao>, JournalService<MockDao>) {
         let mock_dao = MockDao::new();
         let mock_dao = Arc::new(mock_dao);

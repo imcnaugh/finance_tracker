@@ -1,6 +1,6 @@
 use crate::model::journal_entry::new_transaction::NewTransaction;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NewJournalEntry {
     description: String,
     transactions: Vec<NewTransaction>,

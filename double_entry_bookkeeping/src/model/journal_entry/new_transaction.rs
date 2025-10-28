@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NewTransaction {
     account_id: u64,
     amount_in_cents: i64,
