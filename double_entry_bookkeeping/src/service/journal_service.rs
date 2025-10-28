@@ -39,7 +39,6 @@ where
 
         Ok(journal_entry_id)
     }
-
     pub async fn get_account_balance(&self, account_id: u64) -> Result<i64, String> {
         let balance = self
             .journal_dao
@@ -53,15 +52,17 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
     use super::*;
     use crate::model::{JournalEntry, NewTransaction, Transaction};
     use sqlx::Error;
+    use std::cell::RefCell;
 
     #[test]
     fn test_new_imbalance_transaction() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
+            let (mock_dao, journal_service) = test_setup();
+
             let credit_amount = 100;
             let debit_amount = 99;
 
@@ -73,17 +74,21 @@ mod tests {
                 vec![credit_transaction, debit_transaction],
             );
 
-            let mock_dao = MockDao::new();
-            let mock_dao = Arc::new(mock_dao);
-            let journal_service = JournalService::new(mock_dao.clone());
-
             let response = journal_service
                 .make_transaction(imbalanced_transaction)
                 .await;
 
             assert!(response.is_err());
+            assert_eq!(response.unwrap_err(), "Debit and credit sums do not match");
             assert!(mock_dao.created_journal_entries.borrow().is_empty());
         });
+    }
+
+    fn test_setup() -> (Arc<MockDao>, JournalService<MockDao>) {
+        let mock_dao = MockDao::new();
+        let mock_dao = Arc::new(mock_dao);
+        let journal_service = JournalService::new(mock_dao.clone());
+        (mock_dao, journal_service)
     }
 
     struct MockDao {
@@ -103,26 +108,28 @@ mod tests {
             &self,
             new_journal_entry: NewJournalEntry,
         ) -> Result<u64, Error> {
-            self.created_journal_entries.borrow_mut().push(new_journal_entry);
+            self.created_journal_entries
+                .borrow_mut()
+                .push(new_journal_entry);
             Ok(1)
         }
 
         async fn get_journal_entry_by_id(
             &self,
-            journal_entry_id: u64,
+            _journal_entry_id: u64,
         ) -> Result<Option<JournalEntry>, Error> {
-            todo!()
+            Ok(None)
         }
 
         async fn get_transactions_by_journal_entry_id(
             &self,
-            journal_entry_id: u64,
+            _journal_entry_id: u64,
         ) -> Result<Vec<Transaction>, Error> {
-            todo!()
+            Ok(vec![])
         }
 
-        async fn get_account_balance(&self, account_id: u64) -> Result<i64, Error> {
-            todo!()
+        async fn get_account_balance(&self, _account_id: u64) -> Result<i64, Error> {
+            Ok(0)
         }
     }
 }
