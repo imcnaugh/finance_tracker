@@ -444,10 +444,9 @@ checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 name = "double_entry_bookkeeping"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "clap",
  "sqlx",
- "utilities",
+ "tokio",
 ]
 
 [[package]]
