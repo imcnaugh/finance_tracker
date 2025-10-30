@@ -14,6 +14,29 @@ where
         Self { journal_dao }
     }
 
+    /// Asynchronously processes a new journal transaction by validating its debit and credit transactions
+    /// and storing it in the database if valid.
+    ///
+    /// # Arguments
+    ///
+    /// * `new_transaction` - A `NewJournalEntry` instance containing the transaction data.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result`:
+    /// - `Ok(u64)` containing the unique ID of the created journal entry if the operation succeeds.
+    /// - `Err(String)` containing an error message if the transaction fails validation or a database error occurs.
+    ///
+    /// # Validation
+    ///
+    /// The function checks whether the total debit amount matches the total credit amount:
+    /// - If the sums do not match, an error is returned with the message "Debit and credit sums do not match".
+    ///
+    /// # Errors
+    ///
+    /// This function can return an error in the following scenarios:
+    /// - If the debit and credit amounts are not equal.
+    /// - If there is an issue during the database operation to create the journal entry.
     pub async fn make_transaction(&self, new_transaction: NewJournalEntry) -> Result<u64, String> {
         let (debit_sum, credit_sum) =
             &new_transaction
