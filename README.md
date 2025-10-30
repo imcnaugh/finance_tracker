@@ -10,4 +10,4 @@ Features include:
 ## TODO
  - Allow invoice management to affect account balances
    - Newly sent invoices should effect account balances
-   - Incoming payments should effect account balances and mark invoices as paidg
+   - Incoming payments should effect account balances and mark invoices as paid

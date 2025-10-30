@@ -34,7 +34,9 @@ impl AccountCommandHandler {
                     Err(e) => println!("Error: {}", e),
                 }
             }
-            AccountSubcommands::Add { new_account: _new_account } => {
+            AccountSubcommands::Add {
+                new_account: _new_account,
+            } => {
                 todo!()
             }
         }

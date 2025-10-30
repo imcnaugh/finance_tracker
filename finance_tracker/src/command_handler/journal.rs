@@ -3,7 +3,9 @@ use crate::config_service::get_config;
 use crate::configuration::Configuration;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
+use double_entry_bookkeeping::model::NewJournalEntry;
 use double_entry_bookkeeping::service::journal_service::JournalService;
+use std::sync::Arc;
 
 pub struct JournalCommandHandler {
     journal_service: JournalService<JournalSqliteDao>,
@@ -18,7 +20,8 @@ impl JournalCommandHandler {
         let db_manager = DatabaseManager::new(db_configs).await?;
 
         let journal_dao = JournalSqliteDao::new(db_manager.get_pool().clone());
-        let journal_service = JournalService::new(journal_dao);
+        let journal_dao = Arc::new(journal_dao);
+        let journal_service = JournalService::new(journal_dao.clone());
 
         Ok(Self {
             journal_service,
@@ -31,7 +34,7 @@ impl JournalCommandHandler {
             JournalSubCommands::NewTransaction { new_journal_entry } => {
                 match self
                     .journal_service
-                    .make_transaction(new_journal_entry)
+                    .make_transaction(NewJournalEntry::from(new_journal_entry))
                     .await
                 {
                     Ok(journal_entry_id) => {
