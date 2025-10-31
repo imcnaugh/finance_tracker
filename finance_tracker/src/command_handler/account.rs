@@ -4,6 +4,7 @@ use crate::database::DatabaseManager;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
 use crate::util;
 use double_entry_bookkeeping::service::account_service::AccountService;
+use std::sync::Arc;
 
 pub struct AccountCommandHandler {
     account_service: AccountService<AccountSqliteDao>,
@@ -17,7 +18,8 @@ impl AccountCommandHandler {
         let db_manager = DatabaseManager::new(db_configs).await?;
 
         let account_dao = AccountSqliteDao::new(db_manager.get_pool().clone());
-        let account_service = AccountService::new(account_dao);
+        let account_dao = Arc::new(account_dao);
+        let account_service = AccountService::new(account_dao.clone());
 
         Ok(Self { account_service })
     }

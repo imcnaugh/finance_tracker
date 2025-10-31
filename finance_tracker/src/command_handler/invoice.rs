@@ -6,6 +6,7 @@ use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::util;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
+use std::sync::Arc;
 use utilities::prompt_confirm;
 
 pub struct InvoiceCommandHandler {
@@ -22,10 +23,12 @@ impl InvoiceCommandHandler {
         let db_manager = DatabaseManager::new(db_configs).await?;
 
         let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
+        let client_dao = Arc::new(client_dao);
         let invoice_dao = InvoiceSqliteDao::new(db_manager.get_pool().clone());
+        let invoice_dao = Arc::new(invoice_dao);
 
-        let invoice_service = InvoiceService::new(Some(prompt_confirm), invoice_dao);
-        let client_service = ClientService::new(client_dao);
+        let invoice_service = InvoiceService::new(Some(prompt_confirm), invoice_dao.clone());
+        let client_service = ClientService::new(client_dao.clone());
 
         Ok(Self {
             client_service,

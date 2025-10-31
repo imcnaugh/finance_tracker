@@ -3,14 +3,15 @@ use crate::model::Invoice;
 use crate::model::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
+use std::sync::Arc;
 
 pub struct InvoiceService<I: InvoiceDao> {
     confirm_fn: Option<fn(&str) -> bool>,
-    invoice_dao: I,
+    invoice_dao: Arc<I>,
 }
 
 impl<I: InvoiceDao> InvoiceService<I> {
-    pub fn new(confirm_fn: Option<fn(&str) -> bool>, invoice_dao: I) -> Self {
+    pub fn new(confirm_fn: Option<fn(&str) -> bool>, invoice_dao: Arc<I>) -> Self {
         Self {
             confirm_fn,
             invoice_dao,

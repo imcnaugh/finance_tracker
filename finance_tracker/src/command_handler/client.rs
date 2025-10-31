@@ -4,6 +4,7 @@ use crate::database::DatabaseManager;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::util;
 use invoice_manager::service::ClientService;
+use std::sync::Arc;
 
 pub struct ClientCommandHandler {
     client_service: ClientService<ClientSqliteDao>,
@@ -15,8 +16,10 @@ impl ClientCommandHandler {
             get_config().map_err(|_| "Configurations are not set, please run init")?;
         let db_configs = configuration.get_database_configuration();
         let db_manager = DatabaseManager::new(db_configs).await?;
+
         let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
-        let client_service = ClientService::new(client_dao);
+        let client_dao = Arc::new(client_dao);
+        let client_service = ClientService::new(client_dao.clone());
         Ok(Self { client_service })
     }
 

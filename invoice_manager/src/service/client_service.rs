@@ -1,13 +1,14 @@
 use crate::dao::client_dao::ClientDao;
 use crate::model::Client;
 use crate::model::NewClient;
+use std::sync::Arc;
 
 pub struct ClientService<C: ClientDao> {
-    client_dao: C,
+    client_dao: Arc<C>,
 }
 
 impl<C: ClientDao> ClientService<C> {
-    pub fn new(client_dao: C) -> Self {
+    pub fn new(client_dao: Arc<C>) -> Self {
         Self { client_dao }
     }
 
