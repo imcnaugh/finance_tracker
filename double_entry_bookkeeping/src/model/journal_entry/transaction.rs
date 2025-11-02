@@ -1,8 +1,12 @@
+use chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use utilities::Error;
+use utilities::utils::timestamp_to_date_time;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct Transaction {
     id: u64,
+    description: String,
     account_id: u64,
     journal_entry_id: u64,
     amount_in_cents: i64,
@@ -13,6 +17,7 @@ pub struct Transaction {
 impl Transaction {
     pub fn new(
         id: u64,
+        description: String,
         account_id: u64,
         journal_id: u64,
         amount_in_cents: i64,
@@ -21,6 +26,7 @@ impl Transaction {
     ) -> Self {
         Self {
             id,
+            description,
             account_id,
             journal_entry_id: journal_id,
             amount_in_cents,
@@ -31,6 +37,10 @@ impl Transaction {
 
     pub fn get_id(&self) -> u64 {
         self.id
+    }
+
+    pub fn get_description(&self) -> &str {
+        &self.description
     }
 
     pub fn get_account_id(&self) -> u64 {
@@ -49,7 +59,7 @@ impl Transaction {
         self.is_debit
     }
 
-    pub fn get_created_timestamp(&self) -> i64 {
-        self.created_timestamp
+    pub fn get_created_timestamp(&self) -> Result<DateTime<Utc>, Error> {
+        timestamp_to_date_time(self.created_timestamp)
     }
 }

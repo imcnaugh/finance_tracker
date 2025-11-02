@@ -6,6 +6,8 @@ edition = "2024"
 [dependencies]
 clap = { workspace = true }
 sqlx = { workspace = true }
+chrono = { workspace = true }
+utilities = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

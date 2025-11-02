@@ -1,5 +1,7 @@
 use double_entry_bookkeeping::dao::account_dao::AccountDao;
-use double_entry_bookkeeping::model::{Account, AccountType, NewAccount, NewAccountType};
+use double_entry_bookkeeping::model::{
+    Account, AccountType, NewAccount, NewAccountType, Transaction,
+};
 use sqlx::{Error, Executor, Pool, Sqlite};
 
 pub struct AccountSqliteDao {
@@ -103,6 +105,21 @@ GROUP BY
 ORDER BY a.id
 "#;
 
+const SELECT_ALL_TRANSACTIONS_BY_ACCOUNT_ID_SQL: &str = r#"
+SELECT
+    jt.id,
+    je.description,
+    jt.account_id,
+    jt.journal_entry_id,
+    jt.amount_in_cents,
+    jt.is_debit,
+    jt.created_timestamp
+FROM journal_transaction jt
+JOIN journal_entry je ON je.id = jt.journal_entry_id
+WHERE jt.account_id = ?
+ORDER BY jt.created_timestamp DESC
+"#;
+
 impl AccountSqliteDao {
     pub fn new(pool: Pool<Sqlite>) -> Self {
         Self { pool }
@@ -189,6 +206,19 @@ impl AccountSqliteDao {
             .await?;
         Ok(item)
     }
+
+    async fn read_transactions_by_account_id<'e, E>(
+        &self,
+        executor: E,
+        account_id: u64,
+    ) -> Result<Vec<Transaction>, Error>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
+        let query = sqlx::query_as::<_, Transaction>(SELECT_ALL_TRANSACTIONS_BY_ACCOUNT_ID_SQL)
+            .bind(account_id as i32);
+        query.fetch_all(executor).await
+    }
 }
 
 impl AccountDao for AccountSqliteDao {
@@ -225,8 +255,18 @@ impl AccountDao for AccountSqliteDao {
 
     async fn get_account_by_id(&self, account_id: u64) -> Result<Option<Account>, Error> {
         let mut conn = self.pool.acquire().await?;
-        let account = self.read_account_by_id(&mut *conn, account_id).await?;
-        Ok(account)
+        let account_result = self.read_account_by_id(&mut *conn, account_id).await?;
+
+        match account_result {
+            None => Ok(None),
+            Some(mut account) => {
+                let transactions = self
+                    .read_transactions_by_account_id(&mut *conn, account_id)
+                    .await?;
+                account.set_transitions(transactions);
+                Ok(Some(account))
+            }
+        }
     }
 
     async fn get_all_accounts(&self) -> Result<Vec<Account>, Error> {
