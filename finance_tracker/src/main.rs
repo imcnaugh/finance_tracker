@@ -1,24 +1,24 @@
-use std::sync::Arc;
 use crate::command::{Command, Commands};
 use crate::command_handler::account::AccountCommandHandler;
 use crate::command_handler::client::ClientCommandHandler;
 use crate::command_handler::init::handle_init_command;
 use crate::command_handler::invoice::InvoiceCommandHandler;
 use crate::command_handler::journal::JournalCommandHandler;
-use clap::Parser;
-use invoice_manager::service::ClientService;
 use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
+use clap::Parser;
+use invoice_manager::service::ClientService;
+use std::sync::Arc;
 
 mod command;
 mod command_handler;
 mod config_service;
 mod configuration;
+mod context;
 mod database;
 mod sqlite_dao;
 mod util;
-mod context;
 
 #[tokio::main]
 async fn main() {
@@ -44,4 +44,5 @@ async fn main() {
 }
 
 async fn build_context() -> Result<(), String> {
+    todo!()
 }
