@@ -26,16 +26,16 @@ impl Context {
         }
     }
 
-    pub fn get_client_service_ref(&self) -> Option<&ClientService<ClientSqliteDao>> {
-        match &self.client_service {
-            None => None,
-            Some(service) => Some(service.as_ref()),
-        }
-    }
-
     pub fn get_client_service(&self) -> Result<Arc<ClientService<ClientSqliteDao>>, String> {
         match &self.client_service {
             None => Err("Client service is not set".to_string()),
+            Some(service) => Ok(service.clone()),
+        }
+    }
+
+    pub fn get_invoice_service(&self) -> Result<Arc<InvoiceService<InvoiceSqliteDao>>, String> {
+        match &self.invoice_service {
+            None => Err("Invoice service is not set".to_string()),
             Some(service) => Ok(service.clone()),
         }
     }
