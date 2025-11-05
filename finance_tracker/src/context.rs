@@ -4,6 +4,7 @@ use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use invoice_manager::service::{ClientService, InvoiceService};
 use std::sync::Arc;
+use utilities::prompt_confirm;
 
 struct Context {
     client_service: Option<Arc<ClientService<ClientSqliteDao>>>,
@@ -17,7 +18,7 @@ impl Context {
         let client_service = Self::build_client_service(client_dao).await;
 
         let invoice_dao = Self::build_invoice_dao(&db_manager).await;
-        let invoice_service = Self::build_invoice_service(invoice_dao, None).await;
+        let invoice_service = Self::build_invoice_service(invoice_dao, Some(prompt_confirm)).await;
 
         Self {
             client_service,
