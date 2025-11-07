@@ -34,10 +34,23 @@ async fn main() {
             }
             Err(e) => println!("Error processing command: {}", e),
         },
-        Commands::Invoice(invoice_command) => match InvoiceCommandHandler::build().await {
-            Ok(handler) => handler.handle_invoice_command(invoice_command).await,
-            Err(e) => println!("Error processing command: {}", e),
-        },
+        Commands::Invoice(invoice_command) => {
+            let invoice_service = context.get_invoice_service();
+            let client_service = context.get_client_service();
+
+            match (invoice_service, client_service) {
+                (Ok(invoice_service), Ok(client_service)) => {
+                    InvoiceCommandHandler::new(
+                        client_service,
+                        invoice_service,
+                        get_config().unwrap(),
+                    )
+                    .handle_invoice_command(invoice_command)
+                    .await
+                }
+                _ => todo!(),
+            }
+        }
         Commands::Account(account_command) => match AccountCommandHandler::build().await {
             Ok(handler) => handler.handle_account_command(account_command).await,
             Err(e) => println!("Error processing command: {}", e),
