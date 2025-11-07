@@ -10,7 +10,7 @@ use invoice_manager::service::{ClientService, InvoiceService};
 use std::sync::Arc;
 use utilities::prompt_confirm;
 
-struct Context {
+pub struct Context {
     client_service: Option<Arc<ClientService<ClientSqliteDao>>>,
     invoice_service: Option<Arc<InvoiceService<InvoiceSqliteDao>>>,
     account_service: Option<Arc<AccountService<AccountSqliteDao>>>,

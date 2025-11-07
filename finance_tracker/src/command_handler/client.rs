@@ -7,20 +7,12 @@ use invoice_manager::service::ClientService;
 use std::sync::Arc;
 
 pub struct ClientCommandHandler {
-    client_service: ClientService<ClientSqliteDao>,
+    client_service: Arc<ClientService<ClientSqliteDao>>,
 }
 
 impl ClientCommandHandler {
-    pub async fn build() -> Result<Self, String> {
-        let configuration =
-            get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration.get_database_configuration();
-        let db_manager = DatabaseManager::new(db_configs).await?;
-
-        let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
-        let client_dao = Arc::new(client_dao);
-        let client_service = ClientService::new(client_dao.clone());
-        Ok(Self { client_service })
+    pub fn new(client_service: Arc<ClientService<ClientSqliteDao>>) -> Self {
+        Self { client_service }
     }
 
     pub async fn handle_client_command(&self, client_command: ClientSubcommands) {

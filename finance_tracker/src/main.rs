@@ -5,6 +5,7 @@ use crate::command_handler::init::handle_init_command;
 use crate::command_handler::invoice::InvoiceCommandHandler;
 use crate::command_handler::journal::JournalCommandHandler;
 use crate::config_service::get_config;
+use crate::context::Context;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use clap::Parser;
@@ -22,9 +23,15 @@ mod util;
 
 #[tokio::main]
 async fn main() {
+    let context = build_context().await.unwrap();
+
     match Command::parse().command {
-        Commands::Client(client_command) => match ClientCommandHandler::build().await {
-            Ok(handler) => handler.handle_client_command(client_command).await,
+        Commands::Client(client_command) => match context.get_client_service() {
+            Ok(service) => {
+                ClientCommandHandler::new(service)
+                    .handle_client_command(client_command)
+                    .await
+            }
             Err(e) => println!("Error processing command: {}", e),
         },
         Commands::Invoice(invoice_command) => match InvoiceCommandHandler::build().await {
@@ -43,6 +50,6 @@ async fn main() {
     }
 }
 
-async fn build_context() -> Result<(), String> {
-    todo!()
+async fn build_context() -> Result<Context, String> {
+    Ok(Context::new().await)
 }
