@@ -7,21 +7,12 @@ use double_entry_bookkeeping::service::account_service::AccountService;
 use std::sync::Arc;
 
 pub struct AccountCommandHandler {
-    account_service: AccountService<AccountSqliteDao>,
+    account_service: Arc<AccountService<AccountSqliteDao>>,
 }
 
 impl AccountCommandHandler {
-    pub async fn build() -> Result<Self, String> {
-        let configuration =
-            get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration.get_database_configuration();
-        let db_manager = DatabaseManager::new(db_configs).await?;
-
-        let account_dao = AccountSqliteDao::new(db_manager.get_pool().clone());
-        let account_dao = Arc::new(account_dao);
-        let account_service = AccountService::new(account_dao.clone());
-
-        Ok(Self { account_service })
+    pub fn new(account_service: Arc<AccountService<AccountSqliteDao>>) -> Self {
+        Self { account_service }
     }
 
     pub async fn handle_account_command(&self, account_command: AccountSubcommands) {

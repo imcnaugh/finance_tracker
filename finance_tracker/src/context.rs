@@ -1,4 +1,7 @@
+use crate::command_handler::account::AccountCommandHandler;
 use crate::command_handler::client::ClientCommandHandler;
+use crate::command_handler::invoice::InvoiceCommandHandler;
+use crate::command_handler::journal::JournalCommandHandler;
 use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
@@ -48,31 +51,28 @@ impl Context {
         }
     }
 
-    pub fn get_client_service(&self) -> Result<Arc<ClientService<ClientSqliteDao>>, String> {
-        match &self.client_service {
-            None => Err("Client service is not set".to_string()),
-            Some(service) => Ok(service.clone()),
+    pub fn get_invoice_command_handler(&self) -> Result<InvoiceCommandHandler, String> {
+        match (&self.invoice_service, &self.client_service) {
+            (Some(invoice_service), Some(client_service)) => Ok(InvoiceCommandHandler::new(
+                client_service.clone(),
+                invoice_service.clone(),
+                get_config()?,
+            )),
+            _ => Err("Invoice service is not set".to_string()),
         }
     }
 
-    pub fn get_invoice_service(&self) -> Result<Arc<InvoiceService<InvoiceSqliteDao>>, String> {
-        match &self.invoice_service {
-            None => Err("Invoice service is not set".to_string()),
-            Some(service) => Ok(service.clone()),
-        }
-    }
-
-    pub fn get_account_service_ref(&self) -> Option<&AccountService<AccountSqliteDao>> {
+    pub fn get_account_command_handler(&self) -> Result<AccountCommandHandler, String> {
         match &self.account_service {
-            None => None,
-            Some(service) => Some(service.as_ref()),
+            None => Err("Account service is not set".to_string()),
+            Some(service) => Ok(AccountCommandHandler::new(service.clone())),
         }
     }
 
-    pub fn get_journal_service_ref(&self) -> Option<&JournalService<JournalSqliteDao>> {
+    pub fn get_journal_command_handler(&self) -> Result<JournalCommandHandler, String> {
         match &self.journal_service {
-            None => None,
-            Some(service) => Some(service.as_ref()),
+            None => Err("Journal service is not set".to_string()),
+            Some(service) => Ok(JournalCommandHandler::new(service.clone(), get_config()?)),
         }
     }
 

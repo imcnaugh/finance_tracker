@@ -1,16 +1,11 @@
 use crate::command::{Command, Commands};
 use crate::command_handler::account::AccountCommandHandler;
-use crate::command_handler::client::ClientCommandHandler;
 use crate::command_handler::init::handle_init_command;
 use crate::command_handler::invoice::InvoiceCommandHandler;
 use crate::command_handler::journal::JournalCommandHandler;
 use crate::config_service::get_config;
 use crate::context::Context;
-use crate::database::DatabaseManager;
-use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use clap::Parser;
-use invoice_manager::service::ClientService;
-use std::sync::Arc;
 
 mod command;
 mod command_handler;
@@ -30,28 +25,15 @@ async fn main() {
             Ok(handler) => handler.handle_client_command(client_command).await,
             Err(e) => println!("Error processing command: {}", e),
         },
-        Commands::Invoice(invoice_command) => {
-            let invoice_service = context.get_invoice_service();
-            let client_service = context.get_client_service();
-
-            match (invoice_service, client_service) {
-                (Ok(invoice_service), Ok(client_service)) => {
-                    InvoiceCommandHandler::new(
-                        client_service,
-                        invoice_service,
-                        get_config().unwrap(),
-                    )
-                    .handle_invoice_command(invoice_command)
-                    .await
-                }
-                _ => todo!(),
-            }
-        }
-        Commands::Account(account_command) => match AccountCommandHandler::build().await {
+        Commands::Invoice(invoice_command) => match context.get_invoice_command_handler() {
+            Ok(handler) => handler.handle_invoice_command(invoice_command).await,
+            Err(e) => println!("Error processing command: {}", e),
+        },
+        Commands::Account(account_command) => match context.get_account_command_handler() {
             Ok(handler) => handler.handle_account_command(account_command).await,
             Err(e) => println!("Error processing command: {}", e),
         },
-        Commands::Journal(journal_command) => match JournalCommandHandler::build().await {
+        Commands::Journal(journal_command) => match context.get_journal_command_handler() {
             Ok(handler) => handler.handle_journal_command(journal_command).await,
             Err(e) => println!("Error processing command: {}", e),
         },
