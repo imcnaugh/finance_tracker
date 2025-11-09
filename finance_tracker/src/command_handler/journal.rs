@@ -1,7 +1,4 @@
 use crate::command::journal::JournalSubCommands;
-use crate::config_service::get_config;
-use crate::configuration::Configuration;
-use crate::database::DatabaseManager;
 use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use double_entry_bookkeeping::model::NewJournalEntry;
 use double_entry_bookkeeping::service::journal_service::JournalService;
