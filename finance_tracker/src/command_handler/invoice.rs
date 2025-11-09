@@ -9,14 +9,14 @@ use std::sync::Arc;
 pub struct InvoiceCommandHandler {
     client_service: Arc<ClientService<ClientSqliteDao>>,
     invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
-    configuration: Configuration,
+    configuration: Arc<Configuration>,
 }
 
 impl InvoiceCommandHandler {
     pub fn new(
         client_service: Arc<ClientService<ClientSqliteDao>>,
         invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
-        configuration: Configuration,
+        configuration: Arc<Configuration>,
     ) -> Self {
         Self {
             client_service,
