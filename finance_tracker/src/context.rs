@@ -24,17 +24,18 @@ pub struct Context {
 impl Context {
     pub async fn new() -> Self {
         let db_manager = Self::build_database_manager().await;
-        let client_dao = Self::build_client_dao(&db_manager).await;
-        let client_service = Self::build_client_service(client_dao).await;
 
-        let invoice_dao = Self::build_invoice_dao(&db_manager).await;
-        let invoice_service = Self::build_invoice_service(invoice_dao, Some(prompt_confirm)).await;
+        let client_dao = Self::build_client_dao(&db_manager);
+        let client_service = Self::build_client_service(client_dao);
 
-        let account_dao = Self::build_account_dao(&db_manager).await;
-        let account_service = Self::build_account_service(account_dao).await;
+        let invoice_dao = Self::build_invoice_dao(&db_manager);
+        let invoice_service = Self::build_invoice_service(invoice_dao, Some(prompt_confirm));
 
-        let journal_dao = Self::build_journal_dao(&db_manager).await;
-        let journal_service = Self::build_journal_service(journal_dao).await;
+        let account_dao = Self::build_account_dao(&db_manager);
+        let account_service = Self::build_account_service(account_dao);
+
+        let journal_dao = Self::build_journal_dao(&db_manager);
+        let journal_service = Self::build_journal_service(journal_dao);
 
         Self {
             client_service,
@@ -76,94 +77,69 @@ impl Context {
         }
     }
 
-    async fn build_client_service(
+    fn build_client_service(
         client_sqlite_dao: Option<Arc<ClientSqliteDao>>,
     ) -> Option<Arc<ClientService<ClientSqliteDao>>> {
-        match client_sqlite_dao {
-            None => None,
-            Some(client_sqlite_dao) => {
-                Some(Arc::new(ClientService::new(client_sqlite_dao.clone())))
-            }
-        }
+        client_sqlite_dao
+            .as_ref()
+            .map(|client_dao| Arc::new(ClientService::new(client_dao.clone())))
     }
 
-    async fn build_invoice_service(
+    fn build_invoice_service(
         invoice_sqlite_dao: Option<Arc<InvoiceSqliteDao>>,
         confirm_fn: Option<fn(&str) -> bool>,
     ) -> Option<Arc<InvoiceService<InvoiceSqliteDao>>> {
-        match invoice_sqlite_dao {
-            None => None,
-            Some(invoice_sqlite_dao) => Some(Arc::new(InvoiceService::new(
-                confirm_fn,
-                invoice_sqlite_dao.clone(),
-            ))),
-        }
+        invoice_sqlite_dao
+            .as_ref()
+            .map(|invoice_dao| Arc::new(InvoiceService::new(confirm_fn, invoice_dao.clone())))
     }
 
-    async fn build_account_service(
+    fn build_account_service(
         account_sqlite_dao: Option<Arc<AccountSqliteDao>>,
     ) -> Option<Arc<AccountService<AccountSqliteDao>>> {
-        match account_sqlite_dao {
-            None => None,
-            Some(account_sqlite_dao) => {
-                Some(Arc::new(AccountService::new(account_sqlite_dao.clone())))
-            }
-        }
+        account_sqlite_dao
+            .as_ref()
+            .map(|account_dao| Arc::new(AccountService::new(account_dao.clone())))
     }
 
-    async fn build_journal_service(
+    fn build_journal_service(
         journal_sqlite_dao: Option<Arc<JournalSqliteDao>>,
     ) -> Option<Arc<JournalService<JournalSqliteDao>>> {
-        match journal_sqlite_dao {
-            None => None,
-            Some(journal_sqlite_dao) => {
-                Some(Arc::new(JournalService::new(journal_sqlite_dao.clone())))
-            }
-        }
+        journal_sqlite_dao
+            .as_ref()
+            .map(|journal_dao| Arc::new(JournalService::new(journal_dao.clone())))
     }
 
-    async fn build_client_dao(
+    fn build_client_dao(
         database_manager: &Option<Arc<DatabaseManager>>,
     ) -> Option<Arc<ClientSqliteDao>> {
-        match database_manager {
-            None => None,
-            Some(db_manager) => Some(Arc::new(ClientSqliteDao::new(
-                db_manager.get_pool().clone(),
-            ))),
-        }
+        database_manager
+            .as_ref()
+            .map(|db_manager| Arc::new(ClientSqliteDao::new(db_manager.get_pool().clone())))
     }
 
-    async fn build_invoice_dao(
+    fn build_invoice_dao(
         database_manager: &Option<Arc<DatabaseManager>>,
     ) -> Option<Arc<InvoiceSqliteDao>> {
-        match database_manager {
-            None => None,
-            Some(db_manager) => Some(Arc::new(InvoiceSqliteDao::new(
-                db_manager.get_pool().clone(),
-            ))),
-        }
+        database_manager
+            .as_ref()
+            .map(|db_manager| Arc::new(InvoiceSqliteDao::new(db_manager.get_pool().clone())))
     }
 
-    async fn build_account_dao(
+    fn build_account_dao(
         database_manager: &Option<Arc<DatabaseManager>>,
     ) -> Option<Arc<AccountSqliteDao>> {
-        match database_manager {
-            None => None,
-            Some(db_manager) => Some(Arc::new(AccountSqliteDao::new(
-                db_manager.get_pool().clone(),
-            ))),
-        }
+        database_manager
+            .as_ref()
+            .map(|db_manager| Arc::new(AccountSqliteDao::new(db_manager.get_pool().clone())))
     }
 
-    async fn build_journal_dao(
+    fn build_journal_dao(
         database_manager: &Option<Arc<DatabaseManager>>,
     ) -> Option<Arc<JournalSqliteDao>> {
-        match database_manager {
-            None => None,
-            Some(db_manager) => Some(Arc::new(JournalSqliteDao::new(
-                db_manager.get_pool().clone(),
-            ))),
-        }
+        database_manager
+            .as_ref()
+            .map(|db_manager| Arc::new(JournalSqliteDao::new(db_manager.get_pool().clone())))
     }
 
     async fn build_database_manager() -> Option<Arc<DatabaseManager>> {
