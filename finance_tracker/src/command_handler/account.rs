@@ -1,4 +1,5 @@
 use crate::command::account::AccountSubcommands;
+use crate::command_handler::CommandHandler;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
 use crate::util;
 use double_entry_bookkeeping::service::account_service::AccountService;
@@ -8,13 +9,9 @@ pub struct AccountCommandHandler {
     account_service: Arc<AccountService<AccountSqliteDao>>,
 }
 
-impl AccountCommandHandler {
-    pub fn new(account_service: Arc<AccountService<AccountSqliteDao>>) -> Self {
-        Self { account_service }
-    }
-
-    pub async fn handle_account_command(&self, account_command: AccountSubcommands) {
-        match account_command {
+impl CommandHandler<AccountSubcommands> for AccountCommandHandler {
+    async fn handle_command(&self, command: AccountSubcommands) {
+        match command {
             AccountSubcommands::List => match self.account_service.get_all_accounts().await {
                 Ok(accounts) => util::account_display::display_accounts(&accounts),
                 Err(e) => println!("Error: {}", e),
@@ -31,5 +28,11 @@ impl AccountCommandHandler {
                 todo!()
             }
         }
+    }
+}
+
+impl AccountCommandHandler {
+    pub fn new(account_service: Arc<AccountService<AccountSqliteDao>>) -> Self {
+        Self { account_service }
     }
 }

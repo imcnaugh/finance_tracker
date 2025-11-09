@@ -1,4 +1,5 @@
 use crate::command::client::ClientSubcommands;
+use crate::command_handler::CommandHandler;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::util;
 use invoice_manager::service::ClientService;
@@ -12,9 +13,11 @@ impl ClientCommandHandler {
     pub fn new(client_service: Arc<ClientService<ClientSqliteDao>>) -> Self {
         Self { client_service }
     }
+}
 
-    pub async fn handle_client_command(&self, client_command: ClientSubcommands) {
-        match client_command {
+impl CommandHandler<ClientSubcommands> for ClientCommandHandler {
+    async fn handle_command(&self, command: ClientSubcommands) {
+        match command {
             ClientSubcommands::New { new_client } => {
                 match self.client_service.create_client(new_client).await {
                     Ok(client) => util::client_display::display_client(&client),

@@ -1,4 +1,5 @@
 use crate::command::invoice::InvoiceSubCommands;
+use crate::command_handler::CommandHandler;
 use crate::configuration::Configuration;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
@@ -24,9 +25,11 @@ impl InvoiceCommandHandler {
             configuration,
         }
     }
+}
 
-    pub async fn handle_invoice_command(&self, invoice_command: InvoiceSubCommands) {
-        match invoice_command {
+impl CommandHandler<InvoiceSubCommands> for InvoiceCommandHandler {
+    async fn handle_command(&self, command: InvoiceSubCommands) {
+        match command {
             InvoiceSubCommands::New { client_id } => {
                 match self.invoice_service.create_new_invoice(client_id).await {
                     Ok(invoice) => util::invoice_display::display_invoice(&invoice),

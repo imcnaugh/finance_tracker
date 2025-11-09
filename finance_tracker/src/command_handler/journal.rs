@@ -1,4 +1,5 @@
 use crate::command::journal::JournalSubCommands;
+use crate::command_handler::CommandHandler;
 use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use double_entry_bookkeeping::model::NewJournalEntry;
 use double_entry_bookkeeping::service::journal_service::JournalService;
@@ -12,9 +13,11 @@ impl JournalCommandHandler {
     pub fn new(journal_service: Arc<JournalService<JournalSqliteDao>>) -> Self {
         Self { journal_service }
     }
+}
 
-    pub async fn handle_journal_command(&self, journal_command: JournalSubCommands) {
-        match journal_command {
+impl CommandHandler<JournalSubCommands> for JournalCommandHandler {
+    async fn handle_command(&self, command: JournalSubCommands) {
+        match command {
             JournalSubCommands::NewTransaction { new_journal_entry } => {
                 match self
                     .journal_service
