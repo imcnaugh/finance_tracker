@@ -1,3 +1,4 @@
+use crate::command_handler::client::ClientCommandHandler;
 use crate::config_service::get_config;
 use crate::database::DatabaseManager;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
@@ -37,6 +38,13 @@ impl Context {
             invoice_service,
             account_service,
             journal_service,
+        }
+    }
+
+    pub fn get_client_command_handler(&self) -> Result<ClientCommandHandler, String> {
+        match &self.client_service {
+            None => Err("Client service is not set".to_string()),
+            Some(service) => Ok(ClientCommandHandler::new(service.clone())),
         }
     }
 

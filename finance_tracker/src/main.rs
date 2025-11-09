@@ -26,12 +26,8 @@ async fn main() {
     let context = build_context().await.unwrap();
 
     match Command::parse().command {
-        Commands::Client(client_command) => match context.get_client_service() {
-            Ok(service) => {
-                ClientCommandHandler::new(service)
-                    .handle_client_command(client_command)
-                    .await
-            }
+        Commands::Client(client_command) => match context.get_client_command_handler() {
+            Ok(handler) => handler.handle_client_command(client_command).await,
             Err(e) => println!("Error processing command: {}", e),
         },
         Commands::Invoice(invoice_command) => {
