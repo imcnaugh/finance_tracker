@@ -72,7 +72,7 @@ impl Context {
     pub fn get_journal_command_handler(&self) -> Result<JournalCommandHandler, String> {
         match &self.journal_service {
             None => Err("Journal service is not set".to_string()),
-            Some(service) => Ok(JournalCommandHandler::new(service.clone(), get_config()?)),
+            Some(service) => Ok(JournalCommandHandler::new(service.clone())),
         }
     }
 

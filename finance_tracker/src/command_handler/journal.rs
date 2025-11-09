@@ -9,18 +9,11 @@ use std::sync::Arc;
 
 pub struct JournalCommandHandler {
     journal_service: Arc<JournalService<JournalSqliteDao>>,
-    _configuration: Configuration,
 }
 
 impl JournalCommandHandler {
-    pub fn new(
-        journal_service: Arc<JournalService<JournalSqliteDao>>,
-        configuration: Configuration,
-    ) -> Self {
-        Self {
-            journal_service,
-            _configuration: configuration,
-        }
+    pub fn new(journal_service: Arc<JournalService<JournalSqliteDao>>) -> Self {
+        Self { journal_service }
     }
 
     pub async fn handle_journal_command(&self, journal_command: JournalSubCommands) {

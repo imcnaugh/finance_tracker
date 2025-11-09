@@ -1,9 +1,5 @@
 use crate::command::{Command, Commands};
-use crate::command_handler::account::AccountCommandHandler;
 use crate::command_handler::init::handle_init_command;
-use crate::command_handler::invoice::InvoiceCommandHandler;
-use crate::command_handler::journal::JournalCommandHandler;
-use crate::config_service::get_config;
 use crate::context::Context;
 use clap::Parser;
 
