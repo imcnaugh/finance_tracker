@@ -16,133 +16,60 @@ use std::sync::Arc;
 use utilities::prompt_confirm;
 
 pub struct Context {
-    configs: Result<Arc<Configuration>, String>,
-    client_service: Result<Arc<ClientService<ClientSqliteDao>>, String>,
-    invoice_service: Result<Arc<InvoiceService<InvoiceSqliteDao>>, String>,
-    account_service: Result<Arc<AccountService<AccountSqliteDao>>, String>,
-    journal_service: Result<Arc<JournalService<JournalSqliteDao>>, String>,
+    configs: Arc<Configuration>,
+    client_service: Arc<ClientService<ClientSqliteDao>>,
+    invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
+    account_service: Arc<AccountService<AccountSqliteDao>>,
+    journal_service: Arc<JournalService<JournalSqliteDao>>,
 }
 
 impl Context {
-    pub async fn new() -> Self {
-        let configs = get_config().map(Arc::new);
+    pub async fn try_build() -> Result<Self, String> {
+        let configs = get_config().map(Arc::new)?;
 
-        let db_manager = Self::build_database_manager(&configs).await.map(Arc::new);
+        let db_manager = DatabaseManager::new(configs.get_database_configuration()).await?;
 
-        let client_dao = Self::build_client_dao(&db_manager).map(Arc::new);
-        let client_service = Self::build_client_service(client_dao).map(Arc::new);
+        let client_dao = Arc::new(ClientSqliteDao::new(db_manager.get_pool().clone()));
+        let client_service = Arc::new(ClientService::new(client_dao.clone()));
 
-        let invoice_dao = Self::build_invoice_dao(&db_manager).map(Arc::new);
-        let invoice_service =
-            Self::build_invoice_service(invoice_dao, Some(prompt_confirm)).map(Arc::new);
+        let invoice_dao = Arc::new(InvoiceSqliteDao::new(db_manager.get_pool().clone()));
+        let invoice_service = Arc::new(InvoiceService::new(
+            Some(prompt_confirm),
+            invoice_dao.clone(),
+        ));
 
-        let account_dao = Self::build_account_dao(&db_manager).map(Arc::new);
-        let account_service = Self::build_account_service(account_dao).map(Arc::new);
+        let account_dao = Arc::new(AccountSqliteDao::new(db_manager.get_pool().clone()));
+        let account_service = Arc::new(AccountService::new(account_dao.clone()));
 
-        let journal_dao = Self::build_journal_dao(&db_manager).map(Arc::new);
-        let journal_service = Self::build_journal_service(journal_dao).map(Arc::new);
+        let journal_dao = Arc::new(JournalSqliteDao::new(db_manager.get_pool().clone()));
+        let journal_service = Arc::new(JournalService::new(journal_dao.clone()));
 
-        Self {
+        Ok(Self {
             configs,
             client_service,
             invoice_service,
             account_service,
             journal_service,
-        }
+        })
     }
 
-    pub fn get_client_command_handler(&self) -> Result<ClientCommandHandler, String> {
-        Ok(ClientCommandHandler::new(
-            self.client_service.as_ref()?.clone(),
-        ))
+    pub fn get_client_command_handler(&self) -> ClientCommandHandler {
+        ClientCommandHandler::new(self.client_service.clone())
     }
 
-    pub fn get_invoice_command_handler(&self) -> Result<InvoiceCommandHandler, String> {
-        Ok(InvoiceCommandHandler::new(
-            self.client_service.as_ref()?.clone(),
-            self.invoice_service.as_ref()?.clone(),
-            self.configs.clone()?,
-        ))
+    pub fn get_invoice_command_handler(&self) -> InvoiceCommandHandler {
+        InvoiceCommandHandler::new(
+            self.client_service.clone(),
+            self.invoice_service.clone(),
+            self.configs.clone(),
+        )
     }
 
-    pub fn get_account_command_handler(&self) -> Result<AccountCommandHandler, String> {
-        Ok(AccountCommandHandler::new(
-            self.account_service.as_ref()?.clone(),
-        ))
+    pub fn get_account_command_handler(&self) -> AccountCommandHandler {
+        AccountCommandHandler::new(self.account_service.clone())
     }
 
-    pub fn get_journal_command_handler(&self) -> Result<JournalCommandHandler, String> {
-        Ok(JournalCommandHandler::new(
-            self.journal_service.as_ref()?.clone(),
-        ))
-    }
-
-    fn build_client_service(
-        client_sqlite_dao: Result<Arc<ClientSqliteDao>, String>,
-    ) -> Result<ClientService<ClientSqliteDao>, String> {
-        Ok(ClientService::new(client_sqlite_dao.as_ref()?.clone()))
-    }
-
-    fn build_invoice_service(
-        invoice_sqlite_dao: Result<Arc<InvoiceSqliteDao>, String>,
-        confirm_fn: Option<fn(&str) -> bool>,
-    ) -> Result<InvoiceService<InvoiceSqliteDao>, String> {
-        Ok(InvoiceService::new(
-            confirm_fn,
-            invoice_sqlite_dao.as_ref()?.clone(),
-        ))
-    }
-
-    fn build_account_service(
-        account_sqlite_dao: Result<Arc<AccountSqliteDao>, String>,
-    ) -> Result<AccountService<AccountSqliteDao>, String> {
-        Ok(AccountService::new(account_sqlite_dao.as_ref()?.clone()))
-    }
-
-    fn build_journal_service(
-        journal_sqlite_dao: Result<Arc<JournalSqliteDao>, String>,
-    ) -> Result<JournalService<JournalSqliteDao>, String> {
-        Ok(JournalService::new(journal_sqlite_dao.as_ref()?.clone()))
-    }
-
-    fn build_client_dao(
-        database_manager: &Result<Arc<DatabaseManager>, String>,
-    ) -> Result<ClientSqliteDao, String> {
-        Ok(ClientSqliteDao::new(
-            database_manager.as_ref()?.get_pool().clone(),
-        ))
-    }
-
-    fn build_invoice_dao(
-        database_manager: &Result<Arc<DatabaseManager>, String>,
-    ) -> Result<InvoiceSqliteDao, String> {
-        Ok(InvoiceSqliteDao::new(
-            database_manager.as_ref()?.get_pool().clone(),
-        ))
-    }
-
-    fn build_account_dao(
-        database_manager: &Result<Arc<DatabaseManager>, String>,
-    ) -> Result<AccountSqliteDao, String> {
-        Ok(AccountSqliteDao::new(
-            database_manager.as_ref()?.get_pool().clone(),
-        ))
-    }
-
-    fn build_journal_dao(
-        database_manager: &Result<Arc<DatabaseManager>, String>,
-    ) -> Result<JournalSqliteDao, String> {
-        Ok(JournalSqliteDao::new(
-            database_manager.as_ref()?.get_pool().clone(),
-        ))
-    }
-
-    async fn build_database_manager(
-        configs: &Result<Arc<Configuration>, String>,
-    ) -> Result<DatabaseManager, String> {
-        match configs {
-            Ok(config) => DatabaseManager::new(config.get_database_configuration()).await,
-            Err(e) => Err(e.clone()),
-        }
+    pub fn get_journal_command_handler(&self) -> JournalCommandHandler {
+        JournalCommandHandler::new(self.journal_service.clone())
     }
 }

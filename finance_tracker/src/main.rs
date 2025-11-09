@@ -14,29 +14,46 @@ mod util;
 
 #[tokio::main]
 async fn main() {
-    let context = build_context().await.unwrap();
+    let command = Command::parse().command;
 
-    match Command::parse().command {
-        Commands::Client(client_command) => match context.get_client_command_handler() {
-            Ok(handler) => handler.handle_client_command(client_command).await,
-            Err(e) => println!("Error processing command: {}", e),
-        },
-        Commands::Invoice(invoice_command) => match context.get_invoice_command_handler() {
-            Ok(handler) => handler.handle_invoice_command(invoice_command).await,
-            Err(e) => println!("Error processing command: {}", e),
-        },
-        Commands::Account(account_command) => match context.get_account_command_handler() {
-            Ok(handler) => handler.handle_account_command(account_command).await,
-            Err(e) => println!("Error processing command: {}", e),
-        },
-        Commands::Journal(journal_command) => match context.get_journal_command_handler() {
-            Ok(handler) => handler.handle_journal_command(journal_command).await,
-            Err(e) => println!("Error processing command: {}", e),
-        },
-        Commands::Init(init_command) => handle_init_command(init_command).await,
+    if let Commands::Init(init_command) = command {
+        handle_init_command(init_command).await;
+        return;
     }
-}
 
-async fn build_context() -> Result<Context, String> {
-    Ok(Context::new().await)
+    let context = match Context::try_build().await {
+        Ok(ctx) => ctx,
+        Err(e) => {
+            eprintln!("Failed to initialize application context: {}", e);
+            return;
+        }
+    };
+
+    match command {
+        Commands::Client(client_command) => {
+            context
+                .get_client_command_handler()
+                .handle_client_command(client_command)
+                .await
+        }
+        Commands::Invoice(invoice_command) => {
+            context
+                .get_invoice_command_handler()
+                .handle_invoice_command(invoice_command)
+                .await
+        }
+        Commands::Account(account_command) => {
+            context
+                .get_account_command_handler()
+                .handle_account_command(account_command)
+                .await
+        }
+        Commands::Journal(journal_command) => {
+            context
+                .get_journal_command_handler()
+                .handle_journal_command(journal_command)
+                .await
+        }
+        Commands::Init(_) => panic!("This should be unreachable"),
+    }
 }
