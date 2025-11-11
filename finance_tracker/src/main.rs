@@ -17,19 +17,24 @@ mod util;
 async fn main() {
     let command = Command::parse().command;
 
-    if let Commands::Init(init_command) = command {
-        handle_init_command(init_command).await;
-        return;
-    }
-
-    let context = match Context::try_build().await {
-        Ok(ctx) => ctx,
-        Err(e) => {
-            eprintln!("Failed to initialize application context: {}", e);
-            return;
+    match command {
+        Commands::Init(init_command) => {
+            handle_init_command(init_command).await;
         }
-    };
+        other => {
+            let context = match Context::try_build().await {
+                Ok(ctx) => ctx,
+                Err(e) => {
+                    eprintln!("Failed to initialize application context: {}", e);
+                    return;
+                }
+            };
+            handle_command_with_context(context, other).await;
+        }
+    }
+}
 
+async fn handle_command_with_context(context: Context, command: Commands) {
     match command {
         Commands::Client(client_command) => {
             context
@@ -55,6 +60,6 @@ async fn main() {
                 .handle_command(journal_command)
                 .await
         }
-        Commands::Init(_) => panic!("This should be unreachable"),
+        Commands::Init(_) => unreachable!("Init is handled in main"),
     }
 }
