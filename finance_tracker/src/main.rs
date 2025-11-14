@@ -10,7 +10,6 @@ mod config_service;
 mod configuration;
 mod context;
 mod database;
-mod event;
 mod sqlite_dao;
 mod util;
 
