@@ -3,14 +3,15 @@ use crate::model::Invoice;
 use crate::model::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
+use std::sync::Arc;
 
 pub struct InvoiceService<I: InvoiceDao> {
     confirm_fn: Option<fn(&str) -> bool>,
-    invoice_dao: I,
+    invoice_dao: Arc<I>,
 }
 
 impl<I: InvoiceDao> InvoiceService<I> {
-    pub fn new(confirm_fn: Option<fn(&str) -> bool>, invoice_dao: I) -> Self {
+    pub fn new(confirm_fn: Option<fn(&str) -> bool>, invoice_dao: Arc<I>) -> Self {
         Self {
             confirm_fn,
             invoice_dao,
@@ -49,29 +50,31 @@ impl<I: InvoiceDao> InvoiceService<I> {
     }
 
     pub async fn mark_invoice_sent(&self, invoice_id: &str) -> Result<Invoice, String> {
-        use InvoiceStatus::*;
+        use InvoiceStatus::{DRAFT, SENT};
 
-        let invoice = self.get_invoice(invoice_id).await?;
-        let invoice_status = invoice
+        let invoice_status = self
+            .get_invoice(invoice_id)
+            .await?
             .get_status()
             .map_err(|_| "Issue getting invoice status")?;
-        match invoice_status {
-            DRAFT => {
-                if let Some(confirm_fn) = &self.confirm_fn
-                    && !confirm_fn("Send this invoice?")
-                {
-                    return Err("Invoice not sent".to_string());
-                }
 
-                let invoice = self
-                    .invoice_dao
-                    .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), SENT)
-                    .await
-                    .map_err(|e| e.to_string())?;
-                Ok(invoice)
-            }
-            _ => Err("Cannot send invoice that is not in draft status".to_string()),
+        if invoice_status != DRAFT {
+            return Err("Cannot send invoice that is not in draft status".to_string());
         }
+
+        if let Some(confirm_fn) = &self.confirm_fn
+            && !confirm_fn("Send this invoice?")
+        {
+            return Err("Invoice not sent".to_string());
+        }
+
+        let invoice = self
+            .invoice_dao
+            .set_invoice_status_timestamp(invoice_id, Utc::now().timestamp(), SENT)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(invoice)
     }
 
     pub async fn mark_invoice_paid(&self, invoice_id: &str) -> Result<Invoice, String> {

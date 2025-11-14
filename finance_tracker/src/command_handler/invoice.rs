@@ -1,41 +1,35 @@
 use crate::command::invoice::InvoiceSubCommands;
-use crate::config_service::get_config;
+use crate::command_handler::CommandHandler;
 use crate::configuration::Configuration;
-use crate::database::DatabaseManager;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::util;
 use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
-use utilities::prompt_confirm;
+use std::sync::Arc;
 
 pub struct InvoiceCommandHandler {
-    client_service: ClientService<ClientSqliteDao>,
-    invoice_service: InvoiceService<InvoiceSqliteDao>,
-    configuration: Configuration,
+    client_service: Arc<ClientService<ClientSqliteDao>>,
+    invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
+    configuration: Arc<Configuration>,
 }
 
 impl InvoiceCommandHandler {
-    pub async fn build() -> Result<Self, String> {
-        let configuration =
-            get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration.get_database_configuration();
-        let db_manager = DatabaseManager::new(db_configs).await?;
-
-        let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
-        let invoice_dao = InvoiceSqliteDao::new(db_manager.get_pool().clone());
-
-        let invoice_service = InvoiceService::new(Some(prompt_confirm), invoice_dao);
-        let client_service = ClientService::new(client_dao);
-
-        Ok(Self {
+    pub fn new(
+        client_service: Arc<ClientService<ClientSqliteDao>>,
+        invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
+        configuration: Arc<Configuration>,
+    ) -> Self {
+        Self {
             client_service,
             invoice_service,
             configuration,
-        })
+        }
     }
+}
 
-    pub async fn handle_invoice_command(&self, invoice_command: InvoiceSubCommands) {
-        match invoice_command {
+impl CommandHandler<InvoiceSubCommands> for InvoiceCommandHandler {
+    async fn handle_command(&self, command: InvoiceSubCommands) {
+        match command {
             InvoiceSubCommands::New { client_id } => {
                 match self.invoice_service.create_new_invoice(client_id).await {
                     Ok(invoice) => util::invoice_display::display_invoice(&invoice),

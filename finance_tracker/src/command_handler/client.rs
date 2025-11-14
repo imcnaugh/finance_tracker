@@ -1,27 +1,23 @@
 use crate::command::client::ClientSubcommands;
-use crate::config_service::get_config;
-use crate::database::DatabaseManager;
+use crate::command_handler::CommandHandler;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::util;
 use invoice_manager::service::ClientService;
+use std::sync::Arc;
 
 pub struct ClientCommandHandler {
-    client_service: ClientService<ClientSqliteDao>,
+    client_service: Arc<ClientService<ClientSqliteDao>>,
 }
 
 impl ClientCommandHandler {
-    pub async fn build() -> Result<Self, String> {
-        let configuration =
-            get_config().map_err(|_| "Configurations are not set, please run init")?;
-        let db_configs = configuration.get_database_configuration();
-        let db_manager = DatabaseManager::new(db_configs).await?;
-        let client_dao = ClientSqliteDao::new(db_manager.get_pool().clone());
-        let client_service = ClientService::new(client_dao);
-        Ok(Self { client_service })
+    pub fn new(client_service: Arc<ClientService<ClientSqliteDao>>) -> Self {
+        Self { client_service }
     }
+}
 
-    pub async fn handle_client_command(&self, client_command: ClientSubcommands) {
-        match client_command {
+impl CommandHandler<ClientSubcommands> for ClientCommandHandler {
+    async fn handle_command(&self, command: ClientSubcommands) {
+        match command {
             ClientSubcommands::New { new_client } => {
                 match self.client_service.create_client(new_client).await {
                     Ok(client) => util::client_display::display_client(&client),

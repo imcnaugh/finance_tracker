@@ -1,4 +1,4 @@
-use crate::model::AccountType;
+use crate::model::{AccountType, Transaction};
 use sqlx::{FromRow, Row};
 
 #[derive(Debug, Clone)]
@@ -6,6 +6,7 @@ pub struct Account {
     id: u64,
     name: String,
     account_type: AccountType,
+    transitions: Vec<Transaction>,
     balance_in_cents: i64,
     created_timestamp: u64,
 }
@@ -15,6 +16,7 @@ impl Account {
         id: u64,
         name: String,
         account_type: AccountType,
+        transitions: Vec<Transaction>,
         balance_in_cents: i64,
         created_timestamp: u64,
     ) -> Self {
@@ -22,6 +24,7 @@ impl Account {
             id,
             name,
             account_type,
+            transitions,
             balance_in_cents,
             created_timestamp,
         }
@@ -39,6 +42,14 @@ impl Account {
         &self.account_type
     }
 
+    pub fn get_transitions(&self) -> &Vec<Transaction> {
+        &self.transitions
+    }
+
+    pub fn set_transitions(&mut self, transitions: Vec<Transaction>) {
+        self.transitions = transitions;
+    }
+
     pub fn get_balance_in_cents(&self) -> i64 {
         self.balance_in_cents
     }
@@ -53,6 +64,7 @@ impl<'r> FromRow<'r, sqlx::sqlite::SqliteRow> for Account {
         Ok(Self {
             id: row.try_get("id")?,
             name: row.try_get("name")?,
+            transitions: vec![],
             balance_in_cents: row.try_get("balance_in_cents")?,
             created_timestamp: row.try_get("created_timestamp")?,
             account_type: AccountType::new(

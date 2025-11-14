@@ -34,13 +34,15 @@ WHERE id = ?
 
 const SELECT_JOURNAL_TRANSACTION_SQL: &str = r#"
 SELECT
-    id,
-    account_id,
-    journal_entry_id,
-    amount_in_cents,
-    is_debit,
-    created_timestamp
-FROM journal_transaction
+    jt.id,
+    je.description,
+    jt.account_id,
+    jt.journal_entry_id,
+    jt.amount_in_cents,
+    jt.is_debit,
+    jt.created_timestamp
+FROM journal_transaction jt
+JOIN journal_entry je ON je.id = jt.journal_entry_id
 WHERE journal_entry_id = ?
 "#;
 

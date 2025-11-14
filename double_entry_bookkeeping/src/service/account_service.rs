@@ -1,12 +1,13 @@
 use crate::dao::account_dao::AccountDao;
 use crate::model::{Account, AccountType};
+use std::sync::Arc;
 
 pub struct AccountService<A: AccountDao> {
-    account_dao: A,
+    account_dao: Arc<A>,
 }
 
 impl<A: AccountDao> AccountService<A> {
-    pub fn new(account_dao: A) -> Self {
+    pub fn new(account_dao: Arc<A>) -> Self {
         Self { account_dao }
     }
 

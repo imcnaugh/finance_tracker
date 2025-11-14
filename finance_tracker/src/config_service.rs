@@ -9,7 +9,7 @@ pub fn get_config() -> Result<Configuration, String> {
     let path = get_config_path().unwrap();
 
     if !path.exists() {
-        return Err("Config file does not exist".to_string());
+        return Err("Config file does not exist, consider running the inti command".to_string());
     }
 
     let content =
