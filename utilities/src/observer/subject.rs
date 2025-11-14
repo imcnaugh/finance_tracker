@@ -1,5 +1,5 @@
-use crate::event::event::Event;
-use crate::event::observer::Observer;
+use crate::observer::event::Event;
+use crate::observer::observer::Observer;
 
 pub trait Subject<E: Event> {
     fn attach(&mut self, observer: Box<dyn Observer<Event = E>>);

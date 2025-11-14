@@ -1,4 +1,4 @@
-use crate::event::event::Event;
+use crate::observer::event::Event;
 
 pub trait Observer: Send + Sync {
     type Event: Event;
