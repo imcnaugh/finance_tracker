@@ -4,7 +4,6 @@ use crate::model::InvoiceStatus;
 use crate::model::{InvoiceSearch, NewInvoice, NewLineItem};
 use chrono::Utc;
 use std::sync::Arc;
-use utilities::observer::subject::SimpleSubject;
 
 pub struct InvoiceService<I: InvoiceDao> {
     confirm_fn: Option<fn(&str) -> bool>,
@@ -186,7 +185,4 @@ impl<I: InvoiceDao> InvoiceService<I> {
             }
         }
     }
-}
-
-impl SimpleSubject<InvoiceSentEvent> for InvoiceService<dyn InvoiceDao> {
 }
