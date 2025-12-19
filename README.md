@@ -13,6 +13,9 @@ Features include:
    - <a id="acceptPayments">Incoming payments should affect account balances and mark invoices as paid</a>
 
 ## Policy
+ - Client management
+   - We should have the ability to add, edit, and delete clients.
+   - TODO: consider breaking this into its own module. Currently this is tightly coupled with invoice management.
  - Invoices management
    - Invoices should always be in one of the following states.
      - Draft
