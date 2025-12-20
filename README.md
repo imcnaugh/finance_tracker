@@ -15,7 +15,7 @@ Features include:
 ## Policy
  - Client management
    - We should have the ability to add, edit, and delete clients.
-   - TODO: consider breaking this into its own module. Currently this is tightly coupled with invoice management.
+   - TODO: consider breaking this into its own module. Currently, this is tightly coupled with invoice management.
  - Invoices management
    - Invoices should always be in one of the following states.
      - Draft
@@ -57,7 +57,7 @@ Features include:
    - If the payment is associated with an invoice, and the total amount received for the invoice is greater than or equal to the invoice total, move the invoice to the paid state.
    - Consider overpayment handling.
    - Consider payments not associated with an invoice.
-   - Consider assoicating payments with a client and not an invoice.
+   - Consider associating payments with a client and not an invoice.
      
 
 ## Details
