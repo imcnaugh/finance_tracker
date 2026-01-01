@@ -38,4 +38,8 @@ impl<A: AccountDao> AccountService<A> {
             .map_err(|e| e.to_string())
             .and_then(|opt| opt.ok_or_else(|| "Account not found".to_string()))
     }
+
+    pub async fn close_accounts(&self) -> Result<(), String> {
+        todo!()
+    }
 }
