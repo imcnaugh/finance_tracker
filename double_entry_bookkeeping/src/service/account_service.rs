@@ -42,4 +42,18 @@ impl<A: AccountDao> AccountService<A> {
     pub async fn close_accounts(&self) -> Result<(), String> {
         todo!()
     }
+
+    async fn validate_accounting_equation(&self) -> bool {
+        match self.account_dao.get_all_accounts().await {
+            Ok(accounts) => {
+                let idk = accounts
+                    .iter()
+                    .fold((0.0, 0.0), |(assets, libalities), account| {
+                        (assets, libalities)
+                    });
+                todo!()
+            }
+            Err(_) => false,
+        }
+    }
 }
