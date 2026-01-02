@@ -46,12 +46,12 @@ impl<A: AccountDao> AccountService<A> {
     async fn validate_accounting_equation(&self) -> bool {
         match self.account_dao.get_all_accounts().await {
             Ok(accounts) => {
-                let idk = accounts
+                let (assets, liabilities, equity) = accounts
                     .iter()
-                    .fold((0.0, 0.0), |(assets, libalities), account| {
-                        (assets, libalities)
+                    .fold((0.0, 0.0, 0.0), |(asset, liability, equity), account| {
+                        (asset, liability, equity)
                     });
-                todo!()
+                assets == liabilities + equity
             }
             Err(_) => false,
         }
