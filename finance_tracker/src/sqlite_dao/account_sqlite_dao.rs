@@ -37,8 +37,9 @@ WHERE id = ?
 const INSERT_ACCOUNT_SQL: &str = r#"
 INSERT INTO account (
     account_type_id,
-    name
-) VALUES (?, ?)
+    name,
+    structural_class
+) VALUES (?, ?, ?)
 "#;
 
 const SELECT_ACCOUNT_BY_ID_SQL: &str = r#"
@@ -175,7 +176,8 @@ impl AccountSqliteDao {
     {
         let query = sqlx::query(INSERT_ACCOUNT_SQL)
             .bind(new_account.get_account_type_id() as i32)
-            .bind(new_account.get_name());
+            .bind(new_account.get_name())
+            .bind(new_account.get_structural_class());
 
         let result = query.execute(executor).await?;
         Ok(result.last_insert_rowid() as u64)

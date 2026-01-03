@@ -1,3 +1,4 @@
+use crate::model::account::account_structural_type::AccountStructuralType;
 use crate::model::{AccountType, Transaction};
 use sqlx::{FromRow, Row};
 
@@ -7,6 +8,7 @@ pub struct Account {
     name: String,
     account_type: AccountType,
     transitions: Vec<Transaction>,
+    structural_class: AccountStructuralType,
     balance_in_cents: i64,
     created_timestamp: u64,
 }
@@ -17,6 +19,7 @@ impl Account {
         name: String,
         account_type: AccountType,
         transitions: Vec<Transaction>,
+        structural_class: AccountStructuralType,
         balance_in_cents: i64,
         created_timestamp: u64,
     ) -> Self {
@@ -25,6 +28,7 @@ impl Account {
             name,
             account_type,
             transitions,
+            structural_class,
             balance_in_cents,
             created_timestamp,
         }
@@ -73,6 +77,7 @@ impl<'r> FromRow<'r, sqlx::sqlite::SqliteRow> for Account {
                 row.try_get("at_normal_balance")?,
                 row.try_get("at_created_timestamp")?,
             ),
+            structural_class: row.try_get("structural_class")?,
         })
     }
 }

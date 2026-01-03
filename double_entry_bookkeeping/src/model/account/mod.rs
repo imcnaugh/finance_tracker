@@ -1,4 +1,5 @@
 mod account;
+mod account_structural_type;
 mod account_type;
 mod new_account;
 mod new_account_type;
