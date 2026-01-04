@@ -1,6 +1,6 @@
 use crate::dao::account_dao::AccountDao;
 use crate::dao::journal_dao::JournalDao;
-use crate::model::{Account, AccountStructuralType, AccountType, NewJournalEntry, NewTransaction};
+use crate::model::{Account, AccountType, NewJournalEntry, NewTransaction};
 use std::sync::Arc;
 
 pub struct AccountService<A: AccountDao> {
@@ -40,6 +40,7 @@ impl<A: AccountDao> AccountService<A> {
             .and_then(|opt| opt.ok_or_else(|| "Account not found".to_string()))
     }
 
+    // TODO Review this function
     pub async fn close_accounts<J: JournalDao>(
         &self,
         journal_dao: &J,
@@ -130,30 +131,5 @@ impl<A: AccountDao> AccountService<A> {
             .map_err(|e| format!("Failed to create closing journal entry: {}", e))?;
 
         Ok(())
-    }
-
-    async fn validate_accounting_equation(&self) -> bool {
-        match self.account_dao.get_all_accounts().await {
-            Ok(accounts) => {
-                let (assets, liabilities, equity) = accounts.iter().fold(
-                    (0i64, 0i64, 0i64),
-                    |(asset, liability, equity), account| {
-                        match account.get_structural_class() {
-                            AccountStructuralType::Asset => {
-                                (asset + account.get_balance_in_cents(), liability, equity)
-                            }
-                            AccountStructuralType::Liability => {
-                                (asset, liability + account.get_balance_in_cents(), equity)
-                            }
-                            AccountStructuralType::Equity => {
-                                (asset, liability, equity + account.get_balance_in_cents())
-                            }
-                        }
-                    },
-                );
-                assets == liabilities + equity
-            }
-            Err(_) => false,
-        }
     }
 }
