@@ -61,6 +61,10 @@ impl Account {
     pub fn get_created_timestamp(&self) -> u64 {
         self.created_timestamp
     }
+
+    pub fn get_structural_class(&self) -> &AccountStructuralType {
+        &self.structural_class
+    }
 }
 
 impl<'r> FromRow<'r, sqlx::sqlite::SqliteRow> for Account {
