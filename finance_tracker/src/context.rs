@@ -9,16 +9,18 @@ use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
-use double_entry_bookkeeping::service::account_service::AccountService;
-use double_entry_bookkeeping::service::journal_service::JournalService;
-use invoice_manager::service::{ClientService, InvoiceService};
+use double_entry_bookkeeping::account_service::AccountService;
+use double_entry_bookkeeping::journal_service::JournalService;
+use invoice_manager::client_service::ClientService;
+use invoice_manager::invoice_service::InvoiceService;
 use std::sync::Arc;
 use utilities::prompt_confirm;
 
 pub struct Context {
     configs: Arc<Configuration>,
     client_service: Arc<ClientService<ClientSqliteDao>>,
-    invoice_service: Arc<InvoiceService<InvoiceSqliteDao>>,
+    invoice_service: Arc<
+        InvoiceService<InvoiceSqliteDao>>,
     account_service: Arc<AccountService<AccountSqliteDao>>,
     journal_service: Arc<JournalService<JournalSqliteDao>>,
 }

@@ -2,7 +2,7 @@ use crate::command::account::AccountSubcommands;
 use crate::command_handler::CommandHandler;
 use crate::sqlite_dao::account_sqlite_dao::AccountSqliteDao;
 use crate::util;
-use double_entry_bookkeeping::service::account_service::AccountService;
+use double_entry_bookkeeping::account_service::AccountService;
 use std::sync::Arc;
 
 pub struct AccountCommandHandler {

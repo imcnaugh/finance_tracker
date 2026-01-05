@@ -4,7 +4,9 @@ use crate::configuration::Configuration;
 use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::util;
-use invoice_manager::service::{ClientService, InvoiceService, generate_pdf};
+use invoice_manager::client_service::ClientService;
+use invoice_manager::invoice_service::InvoiceService;
+use invoice_manager::pdf_service::generate_pdf;
 use std::sync::Arc;
 
 pub struct InvoiceCommandHandler {
@@ -85,7 +87,7 @@ impl CommandHandler<InvoiceSubCommands> for InvoiceCommandHandler {
                             .get_client_by_id(invoice.get_client_id())
                             .await
                             .unwrap();
-                        invoice_manager::service::generate_pdf(
+                        invoice_manager::pdf_service::generate_pdf(
                             &invoice,
                             &client,
                             self.configuration.get_company_configuration(),
