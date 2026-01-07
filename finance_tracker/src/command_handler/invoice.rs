@@ -1,12 +1,12 @@
 use crate::command::invoice::InvoiceSubCommands;
 use crate::command_handler::CommandHandler;
 use crate::configuration::Configuration;
-use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
-use crate::sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use crate::util;
 use invoice_manager::client_service::ClientService;
 use invoice_manager::invoice_service::InvoiceService;
 use invoice_manager::pdf_service::generate_pdf;
+use sqlite_dao::client_sqlite_dao::ClientSqliteDao;
+use sqlite_dao::invoice_sqlite_dao::InvoiceSqliteDao;
 use std::sync::Arc;
 
 pub struct InvoiceCommandHandler {

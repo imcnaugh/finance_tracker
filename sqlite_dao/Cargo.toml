@@ -1,0 +1,10 @@
+[package]
+name = "sqlite_dao"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sqlx = { workspace = true }
+utilities = { workspace = true }
+invoice_manager = {path = "../invoice_manager"}
+double_entry_bookkeeping = {path = "../double_entry_bookkeeping"}

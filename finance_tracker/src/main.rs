@@ -10,7 +10,6 @@ mod config_service;
 mod configuration;
 mod context;
 mod database;
-mod sqlite_dao;
 mod util;
 
 #[tokio::main]

@@ -1,8 +1,8 @@
 use crate::command::client::ClientSubcommands;
 use crate::command_handler::CommandHandler;
-use crate::sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use crate::util;
 use invoice_manager::client_service::ClientService;
+use sqlite_dao::client_sqlite_dao::ClientSqliteDao;
 use std::sync::Arc;
 
 pub struct ClientCommandHandler {

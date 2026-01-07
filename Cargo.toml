@@ -2,7 +2,7 @@
 members = [
     "double_entry_bookkeeping",
     "finance_tracker",
-    "invoice_manager",
+    "invoice_manager", "sqlite_dao",
     "utilities"
 ]
 resolver = "1"

@@ -521,6 +521,7 @@ dependencies = [
  "double_entry_bookkeeping",
  "invoice_manager",
  "serde",
+ "sqlite_dao",
  "sqlx",
  "tokio",
  "toml",
@@ -1518,6 +1519,16 @@ checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
 dependencies = [
  "base64ct",
  "der",
+]
+
+[[package]]
+name = "sqlite_dao"
+version = "0.1.0"
+dependencies = [
+ "double_entry_bookkeeping",
+ "invoice_manager",
+ "sqlx",
+ "utilities",
 ]
 
 [[package]]

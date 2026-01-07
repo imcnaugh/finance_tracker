@@ -16,6 +16,7 @@ serde = { workspace = true }
 tokio = { workspace = true }
 invoice_manager = {path = "../invoice_manager"}
 double_entry_bookkeeping = {path = "../double_entry_bookkeeping"}
+sqlite_dao = {path = "../sqlite_dao"}
 comfy-table = "7.2.0"
 toml = "0.9.7"
 directories = "6.0.0"

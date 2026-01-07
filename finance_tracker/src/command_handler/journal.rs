@@ -1,8 +1,8 @@
 use crate::command::journal::JournalSubCommands;
 use crate::command_handler::CommandHandler;
-use crate::sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use double_entry_bookkeeping::journal_service::JournalService;
 use double_entry_bookkeeping::model::NewJournalEntry;
+use sqlite_dao::journal_sqlite_dao::JournalSqliteDao;
 use std::sync::Arc;
 
 pub struct JournalCommandHandler {
